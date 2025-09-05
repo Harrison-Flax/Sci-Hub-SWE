@@ -1,0 +1,436 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET         /message                                                                         controllers.AsyncController.message
+
+GET         /assets/*file                                                                    controllers.Assets.at(path="/public", file)
+POST        /assets/*file                                                                    controllers.Assets.at(path="/public", file)
+
+########################################################## About ###################################################################################
+GET         /aboutUs                                                                         controllers.AboutController.aboutUs()
+GET         /aboutProject                                                                    controllers.AboutController.aboutProject()
+GET         /frequentlyAskedQuestions                                                        controllers.AboutController.frequentlyAskedQuestions()
+GET         /popularQueries                                                                  controllers.AboutController.popularQueries()
+########################################################## About ###################################################################################
+
+
+
+
+
+########################################################## Homepage #####################################################################
+GET         /                                                                                controllers.Application.home()
+GET         /login                                                                           controllers.Application.login()
+GET         /logout                                                                          controllers.Application.logout()
+GET         /createUserSuccess                                                               controllers.Application.createUserSuccess()
+GET         /showLinkIsAlreadyClick                                                          controllers.Application.showLinkIsAlreadyClick()
+GET         /showVerificationEmailIsSent                                                     controllers.Application.showVerificationEmailIsSent()
+GET         /showVerificationEmailIsExpired                                                  controllers.Application.showVerificationEmailIsExpired()
+GET         /deleteAccount                                                                   controllers.Application.deleteAccount()
+GET         /updatePassword                                                                  controllers.Application.updatePassword(email: String)
+GET         /updateProjectZone/:view                                                         controllers.Application.updateProjectZone(view: String)
+GET         /getimage                                                                        controllers.Application.getImageFromPath(filePath:String)
+GET         /getDefualtAvatar                                                                controllers.Application.getDefaultAvatar
+
+########################################################## Homepage #####################################################################
+
+
+
+
+
+
+########################################################## Projects #####################################################################
+GET         /project/projectRegisterPage                                                     controllers.ProjectController.projectRegisterPage()
+POST        /project/projectRegisterPOST                                                     controllers.ProjectController.projectRegisterPOST()
+GET         /project/projectEditPage/:projectId                                              controllers.ProjectController.projectEditPage(projectId: Long)
+POST        /project/projectEditPOST/:projectId                                              controllers.ProjectController.projectEditPOST(projectId: Long)
+
+GET         /project/projectList/:pageNum                                                    controllers.ProjectController.projectList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /project/projectDetail/:projectId                                                controllers.ProjectController.projectDetail(projectId: Long)
+GET         /project/searchPage                                                              controllers.ProjectController.searchPage()
+POST        /project/searchPOST                                                              controllers.ProjectController.searchPOST(pageNum: Integer, sortCriteria: String)
+GET         /project/deleteProject/:projectId                                                controllers.ProjectController.deleteProject(projectId: Long)
+POST        /project/isProjectNameExisted                                                    controllers.ProjectController.isProjectNameExisted()
+POST        /project/uploadDescriptionImg/:projectId/:imageNumber                            controllers.ProjectController.uploadDescriptionImage(projectId: Long, imageNumber: Integer)
+GET         /project/renameDescriptionImg/:projectId/:imageNumber/:currentImageNumber        controllers.ProjectController.renameDescriptionImage(projectId: Long, imageNumber: Integer, currentImageNumber: Integer)
+
+#GET         /project/downloadPDFFile/:projectId                                            controllers.ProjectController.downloadPDFFile(projectId: Long)
+
+GET         /project/doesProjectExist/:id                                                    controllers.ProjectController.isProjectExist(id : String)
+POST        /project/associateProjectsToNotebook/:notebookId                                 controllers.ProjectController.associateProjectsToNotebook(notebookId : Long)
+GET         /project/getProjects                                                             controllers.ProjectController.getProjectLists()
+GET         /project/myEnrolledProjects/:pageNum                                             controllers.ProjectController.getMyEnrolledProjects(pageNum: Integer, sortCriteria: String)
+GET         /project/setProjectZoneAsGeoNEX                                                  controllers.ProjectController.setProjectZoneAsGeoNEX()
+GET         /project/followedByUser/:id/:eventList                                           controllers.ProjectController.followedByUser(id:Long, eventList:String)
+GET         /project/unFollowedByUser/:id/:eventList                                         controllers.ProjectController.unFollowedByUser(id:Long, eventList:String)
+GET         /project/myFollowedProjects                                                      controllers.ProjectController.myFollowedProjects(page: Integer ?= 1, sortCriteria: String ?= "")
+GET         /project/checkParentProject/:parentProjectId                                     controllers.ProjectController.checkParentProject(parentProjectId:String)
+GET         /project/addProjectFollowersPage/:id                                             controllers.ProjectController.addProjectFollowersPage(id:Long)
+POST        /project/addOneFollower/:id/:event                                               controllers.ProjectController.addOneFollower(id:Long, event:String)
+GET         /project/deleteOneFollower/:userId/:projectId/:eventType                         controllers.ProjectController.deleteOneFollower(userId:Long, projectId:Long, eventType:String)
+########################################################## Projects #####################################################################
+
+
+########################################################## Challenge ####################################################################
+GET         /challenge/challengeRegisterPage                                                 controllers.ChallengeController.challengeRegisterPage()
+POST        /challenge/challengeRegisterPOST                                                 controllers.ChallengeController.challengeRegisterPOST()
+# POST        /challenge/challengeApplicationPOST/:challengeId/:applicantId                   controllers.ChallengeController.challengeApplitionPOST(challengeId: Long, applicantId: Long)
+GET         /challenge/challengeApplyPage/:challengeId                                       controllers.ChallengeController.challengeApplyPage(challengeId: Long)
+POST        /challenge/challengeApplyPOST/:challengeId                                       controllers.ChallengeController.challengeApplyPOST(challengeId: Long)
+GET         /challenge/challengeEditPage/:challengeId                                        controllers.ChallengeController.challengeEditPage(challengeId: Long)
+GET         /challenge/challengeEditPageAdmin/:challengeId                                   controllers.ChallengeController.challengeEditPageAdmin(challengeId: Long)
+POST        /challenge/challengeEditPOST/:challengeId                                        controllers.ChallengeController.challengeEditPOST(challengeId: Long)
+POST        /challenge/challengeEditPOSTAdmin/:challengeId                                   controllers.ChallengeController.challengeEditPOSTAdmin(challengeId: Long)
+GET         /challenge/closeChallenge/:challengeId                                                         controllers.ChallengeController.closeChallenge(challengeId: Long)
+GET          /challenge/applications/:challengeType/:challengeId                                     controllers.ChallengeController.challengeApplicationsList(challengeType: String, challengeId: Long, pageNum: Integer ?= 1, sortCriteria: String ?= "")
+
+#GET         /challenge/applications/:challengeType/:challengeId                              controllers.ChallengeController.challengeApplicationsList(challengeType: String, challengeId: Long, pageNum: Integer, sortCriteria: String ?= "")
+
+POST        /challenge/challengeApplicationStatusChange/:challengeApplicationId/:challengeApplicationStatus                 controllers.ChallengeController.challengeApplicationStatusChange(challengeApplicationId: Long, challengeApplicationStatus: String)
+
+GET         /challenge/challengeListAppliedByUser/:pageNum                                   controllers.ChallengeController.challengeListAppliedByUser(pageNum: Integer)
+GET         /challenge/challengeApplicationList/:pageNum                                     controllers.ChallengeController.challengeApplicationList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /challenge/challengeListPostedByUser/:pageNum                                    controllers.ChallengeController.challengeListPostedByUser(pageNum: Integer)
+GET         /challenge/challengeApplicationDetail/:challengeApplicationId                    controllers.ChallengeController.challengeApplicationDetail(challengeApplicationId: Long)
+POST        /challenge/challengeStatus/:challengeId/:challengeStatus                         controllers.ChallengeController.challengeStatusChange(challengeId: Long, challengeStatus: String)
+GET         /challenge/challengeApplicationsDetail/:challengeApplicationId                    controllers.ChallengeController.challengeApplicationsDetail(challengeApplicationId: Long)
+
+GET         /challenge/challengeList/:pageNum                                                controllers.ChallengeController.challengeList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /challenge/challengeListAdmin/:pageNum                                           controllers.ChallengeController.challengeListAdmin(pageNum: Integer, sortCriteria: String ?= "")
+GET         /challenge/challengeDetail/:challengeId                                          controllers.ChallengeController.challengeDetail(challengeId: Long)
+GET         /challenge/searchPage                                                            controllers.ChallengeController.searchPage()
+POST        /challenge/searchPOST/:pageNum                                                   controllers.ChallengeController.searchPOST(pageNum: Integer, sortCriteria: String ?= "")
+
+#POST        /project/searchPOST                                                              controllers.ProjectController.searchPOST(pageNum: Integer, sortCriteria: String)
+#GET         /project/deleteProject/:projectId                                                controllers.ProjectController.deleteProject(projectId: Long)
+#POST        /project/isProjectNameExisted                                                    controllers.ProjectController.isProjectNameExisted()
+#POST        /project/uploadDescriptionImg/:projectId/:imageNumber                            controllers.ProjectController.uploadDescriptionImage(projectId: Long, imageNumber: Integer)
+#GET         /project/renameDescriptionImg/:projectId/:imageNumber/:currentImageNumber        controllers.ProjectController.renameDescriptionImage(projectId: Long, imageNumber: Integer, currentImageNumber: Integer)
+#
+##GET         /project/downloadPDFFile/:projectId                                            controllers.ProjectController.downloadPDFFile(projectId: Long)
+#
+#GET         /project/doesProjectExist/:id                                                    controllers.ProjectController.isProjectExist(id : String)
+#POST        /project/associateProjectsToNotebook/:notebookId                                 controllers.ProjectController.associateProjectsToNotebook(notebookId : Long)
+#GET         /project/getProjects                                                             controllers.ProjectController.getProjectLists()
+#GET         /project/myEnrolledProjects/:pageNum                                             controllers.ProjectController.getMyEnrolledProjects(pageNum: Integer, sortCriteria: String)
+#GET         /project/setProjectZoneAsGeoNEX                                                  controllers.ProjectController.setProjectZoneAsGeoNEX()
+#GET         /project/followedByUser/:id/:eventList                                           controllers.ProjectController.followedByUser(id:Long, eventList:String)
+#GET         /project/unFollowedByUser/:id/:eventList                                         controllers.ProjectController.unFollowedByUser(id:Long, eventList:String)
+#GET         /project/myFollowedProjects                                                      controllers.ProjectController.myFollowedProjects(page: Integer ?= 1, sortCriteria: String ?= "")
+#GET         /project/checkParentProject/:parentProjectId                                     controllers.ProjectController.checkParentProject(parentProjectId:String)
+#GET         /project/addProjectFollowersPage/:id                                             controllers.ProjectController.addProjectFollowersPage(id:Long)
+#POST        /project/addOneFollower/:id/:event                                               controllers.ProjectController.addOneFollower(id:Long, event:String)
+#GET         /project/deleteOneFollower/:userId/:projectId/:eventType                         controllers.ProjectController.deleteOneFollower(userId:Long, projectId:Long, eventType:String)
+
+########################################################## Challenges #####################################################################
+
+
+
+########################################################## Users #####################################################################
+GET         /user/userRegisterPage                                                           controllers.UserController.userRegisterPage()
+GET         /user/userForgotPasswordPage                                                     controllers.UserController.userForgotPasswordPage()
+GET         /user/resendActivationEmail                                                       controllers.UserController.resendActivationEmail()
+POST        /user/userResetPassword                                                          controllers.UserController.userResetPassword()
+GET         /user/userUpdatePasswordPage                                                     controllers.UserController.updatePasswordPage()
+POST        /user/userUpdatePasswordForUser                                                  controllers.UserController.updatePasswordForUser()
+GET         /users/userRegister                                                              controllers.UserController.userRegisterPOST()
+GET         /user/userEditPage                                                               controllers.UserController.userEditPage()
+POST        /user/userEditPOST                                                               controllers.UserController.userEditPOST()
+POST        /user/isEmailExisted                                                             controllers.UserController.isEmailExisted()
+GET         /user/userList/:pageNum                                                          controllers.UserController.userList(pageNum: Integer, sortCriteria: String)
+GET         /user/userDetailPage/:userId                                                     controllers.UserController.userDetailPage(userId: Long)
+
+POST        /user/userLogin                                                                 controllers.UserController.userLogin()
+GET         /user/userImageByImageId/:imageId                                               controllers.UserController.userImageByImageId(imageId: Long)
+POST        /user/validateEmail                                                             controllers.UserController.validateEmail()
+GET         /user/followedByUser/:id/:page                                                  controllers.UserController.followedByUser(id:Long, page: String)
+GET         /user/unFollowedByUser/:id/:page                                                controllers.UserController.unFollowedByUser(id:Long, page: String)
+POST        /user/updateLevel/:uid                                                          controllers.UserController.updateLevel(uid: Long)
+POST        /user/updatePassword                                                            controllers.UserController.updatePassword
+POST        /user/checkCurPassword                                                          controllers.UserController.checkPassword()
+
+
+GET         /user/searchPage                                                                 controllers.UserController.searchPage()
+POST        /user/searchPOST                                                                 controllers.UserController.searchPOST(pageNum: Integer ?= 1, sortCriteria: String ?="id")
+GET         /user/userDelete                                                                 controllers.UserController.userDelete()
+GET         /user/allUserIds                                                                 controllers.UserController.allUserIds()
+
+GET         /user/myFollowers                                                                controllers.UserController.myFollowers(page: Integer ?= 1, sortCriteria: String ?= "id")
+GET         /user/myFollowees                                                                controllers.UserController.myFollowees(page: Integer ?= 1, sortCriteria: String ?= "id", isCallerMySpacePage : Boolean ?= false)
+
+GET         /user/mySpace                                                                    controllers.UserController.mySpacePage()
+
+GET         /users/:hashcode                                                                 controllers.UserController.activateUser(hashcode: String)
+
+
+
+
+
+######## All new routes items with user please go beyond this line!!! ################################################################
+GET         /users/:hashcode                                                                 controllers.UserController.userSaved(hashcode: String)
+########################################################## Users ######################################################################
+
+########################################################## Organizations ######################################################################
+GET         /organization/organizationDetailPageAdmin/:organizationId                            controllers.OrganizationController.organizationDetailPageAdmin(organizationId: Long)
+GET         /organization/organizationDetailPage/:organizationId                            controllers.OrganizationController.organizationDetailPage(organizationId: Long)
+#GET         /organization/organizationList                                                  controllers.OrganizationController.organizationList()
+GET         /organization/organizationListPage/:pageNum                                     controllers.OrganizationController.organizationListPage(pageNum: Integer, sortCriteria: String)
+POST        /organization/organizationRegisterPOST                                          controllers.OrganizationController.organizationRegisterPOST()
+POST        /organization/organizationEditPOST                                              controllers.OrganizationController.organizationEditPOST(organizationId: Long)
+GET         /organization/organizationRegisterPage                                          controllers.OrganizationController.organizationRegisterPage
+GET         /organization/organizationEditPage                                              controllers.OrganizationController.organizationEditPage()
+GET         /organization/searchPage                                                        controllers.OrganizationController.searchPage
+POST        /organization/searchPOST                                                        controllers.OrganizationController.searchPOST(pageNum: Integer ?= 1, sortCriteria: String ?="id")
+########################################################## Organizations ######################################################################
+
+########################################################## Bug Reports ############################################################################
+GET         /bugReport/bugReportRegisterPage                                                 controllers.BugReportController.bugReportRegisterPage()
+POST        /bugReport/bugReportRegisterPOST                                                 controllers.BugReportController.bugReportRegisterPOST()
+GET         /bugReport/bugReportEditPage/:id                                                 controllers.BugReportController.bugReportEditPage(id: Long)
+POST        /bugReport/bugReportEditPost/:bugReportId                                        controllers.BugReportController.bugReportEditPOST(bugReportId: Long)
+GET         /bugReport/bugReportDetail/:bugReportId                                          controllers.BugReportController.bugReportDetail(bugReportId: Long)
+GET         /bugReport/bugReportList                                                         controllers.BugReportController.bugReportList(page: Long ?= 1, sortCriteria: String ?= "publish_time_stamp" )
+GET         /bugReport/bugReportDelete/:bugReportId                                          controllers.BugReportController.bugReportDelete(bugReportId: Long)
+
+GET         /bugReport/solve/:bugReportId/:fixerId                                           controllers.BugReportController.markAsSolved(bugReportId: Long, fixerId: Long)
+########################################################## Bug Reports ############################################################################
+
+########################################################## Suggestions #####################################################################
+GET         /suggestion/suggestionRegisterPage                                               controllers.SuggestionController.suggestionRegisterPage()
+POST        /suggestion/suggestionRegisterPOST                                               controllers.SuggestionController.suggestionRegisterPOST()
+GET         /suggestion/suggestionEditPage/:suggestionId                                     controllers.SuggestionController.suggestionEditPage(suggestionId: Long)
+POST        /suggestion/suggestionEditPOST/:suggestionId                                     controllers.SuggestionController.suggestionEditPOST(suggestionId: Long)
+GET         /suggestion/suggestionDetail/:suggestionId                                       controllers.SuggestionController.suggestionDetail(suggestionId: Long)
+GET         /suggestion/suggestionList                                                       controllers.SuggestionController.suggestionList(page: Long ?= 1, sortCriteria: String ?= "publish_time_stamp" )
+GET         /suggestion/suggestionDelete/:suggestionId                                       controllers.SuggestionController.suggestionDelete(suggestionId: Long)
+
+GET         /suggestion/solve/:suggestionId/:implementorId                                   controllers.SuggestionController.markAsSolved(suggestionId: Long, implementorId: Long)
+########################################################## Suggestions #####################################################################
+
+
+########################################################## Technologies ######################################################################################
+GET         /technology/technologyRegisterPage                                                 controllers.TechnologyController.technologyRegisterPage()
+POST        /technology/technologyRegisterPOST                                                 controllers.TechnologyController.technologyRegisterPOST()
+GET         /technology/technologyEditPage/:technologyId                                       controllers.TechnologyController.technologyEditPage(technologyId: Long)
+POST        /technology/technologyEditPOST/:technologyId                                       controllers.TechnologyController.technologyEditPOST(technologyId: Long)
+#
+GET         /technology/technologyList/:pageNum                                               controllers.TechnologyController.technologyList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /technology/technologyDetail/:technologyId                                        controllers.TechnologyController.technologyDetail(technologyId: Long)
+GET         /technology/searchPage                                                            controllers.TechnologyController.searchPage()
+POST        /technology/searchPOST                                                            controllers.TechnologyController.searchPOST(pageNum: Integer, sortCriteria: String)
+GET         /technology/deleteTechnology/:technologyId                                        controllers.TechnologyController.deleteTechnology(technologyId: Long)
+GET         /technology/downloadPDFFile/:serviceId                                            controllers.TechnologyController.downloadTechnologyFile(serviceId: Long)
+#POST        /technology/isTechnologyNameExisted                                                    controllers.TechnologyController.isTechnologyNameExisted()
+#
+##GET         /technology/downloadPDFFile/:technologyId                                            controllers.TechnologyController.downloadPDFFile(technologyId: Long)
+#
+#GET         /technology/doesTechnologyExist/:id                                                    controllers.TechnologyController.isTechnologyExist(id : String)
+#GET         /technology/getTechnologies                                                            controllers.TechnologyController.getTechnologyLists()
+#GET         /technology/myEnrolledTechnologies/:pageNum                                             controllers.TechnologyController.getMyEnrolledTechnologies(pageNum: Integer, sortCriteria: String)
+#GET         /technology/followedByUser/:id/:eventList                                           controllers.TechnologyController.followedByUser(id:Long, eventList:String)
+#GET         /technology/unFollowedByUser/:id/:eventList                                         controllers.TechnologyController.unFollowedByUser(id:Long, eventList:String)
+#GET         /technology/myFollowedTechnologies                                                      controllers.TechnologyController.myFollowedTechnologies(page: Integer ?= 1, sortCriteria: String ?= "")
+#GET         /technology/addProjectFollowersPage/:id                                             controllers.TechnologyController.addTechnologyFollowersPage(id:Long)
+#POST        /technology/addOneFollower/:id/:event                                               controllers.TechnologyController.addOneFollower(id:Long, event:String)
+#GET         /technology/deleteOneFollower/:userId/:technologyId/:eventType                         controllers.TechnologyController.deleteOneFollower(userId:Long, technologyId:Long, eventType:String)
+
+########################################################## Technologies #####################################################################
+
+########################################################## Jobs ######################################################################################
+GET         /job/jobRegisterPage                                                            controllers.JobController.jobRegisterPage()
+POST        /job/jobRegisterPOST                                                            controllers.JobController.jobRegisterPOST()
+GET         /job/jobEditPage/:jobId                                                         controllers.JobController.jobEditPage(jobId: Long)
+POST        /job/jobEditPOST/:jobId                                                         controllers.JobController.jobEditPOST(jobId: Long)
+GET         /job/jobApplyPage/:jobId                                                        controllers.JobController.jobApplyPage(jobId: Long)
+POST        /job/jobApplyPOST/:jobId                                                        controllers.JobController.jobApplyPOST(jobId: Long)
+GET         /job/jobApplicationList/:pageNum                                                controllers.JobController.jobApplicationList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /job/listAppliedByUser/:pageNum                                                 controllers.JobController.jobListAppliedByUser(pageNum: Integer)
+
+GET         /job/jobList/:pageNum                                                           controllers.JobController.jobList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /job/jobListPostedByUser/:pageNum                                               controllers.JobController.jobListPostedByUser(pageNum: Integer)
+GET         /job/jobDetail/:jobId                                                           controllers.JobController.jobDetail(jobId: Long)
+GET         /job/searchPage                                                                 controllers.JobController.searchPage()
+POST        /job/searchPOST                                                                 controllers.JobController.searchPOST(pageNum: Integer, sortCriteria: String)
+GET         /job/deleteJob/:jobId                                                           controllers.JobController.deleteJob(jobId: Long)
+#POST        /job/isTechnologyNameExisted                                                    controllers.TechnologyController.isTechnologyNameExisted()
+POST         /job/jobStatue/:jobId/:jobStatus                                               controllers.JobController.jobStatueChange(jobId: Long, jobStatus: String)
+##GET         /job/downloadPDFFile/:technologyId                                            controllers.TechnologyController.downloadPDFFile(technologyId: Long)
+GET         /job/jobApplicationDetail/:jobApplicationId                                     controllers.JobController.jobApplicationDetail(jobApplicationId: Long)
+#GET         /job/doesTechnologyExist/:id                                                    controllers.TechnologyController.isTechnologyExist(id : String)
+#GET         /job/getTechnologies                                                            controllers.TechnologyController.getTechnologyLists()
+#GET         /job/myEnrolledTechnologies/:pageNum                                             controllers.TechnologyController.getMyEnrolledTechnologies(pageNum: Integer, sortCriteria: String)
+#GET         /job/followedByUser/:id/:eventList                                           controllers.TechnologyController.followedByUser(id:Long, eventList:String)
+#GET         /job/unFollowedByUser/:id/:eventList                                         controllers.TechnologyController.unFollowedByUser(id:Long, eventList:String)
+#GET         /job/myFollowedTechnologies                                                      controllers.TechnologyController.myFollowedTechnologies(page: Integer ?= 1, sortCriteria: String ?= "")
+#GET         /job/addProjectFollowersPage/:id                                             controllers.TechnologyController.addTechnologyFollowersPage(id:Long)
+#POST        /job/addOneFollower/:id/:event                                               controllers.TechnologyController.addOneFollower(id:Long, event:String)
+#GET         /job/deleteOneFollower/:userId/:technologyId/:eventType                         controllers.TechnologyController.deleteOneFollower(userId:Long, technologyId:Long, eventType:String)
+
+GET         /job/applications/:jobType/:jobId                                               controllers.JobController.jobApplicationsList(jobType: String, jobId: Long, pageNum: Integer, sortCriteria: String ?= "")
+
+########################################################## Jobs #####################################################################
+
+
+
+########################################################## RAJobs ######################################################################################
+GET         /rajob/rajobRegisterPage                                                            controllers.RAJobController.rajobRegisterPage()
+POST        /rajob/rajobRegisterPOST                                                            controllers.RAJobController.rajobRegisterPOST()
+GET         /rajob/rajobEditPage/:rajobId/:status                                               controllers.RAJobController.rajobEditPage(rajobId: Long, status: String)
+POST        /rajob/rajobEditPOST/:rajobId                                                       controllers.RAJobController.rajobEditPOST(rajobId: Long)
+GET         /rajob/rajobApplyPage/:rajobId                                                      controllers.RAJobController.rajobApplyPage(rajobId: Long)
+POST        /rajob/rajobApplyPOST/:rajobId                                                      controllers.RAJobController.rajobApplyPOST(rajobId: Long)
+# GET         /rajob/rajobApplicationList/:pageNum                                                controllers.RAJobController.rajobApplicationList(pageNum: Integer, sortCriteria: String ?= "")
+POST        /rajob/rajobStatue/:rajobId/:rajobStatus                                            controllers.RAJobController.rajobStatueChange(rajobId: Long, rajobStatus: String)
+POST        /rajob/rajobApplicationStatusChange/:rajobApplicationId/:rajobApplicationStatus                 controllers.RAJobController.rajobApplicationStatusChange(rajobApplicationId: Long, rajobApplicationStatus: String)
+##GET         /job/downloadPDFFile/:technologyId                                            controllers.TechnologyController.downloadPDFFile(technologyId: Long)
+GET         /rajob/rajobApplicationDetail/:rajobApplicationId                                   controllers.RAJobController.rajobApplicationDetail(rajobApplicationId: Long)
+
+#
+GET         /rajob/rajobList/:pageNum                                                           controllers.RAJobController.rajobList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /rajob/rajobListPostedByUser/:pageNum                                               controllers.RAJobController.rajobListPostedByUser(pageNum: Integer)
+GET         /rajob/rajobListAppliedByUser/:pageNum                                              controllers.RAJobController.rajobListAppliedByUser(pageNum: Integer)
+
+GET         /rajob/rajobDetail/:rajobId                                                         controllers.RAJobController.rajobDetail(rajobId: Long)
+GET         /rajob/searchPage                                                                   controllers.RAJobController.searchPage()
+POST        /rajob/searchPOST                                                                   controllers.RAJobController.searchPOST(pageNum: Integer, sortCriteria: String)
+GET         /rajob/deleteRAJob/:rajobId                                                         controllers.RAJobController.deleteRAJob(rajobId: Long)
+GET         /rajob/closeRAJob/:rajobId                                                         controllers.RAJobController.closeRAJob(rajobId: Long)
+#POST        /rajob/isRAJobNameExisted                                                    controllers.RAJobController.isRAJobNameExisted()
+#
+##GET         /rajob/downloadPDFFile/:rajobId                                            controllers.RAJobController.downloadPDFFile(rajobId: Long)
+#
+#GET         /rajob/doesRAJobExist/:rajobId                                                    controllers.RAJobController.isRAJobExist(rajobId : String)
+#GET         /rajob/getRAJobs                                                            controllers.RAJobController.getRAJobLists()
+
+# GET        /rajob/offer/sendOffer/:rajobId/:recipientId                                      controllers.RAJobController.sendOfferEmail(rajobId: String, recipientId: String)
+POST        /rajob/sendOfferEmail                                                               controllers.RAJobController.sendOfferEmail(rajobApplicationId:Long, ccString:String)
+
+########################################################## RAJobs #####################################################################
+
+########################################################## TACandidate ################################################################
+
+GET         /tapool/tacandidateRegisterPage                                                            controllers.TACandidateController.tacandidateRegisterPage()
+POST        /tapool/tacandidateRegisterPOST                                                            controllers.TACandidateController.tacandidateRegisterPOST()
+GET         /tapool/candidateList/:pageNum                                                             controllers.TACandidateController.tacandidateList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /tapool/tacandidateDetail/:Id                                                              controllers.TACandidateController.tacandidateDetail(Id: Long)
+GET         /ta/weeklyhours                                                                            controllers.TACandidateController.getCurrentUserAssignments()
+
+
+########################################################## TACandidate ################################################################
+
+########################################################## Course ################################################################
+
+GET         /courses                                                                                   controllers.CourseController.courseList()
+
+
+########################################################## Course ################################################################
+
+
+########################################################## TA Hiring ################################################################
+
+GET         /tahiring/statuslist/:pageNum                                                              controllers.CourseTAAssignmentController.taHiringStatusList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /tahiring/statusDetail/:Id                                                                 controllers.CourseTAAssignmentController.assignmentDetail(Id: Long)
+POST        /tahiring/assignmentRegisterPOST                                                           controllers.CourseTAAssignmentController.assignmentRegisterPOST()
+
+########################################################## TA Hiring ################################################################
+
+
+
+########################################################## TAJobs ######################################################################################
+GET         /tajob/tajobRegisterPage                                                            controllers.TAJobController.tajobRegisterPage()
+POST        /tajob/tajobRegisterPOST                                                            controllers.TAJobController.tajobRegisterPOST()
+GET         /tajob/tajobEditPage/:tajobId                                                       controllers.TAJobController.tajobEditPage(tajobId: Long)
+POST        /tajob/tajobEditPOST/:tajobId                                                       controllers.TAJobController.tajobEditPOST(tajobId: Long)
+GET         /tajob/tajobApplyPage/:tajobId                                                      controllers.TAJobController.tajobApplyPage(tajobId: Long)
+GET        /tajob/tajobApplyPOST/:tajobId                                                      controllers.TAJobController.tajobApplyPOST(tajobId: Long)
+
+POST        /tajob/tajobStatue/:tajobId/:tajobStatus                                            controllers.TAJobController.tajobStatueChange(tajobId: Long, tajobStatus: String)
+#GET         /job/downloadPDFFile/:technologyId                                            controllers.TechnologyController.downloadPDFFile(technologyId: Long)
+GET         /tajob/tajobApplicationDetail/:tajobApplicationId                                   controllers.TAJobController.tajobApplicationDetail(tajobApplicationId: Long)
+POST         /tajob/saveTAJobPdf/:tajobApplicationId                                              controllers.TAJobController.saveTAJobPdf(tajobApplicationId: Long)
+#
+GET         /tajob/tajobList/:pageNum                                                           controllers.TAJobController.tajobList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /tajob/tajobListPostedByUser/:pageNum                                               controllers.TAJobController.tajobListPostedByUser(pageNum: Integer)
+GET         /tajob/tajobDetail/:tajobId                                                         controllers.TAJobController.tajobDetail(tajobId: Long)
+GET         /tajob/searchPage                                                                   controllers.TAJobController.searchPage()
+POST        /tajob/searchPOST                                                                   controllers.TAJobController.searchPOST(pageNum: Integer, sortCriteria: String)
+GET         /tajob/deleteTAJob/:tajobId                                                         controllers.TAJobController.deleteTAJob(tajobId: Long)
+#POST        /rajob/isRAJobNameExisted                                                    controllers.RAJobController.isRAJobNameExisted()
+#
+##GET         /rajob/downloadPDFFile/:rajobId                                            controllers.RAJobController.downloadPDFFile(rajobId: Long)
+#
+#GET         /rajob/doesRAJobExist/:rajobId                                                    controllers.RAJobController.isRAJobExist(rajobId : String)
+#GET         /rajob/getRAJobs                                                            controllers.RAJobController.getRAJobLists()
+
+########################################################## TAJobs #####################################################################
+
+########################################################## Admin Management #####################################################################
+GET         /admin/dashboard                                                                 controllers.AdminController.dashboard()
+GET         /admin/users/:pageNum                                                            controllers.AdminController.userManagement(pageNum: Integer, sortCriteria: String ?= "id")
+GET         /admin/users/detail/:userId                                                      controllers.AdminController.userDetail(userId: Long)
+GET         /admin/jobs/:pageNum                                                             controllers.AdminController.jobManagement(pageNum: Integer, sortCriteria: String ?= "id")
+GET         /admin/jobs/detail/:jobType/:jobId                                               controllers.AdminController.jobDetail(jobType: String, jobId: Long)
+GET         /admin/organizations/:pageNum                                                    controllers.AdminController.organizationManagement(pageNum: Integer, sortCriteria: String ?= "id")
+GET         /admin/technologies/:pageNum                                                     controllers.AdminController.technologyManagement(pageNum: Integer, sortCriteria: String ?= "id")
+########################################################## Admin Management #####################################################################
+
+
+########################################################## Authors #####################################################################
+GET         /author/authorRegisterPage                                                           controllers.AuthorController.authorRegisterPage()
+GET         /author/authorRegister                                                               controllers.AuthorController.authorRegisterPOST()
+GET         /author/authorEditPage                                                               controllers.AuthorController.authorEditPage()
+POST        /author/authorEditPOST                                                               controllers.AuthorController.authorEditPOST()
+GET         /author/authorList/:pageNum                                                          controllers.AuthorController.authorList(pageNum: Integer, sortCriteria: String)
+GET         /author/authorDetailPage/:userId                                                     controllers.AuthorController.authorDetailPage(userId: Long)
+
+GET         /author/userEditPageAdmin/:userId                                                               controllers.AuthorController.userEditPageAdmin(userId: Long)
+POST        /author/userEditPOSTAdmin/:userId                                                                controllers.AuthorController.userEditPOSTAdmin(userId: Long)
+GET         /author/userListAdmin/:pageNum                                                          controllers.AuthorController.userListAdmin(pageNum: Integer, sortCriteria: String)
+GET         /author/userDetailPageAdmin/:userId                                                          controllers.AuthorController.userDetailPageAdmin(userId: Long)
+
+
+
+GET         /author/searchPage                                                                   controllers.AuthorController.searchPage()
+POST        /author/searchPOST                                                                   controllers.AuthorController.searchPOST(pageNum: Integer ?= 1, sortCriteria: String ?="id")
+GET         /author/authorDelete                                                                 controllers.AuthorController.authorDelete()
+GET         /author/topAuthors                                                                   controllers.AuthorController.topAuthors()
+
+########################################################## Reviewers #####################################################################
+GET         /reviewer/reviewerRegisterPage                                                        controllers.ReviewerController.reviewerRegisterPage()
+GET         /reviewer/reviewerRegister                                                            controllers.ReviewerController.reviewerRegisterPOST()
+GET         /reviewer/reviewerEditPage                                                            controllers.ReviewerController.reviewerEditPage()
+POST        /reviewer/reviewerEditPOST                                                            controllers.ReviewerController.reviewerEditPOST()
+GET         /reviewer/reviewerList/:pageNum                                                       controllers.ReviewerController.reviewerList(pageNum: Integer, sortCriteria: String)
+GET         /reviewer/reviewerDetailPage/:userId                                                  controllers.ReviewerController.reviewerDetailPage(userId: Long)
+
+
+
+GET         /reviewer/searchPage                                                                 controllers.ReviewerController.searchPage()
+POST        /reviewer/searchPOST                                                                 controllers.ReviewerController.searchPOST(pageNum: Integer ?= 1, sortCriteria: String ?="id")
+GET         /reviewer/reviewerDelete                                                             controllers.ReviewerController.reviewerDelete()
+
+
+########################################################## Paper #####################################################################
+GET         /paper/paperRegisterPage                                                     controllers.PaperController.paperRegisterPage()
+POST        /paper/paperRegisterPOST                                                     controllers.PaperController.paperRegisterPOST()
+
+GET         /paper/paperList/:pageNum                                                    controllers.PaperController.paperList(pageNum: Integer, sortCriteria: String ?= "")
+GET         /paper/paperDetail/:paperId                                                  controllers.PaperController.paperDetail(paperId: Long)
+POST        /paper/deletePaper/:paperId                                                  controllers.PaperController.deletePaper(paperId: Long)
+
+GET         /paper/primeConnections                                                      controllers.PaperController.primeConnections()
+
+GET         /paper/relationGraph                                                         controllers.PaperController.relationGraph()
+GET        /paper/loadDBLP                                                               controllers.PaperController.loadUploadPage()
+POST       /paper/uploadDBLP                                                             controllers.PaperController.processDBPLFile()
+
+GET        /paper/ldaPage                                                                controllers.PaperController.paperLDA()
+
+GET        /paper/authorRelation                                                         controllers.PaperController.authorAuthorRel()
+GET        /paper/ldaTopicDistribution                                                   controllers.PaperController.ldaTopicDistribution()
+GET         /paper/searchPage                                                                   controllers.PaperController.searchPage()
+POST        /paper/searchPaper                                                                 controllers.PaperController.searchPaper(pageNum: Integer ?= 1, sortCriteria: String ?="id")
+
+########################################################## Graph #####################################################################
+GET         /graphs/research                                                                controllers.GraphController.researchInterest()
+GET         /file/:tableName/:challengeFileType/:tableRecorderId                            controllers.FileController.getFile(tableName: String, challengeFileType: String, tableRecorderId: String)

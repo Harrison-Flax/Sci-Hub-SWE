@@ -1,0 +1,450 @@
+@()(implicit request: RequestHeader)
+
+@defining(session.get("userTypes")) { userTypes =>
+
+<div class="navbar-fixed" style="z-index: 9999;">
+    <nav class="blue darken-4" style='background: url("@routes.Assets.at("images/starfield-banner-blue.jpg")") repeat;
+        margin-bottom: 20px;'>
+        <div class="nav-wrapper">
+
+            <span class="brand-logo">
+                <a href="https://nex.nasa.gov/opennex/" target="_blank">
+                    <img src='@routes.Assets.at("/images/scibot-logo.png")' style=   "
+                    margin-top: 8px;
+                    height: 50px;
+                    width: 65px;"> </a>
+                </span>
+
+                <a href="#" data-target="nav-right" class="sidenav-trigger right"><i class="material-icons">menu</i></a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="@routes.Application.home()" title="Home"><i class="material-icons">home</i></a></li>
+                    @if(!session.get("email")) {
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-About" title = "About"><i class="material-icons">
+                                help</i></a>
+                            <ul class="dropdown-content" id="dropdown-About">
+                                <li><a href="@routes.AboutController.aboutUs()">About Us</a></li>
+                                <li><a href="@routes.AboutController.aboutProject()">About Project</a></li>
+                            </ul>
+                        </li>
+                    } else {
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-About" title = "About"><i class="material-icons">
+                                help</i></a>
+                            <ul class="dropdown-content" id="dropdown-About">
+                                <li><a href="@routes.AboutController.aboutUs()">About Us</a></li>
+                                <li><a href="@routes.AboutController.aboutProject()">About Project</a></li>
+                                <li><a href="@routes.AboutController.frequentlyAskedQuestions()">Frequently Asked Questions</a></li>
+                                <li><a href="@routes.AboutController.popularQueries()">Popular Queries</a></li>
+
+                                <li class="divider"></li>
+                                @*<li><a href="http://hawking.sv.cmu.edu:9039/!opennex/doku.php?id=tutorial" target="_blank">
+                                Tutorial</a></li>*@
+                                @*<li><a href="@routes.AboutController.tutorial()">
+                                Video Tutorials</a></li>
+                                *@
+
+                                <li class="divider"></li>
+
+                                <li><a href="@routes.BugReportController.bugReportRegisterPage">Report Bug</a></li>
+                                <li><a href="@routes.BugReportController.bugReportList(1)">Bug List</a></li>
+
+                                <li><a href="@routes.SuggestionController.suggestionRegisterPage()">Add Suggestion</a></li>
+                                <li><a href="@routes.SuggestionController.suggestionList(1)">Suggestion List</a></li>
+                                @*<li class="divider"></li>*@
+                                @*<li><a href="@routes.DonationController.suggestionRegisterPage()">Donate</a></li>*@
+                                @*<li><a href="@routes.DonationController.list()">Donations</a></li>*@
+                            </ul>
+                        </li>
+                    }
+
+
+                    @if(session.get("email")) {
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-Organizations">
+                                Organization</a>
+                            <ul class="dropdown-content" id="dropdown-Organizations">
+                                <li><a href="@routes.OrganizationController.organizationListPage(1, "id")">Organization List</a></li>
+                                <li><a href="@routes.OrganizationController.searchPage()">Search Organization</a></li>
+
+                                <li class="divider"></li>
+                                <li><a href="@routes.OrganizationController.organizationRegisterPage()">
+                                    Register Organization</a></li>
+                                @*                            <li><a href="@routes.ProjectController.projectRegisterPage()">*@
+                                @*                                Organization Map</a></li>*@
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-Challenges">
+                                Challenge</a>
+                            <ul class="dropdown-content" id="dropdown-Challenges">
+                                <li><a href="@routes.ChallengeController.challengeList(1, "")">
+                                    Challenge List</a></li>
+                                <li><a href="@routes.ChallengeController.searchPage()">
+                                    Search Challenge</a></li>
+
+                                <li class="divider"></li>
+@*                                <li><a href="@routes.ChallengeController.challengeRegisterPage()">*@
+@*                                    Publish Challenge</a></li>*@
+                                @if(userTypes != null && userTypes != "4") {
+                                    <li><a href="@routes.ChallengeController.challengeRegisterPage()">
+                                        Publish Challenge</a></li>
+
+                                }
+
+                            </ul>
+                        </li>
+                        @*<li class="dropdown">
+                        <a href="#" class="dropdown-trigger" data-target="dropdown-Projects">
+                        Project</a>
+                        <ul class="dropdown-content" id="dropdown-Projects">
+                        <li><a href="@routes.ProjectController.projectList(1, "")">
+                        Project List</a></li>
+                        <li><a href="@routes.ProjectController.searchPage()">
+                        Search Project</a></li>
+
+                        <li class="divider"></li>
+                        <li><a href="@routes.ProjectController.projectRegisterPage()">
+                        Register Project</a></li>
+
+                        <li><a href="@routes.ProjectController.projectList(1, "")">
+                        Change Project Zone</a></li>
+
+
+                        </ul>
+                        </li>*@
+
+
+
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-Technology">
+                                Technology</a>
+                            <ul class="dropdown-content" id="dropdown-Technology">
+                                <li><a href="@routes.TechnologyController.technologyList(1, "id")">
+                                    Technology List</a></li>
+                                <li><a href="@routes.TechnologyController.searchPage()">
+                                    Search Technology</a></li>
+
+                                <li class="divider"></li>
+
+                                <li><a href="@routes.TechnologyController.technologyRegisterPage()">
+                                    Register Technology</a></li>
+                                @*<li><a href="">
+                                Tag Cloud</a></li>*@
+
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-Job">
+                                Job</a>
+                            <ul class="dropdown-content" id="dropdown-Job">
+
+                                @*<li><a href="@routes.TACandidateController.getCurrentUserAssignments()">
+                                TA Weekly Hours Submit</a></li>
+
+                                <li><a href="@routes.CourseController.courseList()">
+                                TA Weekly Hours Records</a></li>
+
+                                <li><a href="@routes.TACandidateController.tacandidateList(1, "id")">
+                                TA Pool List</a></li>
+
+                                <li>
+                                <a href="@routes.CourseTAAssignmentController.taHiringStatusList(1, "id")">
+                                TA Hiring Status</a></li>
+
+                                <li class="divider"></li>
+
+                                <li><a href="@routes.TACandidateController.tacandidateRegisterPage()">
+                                General TA Apply</a></li>
+
+                                <li class="divider"></li>*@
+
+                                <li><a href="@routes.JobController.jobList(1, "id")">
+                                    Job List</a></li>
+                                @*                            <li><a href="@routes.JobController.jobList(1, "id")">
+                                Internship List</a></li>*@
+                                <li><a href="@routes.RAJobController.rajobList(1, "id")">
+                                    RA Job List</a></li>
+                                @*<li><a href="@routes.TAJobController.tajobList(1, "id")">
+                                TA Job List</a></li>*@
+
+                                <li class="divider"></li>
+
+                                <li><a href="@routes.JobController.searchPage()">
+                                    Search Job</a></li>
+                                @*                            <li><a href="@routes.JobController.searchPage()">
+                                Search Internship</a></li>*@
+                                <li><a href="@routes.RAJobController.searchPage()">
+                                    Search RA Job</a></li>
+                                @*<li><a href="@routes.TAJobController.searchPage()">
+                                Search TA Job</a></li>*@
+
+                                <li class="divider"></li>
+
+                                @if(userTypes != null && userTypes != "4") {
+                                    <li><a href="@routes.JobController.jobRegisterPage()">
+                                        Post Job</a></li>
+                                    <li><a href="@routes.RAJobController.rajobRegisterPage()">
+                                        Post RA Job</a></li>
+                                }
+
+                                @*                            <li><a href="@routes.JobController.jobRegisterPage()">*@
+                                @*                                Post Internship</a></li>*@
+                                @*<li><a href="@routes.TAJobController.tajobRegisterPage()">
+                                Post TA Job</a></li>*@
+                                @*<li><a href="">
+                                Tag Cloud</a></li>*@
+
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-Author">
+                                Researcher</a>
+                            <ul class="dropdown-content" id="dropdown-Author">
+                                <li><a href="@routes.AuthorController.authorList(1, "id")">
+                                    Researcher List</a></li>
+                                <li><a href="@routes.AuthorController.searchPage()">
+                                    Search Researcher</a></li>
+                                <li><a href="@routes.GraphController.researchInterest()">
+                                    Researcher Analytics</a></li>
+                                @*<li><a href="@routes.AuthorController.topAuthors()">
+                                Top Productive Researchers</a></li>*@
+                            </ul>
+                        </li>
+
+                        @*                    <li class="dropdown">*@
+                        @*                        <a href="#" class="dropdown-trigger" data-target="dropdown-Scientists">*@
+                        @*                            User</a>*@
+                        @*                        <ul class="dropdown-content" id="dropdown-Scientists">*@
+                        @*                            <li><a href="@routes.UserController.userList(1, "id")">All Users</a></li>*@
+                        @*                            <li><a href="@routes.UserController.searchPage()">Search User</a></li>*@
+                        @*                        </ul>*@
+                        @*                    </li>*@
+
+                        @*<li class="dropdown">
+                        <a href="#" class="dropdown-trigger" data-target="dropdown-Paper">
+                        Paper</a>
+                        <ul class="dropdown-content" id="dropdown-Paper">
+                        <li><a href="@routes.PaperController.paperList(1, "")">
+                        Paper List</a></li>
+
+                        <li class="divider"></li>
+
+                        <li><a href="@routes.PaperController.paperRegisterPage()">
+                        Register Paper</a></li>
+
+                        <li><a href="@routes.PaperController.relationGraph()">
+                        Author Paper Relationship</a></li>
+                        <li><a href="@routes.PaperController.authorAuthorRel()">
+                        Author Author Relation</a></li>
+
+                        <li><a href="@routes.PaperController.ldaTopicDistribution()">
+                        Topic Distribution</a></li>
+                        <li><a href="@routes.PaperController.searchPage()">
+                        Paper Search</a></li>
+                        </ul>
+                        </li>*@
+                        @if(userTypes != null && userTypes == "0") {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-trigger" data-target="dropdown-Admin">
+                                    Admin</a>
+                                <ul class="dropdown-content" id="dropdown-Admin">
+                                    <li><a href="@routes.ChallengeController.challengeListAdmin(1, "")">
+                                        Challenge</a></li>
+                                    <li><a href="@routes.AdminController.userManagement(1, "id")">
+                                        User</a></li>
+                                    <li><a href="@routes.AdminController.jobManagement(1, "id")">
+                                        Job & RA job</a></li>
+                                    <li><a href="@routes.AdminController.organizationManagement(1, "id")">
+                                        Organization</a></li>
+                                    <li><a href="@routes.AdminController.technologyManagement(1, "id")">
+                                        Technology</a></li>
+                                </ul>
+                            </li>
+                        }
+                    }
+
+
+
+                    @if(!session.get("email")) {
+                        <li style="margin-right: 10px;">
+                            <a href="@routes.Application.login()" title="Login">
+                            Sign in
+                            </a>
+                            </li>
+                            } else {
+                        <li class="dropdown" style="margin-right: 10px;">
+                            <a href="#" class="dropdown-trigger" data-target="dropdown-logout" id="profile-dropDown" title ="MyProfile">
+                                @if(session.get("avatar")!=null && session.get("avatar")!="") {
+                                    @*                                <img class="circle nav_item center" id="userAvatar" src="@session.get("avatar")" height="30" width="30" >*@
+                                    @*                                <img class="circle nav_item center" id="userAvatar" src="@routes.Assets.at("images/JiaZhang-Round.png")" height="30" width="30" >*@
+                                    <img class="circle nav_item center" id="userAvatar" src="@routes.Application.getImageFromPath(session.get("avatar"))" height="30" width="30" >
+                                }else{
+                                    <img class="circle nav_item center" id="userAvatar" src="@routes.Application.getDefaultAvatar()" height="30" width="30" >
+                                }
+                                <div id="me">
+                                    <span style="display: inline-block; padding-top:25px;">
+                                    @session.get("userfirstname")</span> @***display user first name***@
+                                    <i class="material-icons" style="width: 10px;
+                                        margin: 0;
+                                        height: 10px;
+                                        transition: color .3s;
+                                        position: relative;
+                                        display: inline-block; vertical-align: top">expand_more
+                                    </i>
+                                </div>
+                            </a>
+                            <ul class="dropdown-content" id="dropdown-logout">
+                                <li><a href="#">@session.get("email")</a></li>
+                                <li class="divider" tabindex="-1"></li>
+                                <li><a href="@routes.UserController.userEditPage()">
+                                    Account Management</a></li>
+                                <li><a href="@routes.UserController.mySpacePage()">
+                                    My Space</a></li>
+                                <li><a href="@routes.UserController.updatePasswordPage()">Update password</a></li>
+                                <li class="divider"></li>
+                                <li><a href="@routes.Application.logout()">Sign out</a></li>
+                                @*<li><a href="@routes.Application.deleteAccount()">
+                                Delete account</a></li>*@
+                            </ul>
+                        </li>
+                    }
+                    </ul>
+                    <ul class="sidenav hide-on-large-only" id="nav-right">
+                        <li>
+                            <a href="@routes.Application.home()">Home</a>
+                        </li>
+                        @if(!session.get("email")) {
+                            <li>
+                                <a href="#">About</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.AboutController.aboutUs()">About Us</a></li>
+                                    <li><a href="@routes.AboutController.aboutProject()">About Project</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="@routes.Application.login()" title="Login">Sign in</a>
+                                </li>
+                                } else {
+                            <li>
+                                <a href="#">About</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.AboutController.aboutUs()">About Us</a></li>
+                                    <li><a href="@routes.AboutController.aboutProject()">About Project</a></li>
+                                    <li><a href="@routes.AboutController.frequentlyAskedQuestions()">Frequently Asked Questions</a></li>
+                                    <li><a href="@routes.BugReportController.bugReportRegisterPage">Report Bug</a></li>
+                                    <li><a href="@routes.BugReportController.bugReportList(1)">Bug List</a></li>
+                                    <li><a href="@routes.SuggestionController.suggestionRegisterPage()">Add Suggestion</a></li>
+                                    <li><a href="@routes.SuggestionController.suggestionList(1)">Suggestion List</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Organization</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.OrganizationController.organizationListPage(1, "id")">Organization List</a></li>
+                                    <li><a href="@routes.OrganizationController.searchPage()">Search Organization</a></li>
+                                    <li><a href="@routes.OrganizationController.organizationRegisterPage()">Register Organization</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Challenge</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.ChallengeController.challengeList(1, "")">Challenge List</a></li>
+                                    <li><a href="@routes.ChallengeController.searchPage()">Search Challenge</a></li>
+@*                                    <li><a href="@routes.ChallengeController.challengeRegisterPage()">Publish Challenge</a></li>*@
+                                    @if(userTypes != null && userTypes != "4") {
+                                        <li><a href="@routes.ChallengeController.challengeRegisterPage()">
+                                            Publish Challenge</a></li>
+
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Technology</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.TechnologyController.technologyList(1, "id")">Technology List</a></li>
+                                    <li><a href="@routes.TechnologyController.searchPage()">Search Technology</a></li>
+                                    <li><a href="@routes.TechnologyController.technologyRegisterPage()">Register Technology</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Job</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.JobController.jobList(1, "id")">Job List</a></li>
+                                    <li><a href="@routes.RAJobController.rajobList(1, "id")">RA Job List</a></li>
+                                    <li><a href="@routes.JobController.searchPage()">Search Job</a></li>
+                                    <li><a href="@routes.RAJobController.searchPage()">Search RA Job</a></li>
+                                    @if(userTypes != null && userTypes != "4") {
+                                        <li><a href="@routes.JobController.jobRegisterPage()">Post Job</a></li>
+                                        <li><a href="@routes.RAJobController.rajobRegisterPage()">Post RA Job</a></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Researcher</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.AuthorController.authorList(1, "id")">Researcher List</a></li>
+                                    <li><a href="@routes.AuthorController.searchPage()">Search Researcher</a></li>
+                                    <li><a href="@routes.GraphController.researchInterest()">Researcher Analytics</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">MyProfile</a>
+                                <ul class="sub-menu">
+                                    <li><a href="@routes.UserController.userDetailPage(session.get("id").toLong)">@session.get("email")</a></li>
+                                    <li><a href="@routes.UserController.userEditPage()">Account Management</a></li>
+                                    <li><a href="@routes.UserController.updatePasswordPage()">Update password</a></li>
+                                    <li><a href="@routes.Application.logout()">Sign out</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+        </div>
+    </nav>
+</div>
+
+<style>
+    .sidenav .sub-menu {
+        display: none;
+        margin-left: 20px;
+        border-left: 2px solid #ccc;
+        padding-left: 10px;
+    }
+    .sidenav li.active > .sub-menu {
+        display: block;
+    }
+
+    .sidenav li > a {
+        color: #0D47A1;
+    }
+</style>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidenavElems = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(sidenavElems, {edge: 'right'});
+
+            var sidenavItems = document.querySelectorAll('.sidenav > li > a');
+            sidenavItems.forEach(function(item) {
+                item.addEventListener('click', function(event) {
+                    var parent = this.parentElement;
+                    if (parent.querySelector('.sub-menu')) {
+                        event.preventDefault();
+                        if (parent.classList.contains('active')) {
+                            parent.classList.remove('active');
+                        } else {
+                            document.querySelectorAll('.sidenav > li').forEach(function(li) {
+                                li.classList.remove('active');
+                            });
+                            parent.classList.add('active');
+                        }
+                    }
+                });
+            });
+        });
+</script>
+}

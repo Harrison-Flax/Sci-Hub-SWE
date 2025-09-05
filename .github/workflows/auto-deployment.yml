@@ -1,0 +1,137 @@
+name: Build and Deploy (Code with Env together)(Daily at 2 AM CT)
+
+on:
+  # Allows manual runs
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Make sure we fetch all history and tags so version bump can work
+          fetch-depth: 0
+
+      - name: Setup Scala and sbt
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.8
+
+      - name: Clean Ivy and Coursier Cache
+        run: |
+          rm -rf /home/runner/.ivy2/cache/com.iheart
+          rm -rf /home/runner/.ivy2/local/com.iheart
+          rm -rf /home/runner/.cache/coursier/v1/https/repo1.maven.org/maven2/com/iheart
+
+      - name: Compile and Stage Backend Project
+        run: sbt clean compile stage
+        working-directory: ./backend
+
+      - name: Compile and Stage Frontend Project
+        run: sbt clean compile stage
+        working-directory: ./frontend
+
+      - name: Remove RUNNING_PID file for Frontend Project
+        run: rm -f ./frontend/target/universal/stage/RUNNING_PID
+        working-directory: ./frontend
+
+      - name: Remove RUNNING_PID file for Backend Project
+        run: rm -f ./backend/target/universal/stage/RUNNING_PID
+        working-directory: ./backend
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.64.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INITIAL_VERSION: '0.1.0'
+          DEFAULT_BUMP: patch
+          WITH_V: true
+        id: bump_version
+
+      - name: Output new version
+        run: echo "The new version is ${{ steps.bump_version.outputs.new_tag }}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Frontend Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile.frontend
+          push: true
+          tags: |
+            cmusvsc/smu_cshub:frontend-${{ steps.bump_version.outputs.new_tag }},
+            cmusvsc/smu_cshub:frontend-latest
+          platforms: linux/amd64
+          
+
+      - name: Build and Push Backend Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile.backend
+          push: true
+          tags: |
+            cmusvsc/smu_cshub:backend-${{ steps.bump_version.outputs.new_tag }},
+            cmusvsc/smu_cshub:backend-latest
+          platforms: linux/amd64
+
+  deploy-to-ec2:
+    name: Deploy to AWS EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into EC2 and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Docker login on the remote EC2
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            # Pull the newly built images from DockerHub
+            docker pull beichenhgame/smu_cshub:frontend-latest
+            docker pull beichenhgame/smu_cshub:backend-latest
+
+            # Stop and remove any existing containers (ignore errors)
+            sudo docker stop cshub-frontend || true
+            sudo docker rm cshub-frontend || true
+            sudo docker stop cshub-backend || true
+            sudo docker rm cshub-backend || true
+            sudo docker network create cshub-network || true
+
+            
+            # Run the frontend container, injecting the secret as an environment variable
+            sudo docker run -d \
+              -p 9036:9036 \
+              --name cshub-frontend \
+              --network cshub-network \
+              -e BACKEND_HOST="cshub-backend" \
+              -e BACKEND_URL="http://cshub-backend:9037" \
+              -e PLAY_SECRET_KEY="${{ secrets.PLAY_FRONTEND_SECRET_KEY }}" \
+              beichenhgame/smu_cshub:frontend-latest
+            
+            # Run the backend container, injecting its own secret
+            sudo docker run -d \
+              -p 9037:9037 \
+              --name cshub-backend \
+              --network cshub-network \
+              -e DB_URL="jdbc:mysql://cshub.cvqmoymkg5l2.us-east-2.rds.amazonaws.com:3306/old_cshub" \
+              -e PLAY_SECRET_KEY="${{ secrets.PLAY_BACKEND_SECRET_KEY }}" \
+              beichenhgame/smu_cshub:backend-latest
+
+            # **Prune unused images** (added step)
+            sudo docker image prune -a -f

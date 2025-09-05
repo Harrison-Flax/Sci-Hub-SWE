@@ -1,0 +1,85 @@
+@(stats: com.fasterxml.jackson.databind.node.ObjectNode)
+
+@import helper._
+@import models._
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('.tooltipped').tooltip();
+            });
+    </script>
+}
+
+@main("Admin Dashboard", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h4 class="center">Admin Dashboard</h4>
+                <p class="center">Welcome to use admin dashboard, you can manage all the data here</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="col s12 m6 l3">
+                                <a href="@routes.AdminController.userManagement(1, "id")" class="btn-large blue waves-effect waves-light full-width">
+                                    <i class="material-icons left">people</i>
+                                    User Management
+                                </a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <a href="@routes.AdminController.jobManagement(1, "id")" class="btn-large green waves-effect waves-light full-width">
+                                    <i class="material-icons left">work</i>
+                                    Job Management
+                                </a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <a href="@routes.ChallengeController.challengeListAdmin(1, "id")" class="btn-large orange waves-effect waves-light full-width">
+                                    <i class="material-icons left">description</i>
+                                    Challenge Management
+                                </a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <a href="@routes.AdminController.organizationManagement(1, "id")" class="btn-large purple waves-effect waves-light full-width">
+                                    <i class="material-icons left">business</i>
+                                    Organization Management
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12 m6 l3">
+                                <a href="@routes.AdminController.technologyManagement(1, "id")" class="btn-large red waves-effect waves-light full-width">
+                                    <i class="material-icons left">computer</i>
+                                    Technology Management
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+                .full-width {
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+                .card-panel {
+                    height: 150px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .card-panel .card-content {
+                    text-align: center;
+                }
+                .card-panel h4 {
+                    margin: 10px 0;
+                    font-weight: bold;
+                }
+        </style>
+}

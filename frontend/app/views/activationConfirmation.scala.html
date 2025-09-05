@@ -1,0 +1,36 @@
+@()
+
+@import models._
+@import models.Project
+@import models.Challenge
+
+@* This confirmation page is a post-registration page for API, docker, notebook, dataset, news, bug report, suggestion, API study case, docker study case, and notebook study case *@
+@main("Activation confirmation page") {
+    <div class="container">
+        <div class="center">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4>Congratulations!</h4>
+                        <h5>Your user account has been successfully activated onto SMU-Hub.</h5>
+                    <br>
+                    <br>
+                    <span id="show"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+            var t=5; // set the time of re-direction to be 5 seconds
+            setInterval("refer()",1000); // 1s start up
+            function refer(){
+                if(t==0){
+                    location='@routes.Application.home()';
+                }
+
+                document.getElementById('show').innerHTML="The page will be redirected to the user login page in "
+                        +""+t+" seconds";
+                t--;
+            }
+    </script>
+}

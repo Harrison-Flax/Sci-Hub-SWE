@@ -1,0 +1,447 @@
+# PLEASE READ before adding a new route:
+#
+# 1. Check if there are any route clashes. As mentioned earlier, in case of clash (or override)
+#    the routes with higest priority gets the preference.
+# 2. Use Java nomenclature here in order to make it consistent with the controllers and twirl template.
+# 3. Use the existing template for creation of a new route. Try to follow the spaces, the documentation style and the
+#    assignment pattern. For example, all the routes have the controller part set without @ and at the same tab space.
+#    Please follow the same pattern. Please group same routes with different methods together.
+# 4. Group the routes with the same functionality together. The tags should ideally match for all the routes with the
+#    same functionality. For example, the routes which are used for user based functionality should be put together and
+#    have the same tag (User). The following tags are used now (please add any new tags added):
+#        - User
+#        - Wish
+#        - Wish: Milestone
+#        - Wish: Contract
+#        - Dataset
+#        - Docker
+#        - News
+#        - Forum
+#        - Bug
+#        - Suggestion
+#        - Conversation
+#        - Comment
+#        - Mail
+#        - File
+#        - Paper
+#        - Capability
+#        - Capability: Category
+#        - Capability: Representative Invitation
+#
+# END OF PLEASE READ
+
+###
+#  summary: Example - index
+#  description: Play welcome index page
+#  responses:
+#    200:
+#      description: index page
+###
+GET           /                                                                                                   controllers.HomeController.index
+###
+#  summary: Example - count
+#  description: Get a count number
+#  responses:
+#    200:
+#      description: count number
+#      schema:
+#        type: integer
+###
+GET           /count                                                                                              controllers.CountController.count
+###
+#  summary: Example - message
+#  description: Get welcome message
+#  responses:
+#    200:
+#      description: welcome message
+#      schema:
+#        type: string
+###
+GET           /message                                                                                            controllers.AsyncController.message
+
+### NoDocs ###
+GET           /assets/*file                                                                                       controllers.Assets.versioned(path="/public", file: Asset)
+
+#User (API test done)
+
+
+
+
+
+#################################### Projects #####################################################################
+POST          /project/addProject                                                                                 controllers.ProjectController.addProject()
+POST          /project/updateProject/:projectId                                                                   controllers.ProjectController.updateProject(projectId: Long)
+DELETE        /project/deleteProjectImage/:projectId                                                              controllers.ProjectController.deleteProjectImage(projectId: Long)
+DELETE        /project/deleteProjectPDF/:projectId                                                                controllers.ProjectController.deleteProjectPDF(projectId: Long)
+GET           /project/projectList/:userId                                                                        controllers.ProjectController.projectList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+GET           /project/teammember/:projectId                                                                      controllers.ProjectController.getTeamMembersByProjectId(projectId: Long)
+
+GET           /project/projectDetail/:projectId                                                                   controllers.ProjectController.getProjectById(projectId: Long)
+GET           /project/getProjectCreator/:projectId                                                               controllers.ProjectController.getProjectCreator(projectId: Long)
+POST          /project/search/conditions                                                                          controllers.ProjectController.searchProjectsByCondition()
+POST          /project/setImage/:projectId                                                                        controllers.ProjectController.setImage(projectId: Long)
+POST          /project/setPDF/:projectId                                                                          controllers.ProjectController.setPDF(projectId: Long)
+POST          /project/addTeamMember/:projectId                                                                   controllers.ProjectController.addTeamMember(projectId: Long)
+POST          /project/setTeamMemberPhoto/:memberId                                                               controllers.ProjectController.setTeamMemberPhoto(memberId:Long)
+DELETE        /project/deleteTeamMember/:memberId                                                                 controllers.ProjectController.deleteTeamMember(memberId: Long)
+GET           /project/deleteProject/:projectId                                                                   controllers.ProjectController.deleteProject(projectId: Long)
+GET           /project/getProjectsByUser/:userId                                                                  controllers.ProjectController.getProjectsByCreator(userId: Long)
+GET           /project/checkProjectExist/:projectId                                                               controllers.ProjectController.checkProjectExist(projectId:Long)
+POST          /project/isProjectNameExisted                                                                       controllers.ProjectController.checkProjectNameAvailability()
+POST          /project/saveDescriptionImage/:projectId/:imageNumber                                               controllers.ProjectController.saveDescriptionImage(projectId: Long, imageNumber: Integer)
+GET           /project/renameDescriptionImage/:projectId/:imageNumber/:currentImageNumber                         controllers.ProjectController.renameDescriptionImage(projectId: Long, imageNumber: Integer, currentImageNumber: Integer)
+
+GET           /project/getMyEnrolledProjects                                                                      controllers.ProjectController.getMyEnrolledProjects(pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String], userId: Long)
+## Return all projects
+GET           /project/allproject                                                                                 @controllers.ProjectController.getAllProject()
+POST          /project/updatedes                                                                                  @controllers.ProjectController.updateProjectDes()
+
+GET          /project/getIdByName/:name                                                                         controllers.ProjectController.getIdByName(name:String)
+
+########################################## Projects ####################################################################
+
+########################################## Challenge ###################################################################
+POST           /challenge/addChallenge                                                                             controllers.ChallengeController.addChallenge()
+POST          /challenge/updateChallenge/:challengeId                                                              controllers.ChallengeController.updateChallenge(challengeId: Long)
+POST          /challenge/updateChallengeAdmin/:challengeId                                                         controllers.ChallengeController.updateChallengeAdmin(challengeId: Long)
+#DELETE        /challenge/deleteChallengeImage/:challengeId                                                              controllers.ChallengeController.deleteChallengeImage(ChallengeId: Long)
+#DELETE        /challenge/deleteChallengePDF/:challengeId                                                                controllers.ChallengeController.deleteChallengePDF(ChallengeId: Long)
+GET           /challenge/challengeList/:userId                                                                     controllers.ChallengeController.challengeList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+GET           /challenge/challengeListAdmin/:userId                                                                controllers.ChallengeController.challengeListAdmin(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+#GET           /project/teammember/:projectId                                                                      controllers.ProjectController.getTeamMembersByProjectId(projectId: Long)
+POST           /challenge/applyChallenge/:challengeId                                                              controllers.ChallengeController.applyChallenge(challengeId: Long)
+GET           /challenge/challengeDetail/:challengeId                                                              controllers.ChallengeController.getChallengeById(challengeId: Long)
+GET           /challenge/getChallengesByUser/:userId                                                               controllers.ChallengeController.getChallengesByPublisher(userId: Long)
+GET           /challenge/challengeApplicationDetail/:challengeApplicationId                                        controllers.ChallengeController.getChallengeApplicationById(challengeApplicationId: Long)
+GET           /challenge/challengeApplicationDetailId/:challengeApplicationId                                        controllers.ChallengeController.getChallengeApplicationIdById(challengeApplicationId: Long)
+POST          /challenge/updateChallengeApplicationStatus/:challengeApplicationId                                     controllers.ChallengeController.giveChallengeOffertoStudent(challengeApplicationId: Long)
+
+POST          /challenge/updateStatus/:challengeId                                                                 controllers.ChallengeController.challengeUpdateStatus(challengeId: Long)
+GET           /challenge/getApplications/:challengeType/:challengeId                                               controllers.ChallengeController.getApplicationsByChallengeId(challengeType: String, challengeId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+POST          /challenge/setImage/:challengeId                                                                     controllers.ChallengeController.setImage(challengeId: Long)
+GET          /challenge/getImage/:challengeId                                                                      controllers.ChallengeController.getImage(challengeId: Long)
+POST          /challenge/setPdf/:challengeId                                                                       controllers.ChallengeController.setPdf(challengeId: Long)
+POST          /challenge/search                                                                                    controllers.ChallengeController.searchChallenges(pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+GET           /challenge/closeChallenge/:challengeId                                                                  controllers.ChallengeController.closeChallenge(challengeId: Long)
+GET           /challenge/getChallengesByApplicant/:userId                                                             controllers.ChallengeController.getChallengesByApplicant(userId: Long)
+#GET           /challenge/checkChallengeExist/:challengeId                                                             controllers.ChallengeController.checkChallengeExist(challengeId:Long)
+
+#GET           /project/getProjectCreator/:projectId                                                               controllers.ProjectController.getProjectCreator(projectId: Long)
+#POST          /project/search/conditions                                                                          controllers.ProjectController.searchProjectsByCondition()
+#POST          /project/setImage/:projectId                                                                        controllers.ProjectController.setImage(projectId: Long)
+#POST          /project/setPDF/:projectId                                                                          controllers.ProjectController.setPDF(projectId: Long)
+#POST          /project/addTeamMember/:projectId                                                                   controllers.ProjectController.addTeamMember(projectId: Long)
+#POST          /project/setTeamMemberPhoto/:memberId                                                               controllers.ProjectController.setTeamMemberPhoto(memberId:Long)
+#DELETE        /project/deleteTeamMember/:memberId                                                                 controllers.ProjectController.deleteTeamMember(memberId: Long)
+#GET           /project/deleteProject/:projectId                                                                   controllers.ProjectController.deleteProject(projectId: Long)
+#GET           /project/getProjectsByUser/:userId                                                                  controllers.ProjectController.getProjectsByCreator(userId: Long)
+#GET           /project/getProjectsByUser/:userId                                                                  controllers.ProjectController.getProjectsByCreator(userId: Long)
+#GET           /project/checkProjectExist/:projectId                                                               controllers.ProjectController.checkProjectExist(projectId:Long)
+#POST          /project/isProjectNameExisted                                                                       controllers.ProjectController.checkProjectNameAvailability()
+#POST          /project/saveDescriptionImage/:projectId/:imageNumber                                               controllers.ProjectController.saveDescriptionImage(projectId: Long, imageNumber: Integer)
+#GET           /project/renameDescriptionImage/:projectId/:imageNumber/:currentImageNumber                         controllers.ProjectController.renameDescriptionImage(projectId: Long, imageNumber: Integer, currentImageNumber: Integer)
+#
+#GET           /project/getMyEnrolledProjects                                                                      controllers.ProjectController.getMyEnrolledProjects(pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String], userId: Long)
+### Return all projects
+#GET           /project/allproject                                                                                 @controllers.ProjectController.getAllProject()
+#POST          /project/updatedes                                                                                  @controllers.ProjectController.updateProjectDes()
+#
+#GET          /project/getIdByName/:name                                                                         controllers.ProjectController.getIdByName(name:String)
+
+######################################### Challenge ####################################################################
+
+########################################## Job #########################################################################
+POST          /job/addJob                                                                                       controllers.JobController.addJob()
+POST          /job/updateJob/:jobId                                                                 controllers.JobController.updateJob(jobId: Long)
+DELETE        /job/deleteJobImage/:jobId                                                               controllers.JobController.deleteJobImage(jobId: Long)
+DELETE        /job/deleteJobPDF/:jobId                                                                 controllers.JobController.deleteJobPDF(jobId: Long)
+GET           /job/jobList/:userId                                                                        controllers.JobController.jobList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+POST          /job/applyJob/:jobId                                                                  controllers.JobController.applyJob(jobId: Long)
+POST          /job/updateStatus/:jobId                                                              controllers.JobController.jobUpdateStatue(jobId: Long)
+GET           /job/jobApplicationDetail/:jobApplicationId                                           controllers.JobController.getJobApplicationById(jobApplicationId: Long)
+
+GET           /job/jobDetail/:jobId                                                                 controllers.JobController.getJobById(jobId: Long)
+GET           /job/getJobPublisher/:jobId                                                               controllers.JobController.getJobPublisher(jobId: Long)
+POST          /job/search/conditions                                                                          controllers.JobController.searchJobsByCondition()
+POST          /job/setImage/:jobId                                                                        controllers.JobController.setImage(jobId: Long)
+POST          /job/setPDF/:jobId                                                                          controllers.JobController.setPDF(jobId: Long)
+GET           /job/deleteJob/:jobId                                                                   controllers.JobController.deleteJob(jobId: Long)
+GET           /job/getJobsByUser/:userId                                                                  controllers.JobController.getJobsByPublisher(userId: Long)
+GET           /job/getJobsByApplicant/:userId                                                             controllers.JobController.getJobsByApplicant(userId: Long)
+GET           /job/checkJobExist/:jobId                                                               controllers.JobController.checkJobExist(jobId:Long)
+POST          /job/isJobNameExisted                                                                       controllers.JobController.checkJobNameAvailability()
+GET           /job/getIdByName/:name                                                                         controllers.ProjectController.getIdByName(name:String)
+GET           /job/getApplications/:jobType/:jobId                                                        controllers.JobController.getApplicationsByJobId(jobType: String, jobId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+#GET           /job/getApplicationsByUser/:jobType/:userId                                                 controllers.JobController.getJobApplicationsByUser(jobType: String, userId: Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+
+######################################### Job ##########################################################################
+
+########################################## RAJob #######################################################################
+POST          /rajob/addRAJob                                                                             controllers.RAJobController.addRAJob()
+POST          /rajob/updateRAJob/:rajobId                                                                 controllers.RAJobController.updateRAJob(rajobId: Long)
+GET           /rajob/closeRAJob/:rajobId                                                                  controllers.RAJobController.closeRAJob(rajobId: Long)
+DELETE        /rajob/deleteRAJobImage/:rajobId                                                            controllers.RAJobController.deleteRAJobImage(rajobId: Long)
+DELETE        /rajob/deleteRAJobPDF/:rajobId                                                              controllers.RAJobController.deleteRAJobPDF(rajobId: Long)
+GET           /rajob/rajobList/:userId                                                                    controllers.RAJobController.rajobList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+POST          /rajob/applyRAJob/:rajobId                                                                  controllers.RAJobController.applyRAJob(rajobId: Long)
+POST          /rajob/updateStatus/:rajobId                                                                controllers.RAJobController.rajobUpdateStatue(rajobId: Long)
+POST          /rajob/updateRAjobApplicationStatus/:rajobApplicationId                                     controllers.RAJobController.giveRAJobOffertoStudent(rajobApplicationId: Long)
+GET           /rajob/rajobApplicationDetail/:rajobApplicationId                                           controllers.RAJobController.getRAJobApplicationById(rajobApplicationId: Long)
+
+#
+GET           /rajob/rajobDetail/:rajobId                                                                 controllers.RAJobController.getRAJobById(rajobId: Long)
+GET           /rajob/getRAJobPublisher/:rajobId                                                           controllers.RAJobController.getRAJobPublisher(rajobId: Long)
+POST          /rajob/search/conditions                                                                    controllers.RAJobController.searchRAJobsByCondition()
+POST          /rajob/setImage/:rajobId                                                                    controllers.RAJobController.setImage(rajobId: Long)
+POST          /rajob/setPDF/:rajobId                                                                      controllers.RAJobController.setPDF(rajobId: Long)
+GET           /rajob/deleteRAJob/:rajobId                                                                 controllers.RAJobController.deleteRAJob(rajobId: Long)
+GET           /rajob/getRAJobsByUser/:userId                                                              controllers.RAJobController.getRAJobsByPublisher(userId: Long)
+GET           /rajob/getRAJobsByApplicant/:userId                                                         controllers.RAJobController.getRAJobsByApplicant(userId: Long)
+GET           /rajob/checkRAJobExist/:rajobId                                                             controllers.RAJobController.checkRAJobExist(rajobId:Long)
+POST          /rajob/isRAJobNameExisted                                                                   controllers.RAJobController.checkRAJobNameAvailability()
+GET           /rajob/getIdByName/:name                                                                    controllers.RAJobController.getIdByName(name:String)
+POST          /rajob/offer                                                                                controllers.RAJobController.sendOfferEmail()
+POST          /rajob/sendPostedEmail                                                                      controllers.RAJobController.sendRAJobPostedEmail()
+POST          /rajob/sendAppliedEmail                                                                     controllers.RAJobController.sendRAJobAppliedEmail()
+GET           /rajob/professors                                                                           controllers.RAJobController.listProfessorsJson()
+
+######################################### RAJob ########################################################################
+
+########################################## TAJob #######################################################################
+POST          /tajob/addTAJob                                                                             controllers.TAJobController.addTAJob()
+POST          /tajob/updateTAJob/:tajobId                                                                 controllers.TAJobController.updateTAJob(tajobId: Long)
+DELETE        /tajob/deleteTAJobImage/:tajobId                                                            controllers.TAJobController.deleteTAJobImage(tajobId: Long)
+DELETE        /tajob/deleteTAJobPDF/:tajobId                                                              controllers.TAJobController.deleteTAJobPDF(tajobId: Long)
+GET           /tajob/tajobList/:userId                                                                    controllers.TAJobController.tajobList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+POST          /tajob/applyTAJob/:tajobId                                                                  controllers.TAJobController.applyTAJob(tajobId: Long)
+POST          /tajob/updateStatus/:tajobId                                                                controllers.TAJobController.tajobUpdateStatue(tajobId: Long)
+GET           /tajob/tajobApplicationDetail/:tajobApplicationId                                           controllers.TAJobController.getTAJobApplicationById(tajobApplicationId: Long)
+
+#
+GET           /tajob/tajobDetail/:tajobId                                                                 controllers.TAJobController.getTAJobById(tajobId: Long)
+GET           /tajob/getTAJobPublisher/:tajobId                                                           controllers.TAJobController.getTAJobPublisher(tajobId: Long)
+POST          /tajob/search/conditions                                                                    controllers.TAJobController.searchTAJobsByCondition()
+POST          /tajob/setImage/:tajobId                                                                    controllers.TAJobController.setImage(tajobId: Long)
+POST          /tajob/setPDF/:tajobId                                                                      controllers.TAJobController.setPDF(tajobId: Long)
+GET           /tajob/deleteTAJob/:tajobId                                                                 controllers.TAJobController.deleteTAJob(tajobId: Long)
+GET           /tajob/getTAJobsByUser/:userId                                                              controllers.TAJobController.getTAJobsByPublisher(userId: Long)
+GET           /tajob/checkTAJobExist/:tajobId                                                             controllers.TAJobController.checkTAJobExist(tajobId:Long)
+POST          /tajob/isTAJobNameExisted                                                                   controllers.TAJobController.checkTAJobNameAvailability()
+GET           /tajob/getIdByName/:name                                                                    controllers.TAJobController.getIdByName(name:String)
+
+######################################### TAJob ########################################################################
+
+
+######################################### TACandidate ###############################################################
+
+POST          /tacandidate/addTACandidate                                                                 controllers.TACandidateController.addTACandidate()
+GET           /tacandidate/tacandidateList/:userId                                                        controllers.TACandidateController.tacandidateList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+GET           /tacandidate/candidateDetail/:Id                                                            controllers.TACandidateController.getTACandidateById(Id: Long)
+GET           /tacandidate/assignments/:userId                                                            controllers.TACandidateController.getAssignmentsByUserId(userId: Long)
+
+######################################### TACandidate ###############################################################
+
+
+######################################### Course ###############################################################
+
+GET           /courses                                                                                    controllers.CourseController.listCourses
+GET           /courses/details/:courseId                                                                  controllers.CourseController.getCourseDetails(courseId: Long)
+POST          /courses/approve/:courseId/:week                                                            controllers.CourseController.approveTA(courseId: Long, week: Int)
+
+
+######################################### Course ###############################################################
+
+
+######################################### CourseTAAssignment - TA Hiring Status ###############################################################
+
+POST          /tahiring/addAssignment                                                                     controllers.CourseTAAssignmentController.addAssignment()
+GET           /tahiring/status/:Id                                                                        controllers.CourseTAAssignmentController.getCourseTAAssignmentById(Id: Long)
+GET           /tahiring/assignmentList/:Id                                                                controllers.CourseTAAssignmentController.courseTAAssignmentList(Id:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+GET           /tahiring/assignmentDetail/:Id                                                              controllers.CourseTAAssignmentController.getCourseTAAssignmentById(Id: Long)
+
+######################################### CourseTAAssignment - TA Hiring Status ###############################################################
+
+
+#################################### Users #####################################################################
+POST          /user/addUser                                                                                       controllers.UserController.addUser
+GET           /user/userDetail/:userId                                                                            controllers.UserController.userDetail(userId: Long)
+GET           /user/getResearcherInfo/:userId                                                                     controllers.UserController.getResearcherInfo(userId: Long)
+GET           /user/getStudentInfo/:userId                                                                        controllers.UserController.getStudentInfo(userId: Long)
+POST          /user/updateUser                                                                                    controllers.UserController.updateUser
+POST          /user/userLogin                                                                                     controllers.UserController.userLogin
+POST          /user/checkEmail                                                                                    controllers.UserController.checkNewUserEmailAvailability
+GET           /user/userList                                                                                      controllers.UserController.userList(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+POST          /user/validateEmail                                                                                 controllers.UserController.validateEmail
+
+POST          /user/search/conditions                                                                             controllers.UserController.searchUserByCondition(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+POST          /user/userDelete                                                                                    controllers.UserController.inactivateUserPOST
+
+
+
+POST          /user/autoRegisterUser                                                                              controllers.UserController.autoRegisterUser
+
+
+GET           /user/getAllUsers                                                                                   controllers.UserController.getAllUsersInAllRoles
+GET           /user/getAllNormalUsers                                                                             controllers.UserController.getAllNormalUsers
+POST          /user/updateImageForUser/:userId                                                                    controllers.UserController.updateImageByUserId(userId: Long)
+DELETE        /user/deleteImageForUser/:userId                                                                    controllers.UserController.deleteImageByUserId(userId: Long)
+
+
+
+
+
+GET           /user/search/:display_name                                                                         controllers.UserController.userSearch(display_name: String)
+## search user
+GET           /user/getActiveUsers/json                                                                          @controllers.UserController.getActiveUsers(format: String="json")
+POST          /user/sendPasswordEmail                                                                            @controllers.UserController.sendPasswordEmail
+POST          /user/updatePassword                                                                               @controllers.UserController.updatePassword
+GET           /users/:hashcode                                                                                   @controllers.UserController.userActivation(hashcode : String)
+POST          /user/validate                                                                                     controllers.UserController.sendRegisterEmail()
+POST          /user/validate/resend                                                                              controllers.UserController.resendRegisterEmail()
+
+POST          /user/updateLevel/:uid                                                                             @controllers.UserController.updateLevel(uid : Long)
+POST          /user/getUserByEmail                                                                               @controllers.UserController.getUserByEmail
+#################################### Users #############################################################################
+
+#################################### Organizations #############################################################################
+GET           /organization/organizationList                                                                     controllers.OrganizationController.organizationList()
+GET           /organization/organizationListPage                                                                 controllers.OrganizationController.organizationListPage(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+POST          /organization/addUsers                                                                             controllers.OrganizationController.addUsers()
+POST          /organization/register                                                                             controllers.OrganizationController.registerOrganization()
+GET           /organization/organizationDetail/:id                                                               controllers.OrganizationController.organizationDetail(id: Long)
+POST          /organization/organizationUpdate                                                                   controllers.OrganizationController.organizationUpdate()
+POST          /organization/organizationListByName                                                               controllers.OrganizationController.organizationListbyName(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+
+
+#################################### Organizations #############################################################################
+
+
+#################################### Bug Reports #######################################################################
+POST          /bugReport/addBugReport                                                                             @controllers.BugReportController.addBugReport
+GET           /bugReport/getBugReport/id/:id                                                                      @controllers.BugReportController.getBugReport(id: Long, format: String="json")
+PUT           /bugReport/updateBugReport/id/:id                                                                   @controllers.BugReportController.updateBugReport(id: Long)
+DELETE        /bugReport/deleteBugReport/id/:id                                                                   @controllers.BugReportController.deleteBugReport(id: Long)
+GET           /bugReport/updateBugReportSolved/:bugId/:fixerId                                                    @controllers.BugReportController.updateBugReportSolved(bugId: Long, fixerId: Long)
+GET           /bugReport/getAllBugReports/json                                                                    @controllers.BugReportController.getAllBugReports(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+
+GET           /bugReport/getAllUnsolvedBugReports/json                                                            @controllers.BugReportController.getAllUnsolvedBugReports
+GET           /bugReport/getAllSolvedBugReports/json                                                              @controllers.BugReportController.getAllSolvedBugReports
+
+#################################### Bug Reports #######################################################################
+
+
+#################################### Suggestions #####################################################################
+POST          /suggestion/addSuggestion                                                                           @controllers.SuggestionController.addSuggestion
+GET           /suggestion/getSuggestion/id/:id                                                                    @controllers.SuggestionController.getSuggestion(id: Long, format: String="json")
+GET           /suggestion/suggestionList/json                                                                     @controllers.SuggestionController.suggestionList(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+PUT           /suggestion/updateSuggestion/id/:id                                                                 @controllers.SuggestionController.updateSuggestion(id: Long)
+DELETE        /suggestion/deleteSuggestion/id/:id                                                                 @controllers.SuggestionController.deleteSuggestion(id: Long)
+GET           /suggestion/updateSuggestionSolve/:suggestionId/:implementorId                                      @controllers.SuggestionController.updateSuggestionSolved(suggestionId: Long, implementorId: Long)
+#################################### Suggestions #####################################################################
+
+########################################## Technology ###################################################################
+POST          /technology/addTechnology                                                                               controllers.TechnologyController.addTechnology()
+POST          /technology/updateTechnology/:technologyId                                                              controllers.TechnologyController.updateTechnology(technologyId: Long)
+#DELETE        /technology/deleteTechnologyImage/:projectId                                                              controllers.TechnologyController.deleteProjectImage(projectId: Long)
+#DELETE        /technology/deleteTechnologyPDF/:projectId                                                                controllers.TechnologyController.deleteProjectPDF(projectId: Long)
+GET           /technology/technologyList/:userId                                                                      controllers.TechnologyController.technologyList(userId:Long, pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String])
+#GET           /technology/teammember/:projectId                                                                      controllers.TechnologyController.getTeamMembersByProjectId(projectId: Long)
+#
+GET           /technology/technologyDetail/:technologyId                                                              controllers.TechnologyController.getTechnologyById(technologyId: Long)
+#GET           /technology/getTechnologyCreator/:technologyId                                                               controllers.TechnologyController.getTechnologyCreator(technologyId: Long)
+POST          /technology/search/conditions                                                                          controllers.TechnologyController.searchTechnologiesByCondition()
+#POST          /technology/setImage/:projectId                                                                        controllers.TechnologyController.setImage(projectId: Long)
+#POST          /technology/setPDF/:projectId                                                                          controllers.TechnologyController.setPDF(projectId: Long)
+#POST          /technology/addTeamMember/:projectId                                                                   controllers.TechnologyController.addTeamMember(projectId: Long)
+#POST          /technology/setTeamMemberPhoto/:memberId                                                               controllers.TechnologyController.setTeamMemberPhoto(memberId:Long)
+#DELETE        /technology/deleteTeamMember/:memberId                                                                 controllers.TechnologyController.deleteTeamMember(memberId: Long)
+#GET           /technology/deleteProject/:projectId                                                                   controllers.TechnologyController.deleteProject(projectId: Long)
+#GET           /technology/getProjectsByUser/:userId                                                                  controllers.TechnologyController.getProjectsByCreator(userId: Long)
+#GET           /technology/getProjectsByUser/:userId                                                                  controllers.TechnologyController.getProjectsByCreator(userId: Long)
+#GET           /technology/checkProjectExist/:projectId                                                               controllers.TechnologyController.checkProjectExist(projectId:Long)
+#POST          /technology/isProjectNameExisted                                                                       controllers.TechnologyController.checkProjectNameAvailability()
+#POST          /technology/saveDescriptionImage/:projectId/:imageNumber                                               controllers.TechnologyController.saveDescriptionImage(projectId: Long, imageNumber: Integer)
+#GET           /technology/renameDescriptionImage/:projectId/:imageNumber/:currentImageNumber                         controllers.TechnologyController.renameDescriptionImage(projectId: Long, imageNumber: Integer, currentImageNumber: Integer)
+#
+#GET           /project/getMyEnrolledProjects                                                                      controllers.ProjectController.getMyEnrolledProjects(pageLimit: Integer, pageNum: Integer, sortCriteria: java.util.Optional[String], userId: Long)
+### Return all projects
+#GET           /project/allproject                                                                                 @controllers.ProjectController.getAllProject()
+#POST          /project/updatedes                                                                                  @controllers.ProjectController.updateProjectDes()
+#
+#GET          /project/getIdByName/:name                                                                         controllers.ProjectController.getIdByName(name:String)
+
+######################################### Technology ####################################################################
+
+
+
+#################################### Admin Management #############################################################################
+GET           /admin/users                                                                       controllers.AdminController.getUserList(pageNum: Integer ?= 1, pageLimit: Integer ?= 20, sortCriteria: String ?= "id")
+GET           /admin/users/:userId                                                               controllers.AdminController.getUserDetail(userId: Long)
+PUT           /admin/users/:userId/status                                                        controllers.AdminController.updateUserStatus(userId: Long)
+GET           /admin/jobs                                                                        controllers.AdminController.getJobList(pageNum: Integer ?= 1, pageLimit: Integer ?= 20, sortCriteria: String ?= "id")
+GET           /admin/jobs/:jobType/:jobId                                                        controllers.AdminController.getJobDetail(jobType: String, jobId: Long)
+GET           /admin/organizations                                                               controllers.AdminController.getOrganizationList(pageNum: Integer ?= 1, pageLimit: Integer ?= 20, sortCriteria: String ?= "id")
+GET           /admin/technologies                                                                controllers.AdminController.getTechnologyList(pageNum: Integer ?= 1, pageLimit: Integer ?= 20, sortCriteria: String ?= "id")
+#################################### Admin Management #############################################################################
+
+
+
+
+
+
+#################################### Authors #####################################################################
+POST          /author/addAuthor                                                                                      controllers.AuthorController.addAuthor
+GET           /author/authorDetail/:userId                                                                            controllers.AuthorController.authorDetail(userId: Long)
+POST          /author/updateAuthor                                                                                   controllers.AuthorController.updateAuthor
+GET           /author/authorList                                                                                      controllers.AuthorController.authorList(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+
+GET           /author/userDetailAdmin/:userId                                                                            controllers.AuthorController.userDetailAdmin(userId: Long)
+POST          /author/updateUserAdmin                                                                                   controllers.AuthorController.updateUserAdmin
+GET           /author/userListAdmin                                                                                     controllers.AuthorController.userListAdmin(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+
+POST          /author/search                                                                              controllers.AuthorController.searchAuthorByCondition(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+GET           /author/topAuthors                                                                                      controllers.AuthorController.topAuthors()
+################################## Authors #############################################################################
+
+#################################### Reviewer #####################################################################
+POST          /reviewer/addReviewer                                                                                      controllers.ReviewerController.addReviewer
+GET           /reviewer/reviewerDetail/:userId                                                                           controllers.ReviewerController.reviewerDetail(userId: Long)
+POST          /reviewer/updateReviewer                                                                                   controllers.ReviewerController.updateReviewer
+GET           /reviewer/reviewerList                                                                                     controllers.ReviewerController.reviewerList(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+
+POST          /reviewer/search/conditions                                                                                controllers.ReviewerController.searchReviewerByCondition(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+
+
+################################## Reviewers #############################################################################
+
+################################## Paper #############################################################################
+
+POST           /paper/addPaper                                                                                          controllers.PaperController.addPaper()
+GET            /paper/paperList                                                                                         controllers.PaperController.paperList(pageLimit: java.util.Optional[Integer], offset: java.util.Optional[Integer], sortCriteria: java.util.Optional[String])
+GET            /paper/author                                                                                            controllers.PaperController.getAuthorByPaperId(paperId: Long)
+POST           /paper/deletePaper                                                                                       controllers.PaperController.deletePaper(paperId: Long)
+
+GET             /paper/paperDetail/:paperId                                                                             controllers.PaperController.getPaperById(paperId: Long)
+POST            /paper/addAuthor/:paperId                                                                               controllers.PaperController.addAuthor(paperId: Long)
+POST            /paper/deleteAuthor                                                                                     controllers.PaperController.deleteAuthor(memberId: Long)
+
+################################## Paper #############################################################################
+GET             /graph/primePOC                                                                                         controllers.GraphController.printPrimeConnections()
+GET             /paper/paperAuthorList                                                                                  controllers.PaperController.paperAuthorList()
+POST            /paper/loadPaper                                                                                        controllers.PaperController.storeDBLP()
+GET             /paper/lda                                                                                              controllers.PaperController.loadLDA()
+GET             /paper/authorRelation                                                                                   controllers.PaperController.authorRelation()
+POST            /paper/loadSchema                                                                                       controllers.PaperController.storeDBLPSchema()
+GET             /paper/ldaTopicList                                                                                     controllers.PaperController.ldaTopicDistribution()
+POST            /paper/search                                                                                           controllers.PaperController.paperSearchList()
+
+
+################################## Log #############################################################################
+POST            /log/loggingOperation                                                                                   controllers.LogController.operationLogging()
+
+################################# File #############################################################################
+GET             /file/:tableName/:fileType/:tableRecorderId                                                             controllers.FileController.getFile(tableName: String, fileType: String, tableRecorderId: String)
+GET             /file/checkFile/:tableName/:fileType/:tableRecorderId                                                   controllers.FileController.checkFile(tableName: String, fileType: String, tableRecorderId: String)
+POST /technology/setFiles/:serviceId  controllers.TechnologyController.setFiles(serviceId: Long, fileName: String, fileType: String)
+GET /technology/fileDetail/:serviceId controllers.TechnologyController.getFileById(serviceId: Long)
+POST            /file/upload/:tableName/:fileType/:recordId                                                             controllers.FileController.uploadRawFile(tableName:String,fileType:String,recordId:Long)

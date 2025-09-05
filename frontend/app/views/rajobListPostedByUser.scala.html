@@ -1,0 +1,403 @@
+@(rajobs: List[RAJob],
+        pageNum: Integer,
+        offset: Integer,
+        total: Integer,
+        count: Integer,
+        pageLimit: Integer,
+        id: Long,
+        beginIndexForPagination: Integer,
+        endIndexForPagination: Integer)
+@import helper._;
+@import models._;
+@import models.RAJob;
+
+@scripts = {
+    <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
+    <script type="text/javascript">
+
+            $(document).ready(function () {
+                var technologiesArray = []
+                @for(i <- 0 until rajobs.size) {
+                var json = {};
+                json.id = '@rajobs.get(i).getId()';
+                json.url = "/job/jobDetail/" + json.id;
+
+                json.name = '@rajobs.get(i).getTitle'.replace(/[^a-zA-Z0-9]/g, " ").replace(/  +/g, " ").trim();
+                console.log("jsonhere:" + json)
+                technologiesArray.push(json)
+                }
+                $("#nasaText").text(JSON.stringify(technologiesArray));
+
+                $('.tooltipped').tooltip();
+
+                // $("#speak-from-filter").click();
+                // $("#speak-nasa").click();
+                // $("#speak-from-filter").click();
+
+            });
+
+            function jumpToPage(pageNum) {
+
+                pageNum =  parseInt(pageNum);
+
+                var url = "/job/searchPOST?pageNum=" + (pageNum);
+                var form = $(document.createElement('form'));
+                $(form).attr("action", url);
+                $(form).attr("method", "GET");
+                $(form).css("display", "none");
+
+
+                var form_searchString = $("<input>")
+                        .attr("type", "text")
+                        .attr("name", "searchString")
+                        .val(searchString);
+                $(form).append($(form_searchString));
+
+                form.appendTo(document.body);
+                $(form).submit();
+            }
+
+            function string2Map(str) {
+
+                var map = new Map();
+                var splitedString = str.replace(new RegExp("],", 'g'), ";");
+                var array = splitedString.split(";");
+                for(var i=0; i<array.length; i++){
+                    var idAndEventsString = array[i];
+                    idAndEventsString = idAndEventsString.replace(/[{}[\]\\]/g, " ");
+                    var idAndEvents = idAndEventsString.split("=");
+                    var id = idAndEvents[0];
+                    var eventsString = idAndEvents[1];
+                    var events = eventsString.split(",");
+                    console.log("events:" + events + "," + i);
+
+                    var formatedEvents = "";
+                    for(var j=0; j<events.length; j++){
+                        events[j] = events[j].trim();
+                        formatedEvents = formatedEvents + events[j] + ";";
+                    }
+                    if(formatedEvents.length > 1)
+                        map.set(id.trim(), formatedEvents);
+                }
+
+                return map;
+            }
+
+    </script>
+    <style>
+            .follow-fab {
+                top: -20px !important;
+                bottom: auto !important;
+                right: -20px !important;
+            }
+
+            .truncate-text {
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-height: 4.5em; /* 3 lines approx if line-height is 1.5em */
+                line-height: 1.5em;
+                cursor: pointer;
+                white-space: normal;
+            }
+    </style>
+}
+
+@main("My Posted RAJobs", scripts) {
+    <div class="container">
+        <div class="card-panel center">
+            <div class="row card-panel z-depth-0 project-zone-panel">
+                <div class="col s12" style="margin-top: -10px;
+                    margin-bottom: -10px;">
+                    <h6 class="center tooltipped" data-position="bottom" data-tooltip="This list shows the my posted job lists." >
+                        My Posted RAJobs
+                    </h6>
+                </div>
+            </div>
+
+            @if(rajobs.size() > 0) {
+                <div class="col s8 offset-s2">
+                    <h4>RAJob List</h4>
+
+                </div>
+                <div class="col s2">
+                    <button id = "speak-from-filter" hidden></button>
+                    <div id="nasaText" hidden></div>
+                    <div id="requestField"></div>
+                    <div id="replyField"></div>
+                </div>
+                <div class="row">
+                    <div class="col s6">
+                        <h6 class="left">Showing results: @{
+                            offset + 1
+                        } to @{
+                            offset + count
+                        } of @total</h6>
+                    </div>
+                </div>
+                <table class="centered responsive-table striped" id="projectTable" >
+                    <thead>
+                        <tr class="list-header" style="border-bottom: 1px solid;
+                        !important;">
+                            <th style="cursor: pointer;">RAJob Id</th>
+                            <th style="cursor: pointer;">Title</th>
+                            <th style="cursor: pointer;">Short Description</th>
+                            <th style="cursor: pointer;">Fields</th>
+                            <th style="cursor: pointer;">Status</th>
+                            <th style="cursor: pointer;">View Applications</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for((entry, index) <- rajobs.zipWithIndex if entry.getStatus() != "closed") {
+                        <tr>
+                            <td>@entry.getId()</td>
+
+
+                            @*                            @if(entry.getTitle() != "") {*@
+                            @*                                <td><span class="@entry.getId() editable" data-name='title'></span>*@
+                            @*                                    @entry.getTitle()*@
+                            @*                                </td>*@
+                            @*                            } else {*@
+                            @*                                <td><span class="@entry.getId() editable" data-name='title'>&ensp; -</span></td>*@
+                            @*                            }*@
+                            <td>
+
+                            @if(entry.getTitle() != null && entry.getTitle().nonEmpty) {
+                                <a href = "@routes.RAJobController.rajobDetail(entry.getId())">@entry.getTitle()</a>
+                                <span class="@entry.getId() editable" data-name="title"></span>
+                                @*                                    @if(entry.getTitle().length > 30) {*@
+                                @*                                        @entry.getTitle().substring(0, 30)...*@
+                                @*                                    } else {*@
+                                @*                                        @entry.getTitle()*@
+                                @*                                    }*@
+                            } else {
+                                <span class="@entry.getId() editable" data-name="title">&ensp; -</span>
+                            }
+                            </td>
+
+                            @*                            @if(entry.getShortDescription() != "") {*@
+                            @*                                <td><span class="@entry.getId() editable" data-name='shortDescription'></span>*@
+
+                            @*                                    @entry.getShortDescription()*@
+                            @*                                </td>*@
+                            @*                            } else {*@
+                            @*                                <td><span class="@entry.getId() editable" data-name='shortDescription'>&ensp; -</span></td>*@
+                            @*                            }*@
+
+                            <td>
+
+                            @if(entry.getShortDescription() != null && entry.getShortDescription().nonEmpty) {
+                                <span class="@entry.getId() editable truncate-text" data-name="shortDescription" title="@entry.getShortDescription()">
+                                    @*                                    @if(entry.getShortDescription().length > 20) {*@
+                                    @*                                        @entry.getShortDescription().substring(0, 20)...*@
+                                    @*                                    } else {*@
+                                    @*                                        @entry.getShortDescription()*@
+                                    @*                                    }*@
+                                    @entry.getShortDescription()
+                                </span>
+                            } else {
+                                <span class="@entry.getId() editable truncate-text" data-name="shortDescription">&ensp; -</span>
+                            }
+                            </td>
+
+                            @*                            @if(entry.getFields() != "") {*@
+                            @*                                <td><span class="@entry.getId() editable" data-name='fields'></span>*@
+
+                            @*                                    @entry.getFields()*@
+                            @*                                </td>*@
+                            @*                            } else {*@
+                            @*                                <td><span class="@entry.getId() editable" data-name='fields'>&ensp; -</span></td>*@
+                            @*                            }*@
+                            <td>
+                            @if(entry.getFields() != null && entry.getFields().nonEmpty) {
+                                <span class="@entry.getId() editable truncate-text" data-name="fields" title="@entry.getFields()">
+                                    @*                                    @if(entry.getFields().length > 20) {*@
+                                    @*                                        @entry.getFields().substring(0, 20)...*@
+                                    @*                                    } else {*@
+                                    @*                                        @entry.getFields()*@
+                                    @*                                    }*@
+                                    @entry.getFields()
+                                </span>
+                            } else {
+                                <span class="@entry.getId() editable truncate-text" data-name="fields">&ensp; -</span>
+                            }
+                            </td>
+
+                            @*                            @if(entry.getStatus() == "open") {*@
+                            @*                                <td>*@
+                            @*                                    <span class="new badge light-green darken-1" data-badge-caption="open"></span>*@
+                            @*                                </td>*@
+                            @*                            } else if(entry.getStatus() == "pending"){*@
+                            @*                            <td>*@
+                            @*                                <span class="new badge purple darken-1" data-badge-caption="pending"></span>*@
+                            @*                            </td>*@
+                            @*                            }else{*@
+                            @*                            <td>*@
+                            @*                                <span class="new badge grey darken-3" data-badge-caption="closed"></span>*@
+                            @*                            </td>*@
+                            @*                            }*@
+
+
+
+                            @if(entry.getStatus() == "open") {
+                                <td>
+                                    <span class="new badge light-green darken-1" data-badge-caption="open"></span>
+                                </td>
+                            } else if(entry.getStatus() == "pending"){
+                            <td>
+                                <span class="new badge purple darken-1" data-badge-caption="pending"></span>
+                            </td>
+                            @*                            }else if(entry.getStatus() == "closed"){*@
+                            @*                                <td>*@
+                            @*                                    <span class="new badge grey darken-3" data-badge-caption="closed"></span>*@
+                            @*                                </td>*@
+                            }else{
+                            <td>
+                                <span class="new badge blue darken-3" data-badge-caption="updated"></span>
+                            </td>
+                            }
+
+                            @if(entry.getNumberOfApplicants()>0) {
+                                <td>
+                                    <a class="waves-effect waves-light green darken-3 btn" href="@routes.JobController.jobApplicationsList("rajob", entry.getId(), 1, "")">view</a>
+                                </td>
+                            } else {
+                                <td>
+                                    <a class="btn disabled">view</a>
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="pagination center-align">
+                            @if(pageNum == 1) {
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    first_page</i></li>
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    chevron_left</i></li>
+                            } else {
+                                <li class="waves-effect"><a href="@routes.RAJobController.rajobListPostedByUser(1)"><i class="material-icons">
+                                    first_page</i></a></li>
+                                <li class="waves-effect"><a href="@routes.RAJobController.rajobListPostedByUser(pageNum - 1)"><i class="material-icons">
+                                    chevron_left</i></a></li>
+                            }
+                            @if(beginIndexForPagination > 1) {
+                                <li class="waves-effect modal-trigger" href="#allPageModal" style="cursor: pointer;
+                                    font-size: 20px;
+                                    font-weight: bold">...</li>
+                            }
+                            @for(i <- (beginIndexForPagination + 0) to (endIndexForPagination + 0)) {
+                                <li @if(pageNum == i) {
+                                    class="active"}><a href="@routes.RAJobController.rajobListPostedByUser(i)">@i</a></li>
+                            }
+                            @if(endIndexForPagination < ((total - 1) / pageLimit + 1)) {
+                                <li class="waves-effect modal-trigger" href="#allPageModal" style="cursor: pointer;
+                                    font-size: 20px;
+                                    font-weight: bold">...</li>
+                            }
+                            @if((offset + count) >= total) {
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    chevron_right</i></li>
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    last_page</i></li>
+                            } else {
+                                <li class="waves-effect"><a href="@routes.RAJobController.rajobListPostedByUser(pageNum + 1)"><i class="material-icons">
+                                    chevron_right</i></a></li>
+                                <li class="waves-effect"><a href="@routes.RAJobController.rajobListPostedByUser((total - 1) / pageLimit + 1)"><i class="material-icons">
+                                    last_page</i></a></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            } else {
+                <h5>No rajobs registered yet.</h5>
+            }
+            <div id="allPageModal" class="modal">
+                <div class="modal-content">
+                    <h6>Select the page number you want to jump to</h6>
+                    <div class="card z-depth-0">
+
+                    @for(i <- (0) to ((((total - 1)/(pageLimit) + 1) - 1)/10)) {
+                        <ul class="pagination center-align">
+                        @for(j <- (i * 10 + 1) to (i * 10 + 10)) {
+                            @if(j <= ((total - 1)/(pageLimit) + 1)) {
+                                @if(j != pageNum) {
+                                    <li class="waves-effect grey lighten-3"><a href='@routes.RAJobController.rajobListPostedByUser(j)'>@j</a></li>
+                                }else{
+                                    <li class="waves-effect active"><a href="@routes.RAJobController.rajobListPostedByUser(j)">@j</a></li>
+                                }
+                            }
+                        }
+                        </ul>
+                    }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                        Cancel</a>
+                </div>
+            </div>
+
+            <div id="enrollPageModal" class="modal">
+                <div class="modal-content">
+                    <h6>Select the page number you want to jump to</h6>
+                    <div class="card z-depth-0">
+
+                    @for(i <- (0) to ((((total - 1)/(pageLimit) + 1) - 1)/10)) {
+                        <ul class="pagination center-align">
+                        @for(j <- (i * 10 + 1) to (i * 10 + 10)) {
+                            @if(j <= ((total - 1)/(pageLimit) + 1)) {
+                                @if(j != pageNum) {
+                                    <li class="waves-effect grey lighten-3"><a href='@routes.ProjectController.getMyEnrolledProjects(j, "")'>@j</a></li>
+                                }else{
+                                    <li class="waves-effect active"><a href="@routes.ProjectController.getMyEnrolledProjects(j, "")">@j</a></li>
+                                }
+                            }
+                        }
+                        </ul>
+                    }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                        Cancel</a>
+                </div>
+            </div>
+
+            <div id="searchPageModal" class="modal">
+                <div class="modal-content">
+                    <h6>Select the page number you want to jump to</h6>
+                    <div class="card z-depth-0">
+
+                    @for(i <- (0) to ((((total - 1)/(pageLimit) + 1) - 1)/10)) {
+                        <ul class="pagination center-align">
+                        @for(j <- (i * 10 + 1) to (i * 10 + 10)) {
+                            @if(j <= ((total - 1)/(pageLimit) + 1)) {
+                                @if(j != pageNum) {
+                                    <li class="waves-effect grey lighten-3"><a href='#!' onclick="jumpToPage(@j)">@j</a></li>
+                                }else{
+                                    <li class="waves-effect active"><a href="#!" onclick="jumpToPage(@j)">@j</a></li>
+                                }
+                            }
+                        }
+                        </ul>
+                    }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                        Cancel</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}

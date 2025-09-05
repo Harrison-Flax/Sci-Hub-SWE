@@ -1,0 +1,53 @@
+name: Build and Push CSHub Play Environment Images to Docker Hub
+
+on:
+  # Allows manual runs
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Docker Buildx (optional but useful for advanced builds)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 3. Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 4. Build and push backend environment image
+      - name: Build and Push Backend Environment Image
+        run: |
+          docker build -t cmusvsc/smu_cshub:cshub-backend-env -f ./backend/Dockerfile.backend_env .
+          docker push cmusvsc/smu_cshub:cshub-backend-env
+
+      # 5. Build and push frontend environment image
+      - name: Build and Push Frontend Environment Image
+        run: |
+          docker build -t cmusvsc/smu_cshub:cshub-frontend-env -f ./frontend/Dockerfile.frontend_env .
+          docker push cmusvsc/smu_cshub:cshub-frontend-env
+
+      # 6. SSH to EC2 and deploy updated Docker images
+      - name: SSH to EC2 and Deploy Docker Images
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            # Login to Docker Hub on EC2
+            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            # Pull the latest images for frontend and backend
+            docker pull cmusvsc/smu_cshub:cshub-frontend-env
+            docker pull cmusvsc/smu_cshub:cshub-backend-env

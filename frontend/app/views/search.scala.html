@@ -1,0 +1,234 @@
+@(searchType: String)
+    @scripts = {
+        <script type="text/javascript">
+            $(document)
+                    .ready();
+    </script>
+    }
+    @main("General Search Page", scripts) {
+        <div class="container">
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card-panel">
+                        @if(searchType.equals("user")) {
+                            <form class="form-signin" enctype="multipart/form-data" method="post" action="@routes.UserController.searchPOST(1, "id")">
+                                <h4 class="center">Search User</h4>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="name" id="userName" class="validate">
+                                        <label for="userName">User Name</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="Email" id="Email" class="validate">
+                                        <label for="Email">Email</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="MailingAdd" id="Mailing Address" class="validate">
+                                        <label for="Mailing Address">Mailing Address</label>
+                                    </div>
+                                </div>
+                                }
+                        @if(searchType.equals("organization")) {
+                            <form class="form-signin" enctype="multipart/form-data" method="post" action="@routes.OrganizationController.searchPOST(1, "id")">
+                                <h4 class="center">Search Organzation</h4>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="organizationName" id="title" class="validate">
+                                        <label for="userName">Organization Name</label>
+                                    </div>
+                                </div>
+                                }
+                        @if(searchType.equals("author")) {
+                            <form class="form-signin" enctype="multipart/form-data" method="post" action="@routes.AuthorController.searchPOST(1, "id")">
+                                <h4 class="center">Search Researcher</h4>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="AuthorName" id="AuthorName" class="validate">
+                                        <label for="AuthorName">Researcher Name</label>
+                                    </div>
+                                </div>
+
+@*                                <div class="row">*@
+@*                                    <div class="input-field col s12">*@
+@*                                        <input*@
+@*                                        type="text" name="Affiliation" id="Affiliation" class="validate">*@
+@*                                        <label for="Affiliation">Affiliation</label>*@
+@*                                    </div>*@
+@*                                </div>*@
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="Email" id="Email" class="validate">
+                                        <label for="Email">Email</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="MailingAdd" id="Mailing Address" class="validate">
+                                        <label for="Mailing Address">Mailing Address</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="PhoneNum" id="phoneNum" class="validate">
+                                        <label for="phoneNum">Phone Number</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="ResearchArea" id="Research Area" class="validate">
+                                        <label for="Research Area">Research Areas</label>
+                                    </div>
+                                </div>
+                                }
+                        @if(searchType.equals("paper")) {
+                            <form class="form-signin" enctype="multipart/form-data" method="post" action="@routes.PaperController.searchPaper(1, "id")">
+                                <h4 class="center">Search Paper</h4>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="Title" id="Title" class="validate">
+                                        <label for="Title">Title</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="PublicationChannel" id="PublicationChannel" class="validate">
+                                        <label for="PublicationChannel">Publication Channel</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="PublicationType" id="PublicationType" class="validate">
+                                        <label for="PublicationType">Publication Type</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="BookTitle" id="BookTitle" class="validate">
+                                        <label for="BookTitle">Book Title</label>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="AbstractText" id="AbstractText" class="validate">
+                                        <label for="AbstractText">Abstract Text</label>
+                                    </div>
+                                </div>
+                                }
+                        @if(searchType.equals("Reviewer")) {
+                            <form class="form-signin" enctype="multipart/form-data" method="post" action="@routes.ReviewerController.searchPOST(1, "id")">
+                                <h4 class="center">Search Reviewer</h4>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="name" id="userName" class="validate">
+                                        <label for="userName">Reviewer Name</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="Affiliation" id="Affiliation" class="validate">
+                                        <label for="Affiliation">Affiliation</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="Email" id="Email" class="validate">
+                                        <label for="Email">Email</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="MailingAdd" id="Mailing Address" class="validate">
+                                        <label for="Mailing Address">Mailing Address</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="PhoneNum" id="phoneNum" class="validate">
+                                        <label for="phoneNum">Phone Number</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="Research Area" id="Research Area" class="validate">
+                                        <label for="Research Area">Research Areas</label>
+                                    </div>
+                                </div>
+                                }
+                        @if(searchType.equals("project")) {
+                            <form class="form-signin" enctype="multipart/form-data" method="post" action="@routes.ProjectController.searchPOST(1, "id")">
+                                <h4 class="center">Search Project</h4>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="title" id="title" class="validate">
+                                        <label for="userName">Project Title</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="goals" id="goals" class="validate">
+                                        <label for="goals">Goals</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="location" id="location" class="validate">
+                                        <label for="location">Location</label>
+                                    </div>
+                                </div>
+                                }
+
+
+
+                        <div class="center">
+                            <button class="hidden btn waves-effect waves-light blue darken-2" type="submit" value="Search">
+                                Search</button>
+                            <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                Cancel</a>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }

@@ -1,0 +1,267 @@
+@import helper._
+@import models._
+@import models.Project
+
+@(paper: Paper, parentPaper: Paper)
+
+
+    @scripts = {
+        <style>
+                tr {
+                    border-bottom: none;
+                }
+
+                td {
+                    text-align: center;
+                }
+
+                p {
+                    margin-bottom: 5px;
+                }
+        </style>
+        <script type="text/javascript">
+                $(document).ready(function () {
+                    // var doc = document.getElementById('description').contentWindow.document;
+                    // doc.open();
+                    var quill = new Quill('#quill-container', {
+                        scrollingContainer: '#scrolling-container'
+                    });
+
+                    quill.clipboard.dangerouslyPasteHTML(entityToString());
+                    quill.enable(false);
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                });
+
+                function reinitIframe() {
+                    var iframe = document.getElementById("description");
+                    try {
+                        var bHeight = iframe.contentWindow.document.body.scrollHeight;
+                        var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+                        var height = Math.max(bHeight, dHeight);
+                        iframe.height = height;
+                    } catch (ex) {
+                    }
+                }
+
+                window.setInterval("reinitIframe()", 200);
+
+
+        </script>
+
+    }
+
+    @main("Paper Detail", scripts) {
+@*        <link href='@routes.Assets.at("stylesheets/quill.snow.css")'*@
+@*        rel="stylesheet" />*@
+@*        <script type="text/javascript" src='@routes.Assets.at("javascripts/quill.js")'></script>*@
+@*        <script type="text/javascript" src='@routes.Assets.at("javascripts/ratings.js")'></script>*@
+@*        <style>*@
+@*                td {*@
+@*                    word-wrap: break-word;*@
+@*                }*@
+
+@*                th {*@
+@*                    word-wrap: break-word;*@
+@*                    max-width: 130px;*@
+@*                }*@
+
+@*                .no-padding {*@
+@*                    padding: 0 0 0 0 !important;*@
+@*                    border-bottom: 1px solid #e0e0e0 !important;*@
+@*                }*@
+
+@*                .instrument-metadata {*@
+@*                    display: none;*@
+@*                }*@
+
+@*                .choice-container {*@
+@*                    display: none;*@
+@*                }*@
+
+@*                .choice-container.active {*@
+@*                    display: block;*@
+@*                }*@
+
+@*                .reply-container {*@
+@*                    display: none;*@
+@*                }*@
+
+@*                .timestamp {*@
+@*                    font-size: 80%;*@
+@*                }*@
+
+@*                tr, tbody {*@
+@*                    width: 800px !important;*@
+@*                    display: table;*@
+@*                }*@
+
+@*                .card-panel {*@
+@*                    width: 1100px !important;*@
+@*                }*@
+
+@*                th {*@
+@*                    width: 150px !important;*@
+@*                }*@
+
+@*                .card-panel {*@
+@*                    border-radius: 2px;*@
+@*                    background-color: #fff;*@
+@*                }*@
+@*        </style>*@
+        <div class="container">
+            <div class="center">
+                <div class="row">
+                    <div class="col s12">
+                        <div class="card-panel center">
+                            <h4 class="center">@paper.getTitle</h4>
+                            <div class="row">
+                                <div class="col s3 ">
+                                    <div class="center">
+                                        <img width="360" height="350" style="height: auto;
+                                            width: 80%;" class="card-panel responsive-img" id="dataset-image" src='@routes.Assets.at("images/docker.png")'></img>
+                                        <div class="rating_self clearfix" typeof="v:Rating">
+                                            <div class="rating_right">
+                                                <strong class="ll rating_num">0.0</strong>
+                                                <div id="hearts" class="starrs"></div>
+                                                You gave a rating of <span id="count">0</span> star(s)
+                                                <div class="rating_sum">
+                                                    <span class="rating_sum">0</span> user(s) rated
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <br>
+                                    </div>
+                                    <div class="center">
+
+
+                                        <br>
+                                        <a class="btn waves-effect waves-light blue darken-2 modal-trigger" >
+                                            Add User Tags</a>
+
+                                            <!-- Modal Structure -->
+                                        <div id="modal" class="modal center">
+                                            <div class="center modal-content">
+                                                <h5>Add tags for dataset:  </h5>
+                                                <lable class="left">Tags should be seperated by ","</lable>
+                                                <input type="text" name="tags" class="form-control" placeholder="">
+                                            </div>
+                                            <div class="modal-fixed-footer">
+                                                <a href="#!" class="modal-close btn waves-effect waves-light blue darken-2" >
+                                                    Add Tags</a>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    </div>
+                                    <div class="row col s11" id="citation">
+                                        <p class="center" style="color: red;
+                                            font-weight: bold">Recommended Citation to This Dataset*:</p>
+                                        <p>
+                                            . Provided by:   - Accessed via:
+                                            https://opennex.org/dataset/datasetDetail/ on <script> document.write(new Date().toLocaleDateString()); </script>
+                                            .
+                                        </p>
+                                        <p ><i>
+                                            * When users make use of a dataset, they should cite both the dataset and the scientific publication, if available. Such a practice gives credit to the dataset providers and advances principles of transparency and reproducibility. </i></p>
+                                        @*<p>@service.getHtmlUrl .Accessed @service.getLastUpdatedTime</p>*@
+                                    </div>
+                                </div>
+                                <div class="col s9" >
+                                    <table class="striped responsive-table" style="margin-top: 10px;
+                                        margin-bottom: 10px;">
+                                        <tbody>
+                                            <tr>
+                                                <th>Title</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">@paper.getTitle</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Publication Channel</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">@paper.getPublicationChannel</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Date</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">@paper.getYear</td>
+                                            </tr>
+
+
+                                            <tr>
+                                                <th>Pages</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">@paper.getPages</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Book Title</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">
+                                                @paper.getBookTitle </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Url</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">
+                                                @paper.getUrl </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Authors</th>
+                                                <td style="word-wrap: break-word">@if(paper.getAuthors != null && paper.getAuthors.size() != 0) {
+                                                    <div class="row">
+                                                        <div class="col s12">
+
+                                                            <table>
+                                                                <tr>
+                                                                    <td style="width: 40px;
+                                                                        text-align: left;">Avatar</td>
+                                                                    <td style="width: 40px;
+                                                                        text-align: left;">Name</td>
+                                                                    <td style="width: 40px;
+                                                                        text-align: left;">Email</td>
+                                                                </tr>
+                                                                <tbody>
+                                                                @for(teamMember <- paper.getAuthors) {
+                                                                    <tr>
+                                                                        <td style="width: 40px;
+                                                                            text-align: left;"><img src="@teamMember.getAvatar" style="height: 35px;
+                                                                            width: 35px;
+                                                                            border-radius: 50%;"></img>
+                                                                        </td>
+                                                                        <td style = "width:40px;text-align:left;" > @teamMember.getAuthorName()
+                                                                        </td>
+                                                                        <td style="width: 40px;
+                                                                            text-align: left;">@if(teamMember.getEmail() == null || teamMember.getEmail() == "") {
+                                                                            -
+                                                                        } else {
+                                                                            @teamMember.getEmail()
+                                                                        }</td>
+                                                                    </tr>
+                                                                }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                }</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Abstract</th>
+                                                <td style="word-wrap: break-word;
+                                                    text-align: left;">
+                                                @paper.getAbstractText </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row center">
+                                <a href="@routes.PaperController.paperList(1, "")" class="btn waves-effect waves-light blue darken-2">
+                                    Back to Paper List</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }

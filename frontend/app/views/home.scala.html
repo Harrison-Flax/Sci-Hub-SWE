@@ -1,0 +1,444 @@
+@(projectZone: Project, userId: Long, username: String)
+
+@import helper._
+@import Long._
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function () {
+                // var doc = document.getElementById('description').contentWindow.document;
+                // doc.open();
+                var quill = new Quill('#quill-container', {
+                    scrollingContainer: '#scrolling-container'
+                });
+
+                quill.clipboard.dangerouslyPasteHTML(entityToString());
+                quill.enable(false);
+
+                $('.dropdown-trigger').dropdown();
+
+                $('.carousel.carousel-slider').carousel({
+                    fullWidth: true,
+                    indicators: true
+                });
+            });
+
+            function reinitIframe() {
+                var iframe = document.getElementById("description");
+                try {
+                    var bHeight = iframe.contentWindow.document.body.scrollHeight;
+                    var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+                    var height = Math.max(bHeight, dHeight);
+                    iframe.height = height;
+                } catch (ex) {
+                }
+            }
+
+            window.setInterval("reinitIframe()", 200);
+
+            function entityToString() {
+                var div = document.createElement('div');
+                @if(projectZone!=null){
+                div.innerHTML = "@projectZone.getDescription()";
+                }
+                var res = div.innerText || div.textContent;
+                return res;
+            }
+
+            function readNews(newsId) {
+
+                $.ajax({
+                    url: "/news/readNews/" + newsId,
+                    type: "GET"
+                }).done(function (data) {
+                    console.log(data);
+                });
+            }
+
+            @***** Change project viewpoint, refreshing the screen *******@
+            function changeView(view){
+                $.ajax({
+                    url: "/updateProjectZone/" + view,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "GET"
+                }).done(function (data) {
+                    window.location.reload();
+                });
+            }
+    </script>
+    <style>
+            #prevOnMainCarousel {
+                position: absolute;
+                top: 100%;
+                left: calc(50% - 100px);
+            }
+
+            #nextOnMainCarousel {
+                position: absolute;
+                top: 100%;
+                right: calc(50% - 100px);
+            }
+    </style>
+
+}
+
+@main("SMU-Lyle-Sci-Hub", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    @if(projectZone != null) {
+        <div class="container">
+            <div class="row">
+                <div class="col s12 m12">
+                    <div class="card-panel center">
+                        <div class="row card-panel z-depth-0 project-zone-panel">
+                            <div class="col s12" style="margin-top: -10px; margin-bottom: -10px;">
+                                <h6 class="left tooltipped" data-position="bottom" data-tooltip="This list shows all the Notebooks associated with your current project zone." >
+                                    Current Project Zone :
+                                    @if(projectZone != null) {
+                                        <a style="color: #97f1ac;" href="@routes.ProjectController.projectDetail(projectZone.getId())">@projectZone.getTitle() </a>
+                                    } else {
+                                        OpenNEX
+                                    }
+                                </h6>
+                                <a class='dropdown-trigger right' href='#' data-target='dropdown1' style="text-transform: none;
+                                    font-weight: bold;
+                                    color: white;
+                                    padding-top: 8px;
+                                    font-family: AmazonEmberBold, Helvetica Neue Bold, Helvetica Neue, Helvetica, Arial, sans-serif;
+                                !important;"><font style="weight: bold;"> <u>
+                                    Change Project Zone </u></font><i class="material-icons right">expand_more</i>
+                                </a>
+                                    <!-- Dropdown Structure -->
+                                <ul id='dropdown1' class='dropdown-content'>
+                                    <li><a href="#!" onclick="changeView('normal')"><i class="material-icons">view_module </i>OpenNEX project zone</a></li>
+                                    <li><a href="#!" onclick="changeView('default')"><i class="material-icons">pages</i>Your default zone</a></li>
+                                    <li><a href="@routes.ProjectController.projectList(1, "")"><i class="material-icons">monochrome_photos</i>Change to other project zone</a></li>
+                                </ul>
+
+                                    <!-- Dropdown Trigger -->
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class=" col s12">
+                                <h4 class="center"> @projectZone.getTitle()</h4>
+                                @*<iframe frameborder="0" width="100%" id="description"></iframe>*@
+                            </div>
+                        </div>
+
+                        @if(projectZone.getImageUrl != "null" && projectZone.getImageUrl.length > 0) {
+                            <div class="row">
+                                <div class="col s12">
+                                    <img width="100%" style="display: block;
+                                        margin-left: auto;
+                                        margin-right: auto;" src ="@projectZone.getImageUrl"/>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class=" col s12">
+                                <div id="quill-container">
+                                </div>
+                            </div>
+                        </div>
+                        @if(projectZone.getPdf != null && projectZone.getPdf != "null" && projectZone.getPdf != "") {
+                            <a href="@projectZone.getPdf" class="btn waves-effect waves-light yellow darken-3">
+                                Download Project PDF</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    } else {
+        <div class="row">
+            <div class="col s12 blue darken-4 white-text" style='background: url("@routes.Assets.at("images/starfield-banner-blue.jpg")") repeat;'>
+                <div class="container">
+                    <div class="carousel carousel-slider center" id="mainCarousel">
+                        <div class="carousel-fixed-item center">
+                            <a class="btn-floating white waves-effect waves-light" id="prevOnMainCarousel" title="Previous Slide"><i class="material-icons blue-text text-darken-3">
+                                keyboard_arrow_left</i></a>
+                            <a class="btn-floating white waves-effect waves-light" id="nextOnMainCarousel" title="Next Slide"><i class="material-icons blue-text text-darken-3">
+                                keyboard_arrow_right</i></a>
+                        </div>
+                        <div class="carousel-item white-text" href="#one!">
+                            <div class="col s12">
+                                <h1 class="center"><strong>SMU-Lyle-Sci-Hub</strong></h1>
+                                <h3 class="center">Intelligent Assistant Linking SMU to Local Industry</h3>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item white-text" href="#two!">
+                            <div class="row">
+                                <div class="col s5 offset-s1 left-align">
+                                    <h1 style='font-size: 3.5em;'><strong>Open Collaboration Platform</strong></h1>
+                                    <h6 style="font-size: 1.5em;
+                                        font-weight: 100;
+                                        line-height: 40px;">
+                                        A platform supporting and facilitating SMU/industry collaboration.</h6>
+                                </div>
+                                <div class="col s6">
+                                    @*                                        <img src='@routes.Assets.at("images/opennexdata-1.png")' style="width: 50%;*@
+                                    @*                                            height: 50%;">*@
+                                    <img src='@routes.Assets.at("images/home_collaboration.png")' class="responsive-img" style="width: 350px;
+                                        margin-top: 1rem;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item white-text" href="#three!">
+                            <div class="row">
+                                <div class="col s5 offset-s1 left-align">
+                                    <h1 style='font-size: 3.5em;'><strong>SMU World of Talent at Your Fingertips</strong></h1>
+                                    <h6 style="font-size: 1.5em;
+                                        font-weight: 100;
+                                        line-height: 40px;">
+                                        With a full understanding of the needs of university/industry collaboration, we make it easy for industry to find SMU researchers.</h6>
+                                </div>
+                                <div class="col s6 left-align">
+                                    @*                                        <img src='@routes.Assets.at("images/MATA.png")' class="responsive-img" style="width: 75%;*@
+                                    @*                                            height: 75%;*@
+                                    @*                                            margin-top: 1rem;">*@
+                                    <img src='@routes.Assets.at("images/red_home_smu.jpg")' class="responsive-img" style="width: 500px;
+                                        margin-top: 1rem;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item white-text" href="#four!">
+                            <div class="row">
+                                <div class="col s5 offset-s1 left-align">
+                                    <h1 style='font-size: 3.5em;'><strong>Window to SMU technology</strong></h1>
+                                    <h6 style="font-size: 1.5em;
+                                        font-weight: 100;
+                                        line-height: 40px;">
+                                        Help you understand the latest exciting technology invented by SMU faculty and students.</h6>
+                                </div>
+                                <div class="col s6 left-align">
+                                    @*                                        <img src='@routes.Assets.at("images/slider3.png")' style="width: 65%;*@
+                                    @*                                            height: 65%;">*@
+                                    <img src='@routes.Assets.at("images/research_day.jpg")' class="responsive-img" style="margin-top: 1rem;">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item white-text" href="#five!">
+                            <div class="row">
+                                <div class="col s5 offset-s1 left-align">
+                                    <h1 style='font-size: 3.5em;'><strong>A Community-Driven Hub</strong></h1>
+                                    <h6 style="font-size: 1.5em;
+                                        font-weight: 100;
+                                        line-height: 40px;">
+                                        Tell us your wishes, and we will update this portal for you.</h6>
+                                </div>
+                                <div class="col s6">
+                                    @*                                        <img src='@routes.Assets.at("images/community_support.png")' class="responsive-img" style="height: 50%;*@
+                                    @*                                            width: 50%;">*@
+                                    @*                                    </div>*@
+                                    <img src='@routes.Assets.at("images/collaboration_flat.png")' class="responsive-img" style="width: 60%;
+                                        height: 60%;
+                                        margin-top: 1rem;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col l3 s12">
+                    <div class="card z-depth-0">
+                        <div class="card-content" style="padding: 0;">
+                            <ul class="collection borderless with-header">
+                                <li class="collection-header"><h5 class="center">Local Industry</h5></li>
+
+
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.OrganizationController.organizationListPage(1, "")">
+                                        Organization List
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Organization List
+                                    </span>
+                                }
+                                </li>
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.ChallengeController.challengeList(1, "")">
+                                        Challenge List
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Challenge List
+                                    </span>
+                                }
+                                </li>
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.RAJobController.rajobList(1, "")">
+                                        RA Job  List
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        RA Job List
+                                    </span>
+                                }
+                                </li>
+                                @*<li class="collection-item"><a class="black-text" >
+                                    Projects Formed</a><a class="secondary-content"><i class="material-icons black-text">
+                                    view_list</i></a></li>
+                                <li class="collection-item"><a class="black-text">
+                                    Users</a><a class="secondary-content"><i class="material-icons black-text">
+                                    view_module</i></a></li>*@
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col l3 s12">
+                    <div class="card z-depth-0">
+                        <div class="card-content" style="padding: 0;">
+                            <ul class="collection borderless with-header">
+                                <li class="collection-header"><h5 class="center">SMU Researchers</h5></li>
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.AuthorController.authorList(1, "id")">
+                                        Researcher List
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Researcher List
+                                    </span>
+                                }
+                                </li>
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.TechnologyController.technologyList(1, "id")">
+                                        Technology List
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Technology List
+                                    </span>
+                                }
+                                </li>
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.AuthorController.searchPage()">
+                                        Find researchers
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Find researchers
+                                    </span>
+                                }
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col l3 s12">
+                    <div class="card z-depth-0">
+                        <div class="card-content" style="padding: 0;">
+                            <ul class="collection borderless with-header">
+                                <li class="collection-header"><h5 class="center">My Dashboard</h5></li>
+
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.UserController.userEditPage()">
+                                        My Account
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        My Account
+                                    </span>
+                                }
+                                </li>
+
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.JobController.jobList(1, "id")">
+                                        Posted Jobs
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Posted Jobs
+                                    </span>
+                                }
+                                </li>
+
+                                <li class="collection-item">
+                                @if(userId > 0) {
+                                    <a href="@routes.RAJobController.rajobList(1, "id")">
+                                        Posted RA Jobs
+                                    </a>
+                                } else {
+                                    <span style="color: black;">
+                                        Posted RA Jobs
+                                    </span>
+                                }
+                                </li>
+                                @*<li class="collection-item"><a class="black-text" >
+                                    Posted TA Jobs</a><a class="secondary-content"><i class="material-icons black-text">
+                                    view_list</i></a></li>
+                                <li class="collection-item"><a class="black-text">
+                                    My network</a><a class="secondary-content"><i class="material-icons black-text">
+                                    view_module</i></a></li>*@
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col l3 s12">
+                    <div class="card z-depth-0">
+                        <div class="card-content" style="padding: 0;">
+                            <ul class="collection borderless with-header">
+                                <li class="collection-header"><h5 class="center">SMU-Lyle-Sci-Hub</h5></li>
+
+                                <li class="collection-item">
+                                    <a href="https://www.youtube.com/watch?v=JKLLeDUGH68">
+                                        Visual tutorials</a><a class="secondary-content"><i class="material-icons black-text" style="curser:default">
+                                    list</i></a></li>
+                                <li class="collection-item"><a href="@routes.AboutController.aboutProject()">
+                                    About Project</a><a class="secondary-content"><i class="material-icons black-text">
+                                    view_list</i></a></li>
+                                <li class="collection-item"><a href="@routes.AboutController.aboutUs()">
+                                    About Us</a><a class="secondary-content"><i class="material-icons black-text">
+                                    view_module</i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row" style="margin-top: -30px;">
+                @*<div class="row" style="margin: 0;">*@
+                <div class="col s8 offset-s2">
+                    <div class="card-content z-depth-0">
+                        <div class="center" style="padding: 7px;">
+
+
+                            @*                            <iframe frameborder="0" class="col l12 s12" height="430" allowfullscreen="allowfullscreen"*@
+                            @*                            mozallowfullscreen="mozallowfullscreen"*@
+                            @*                            msallowfullscreen="msallowfullscreen"*@
+                            @*                            oallowfullscreen="oallowfullscreen"*@
+                            @*                            webkitallowfullscreen="webkitallowfullscreen"*@
+                            @*                            src="https://www.youtube.com/embed/u5qhIv67Ans">*@
+                            @*                            </iframe>*@
+                        </div>
+                        @*</div>*@
+                    </div>
+                </div>
+            </div>
+            <br>
+
+            <div class="row">
+                <div class="col s12">
+
+                </div>
+            </div>
+        </div>
+    }
+}

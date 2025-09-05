@@ -1,0 +1,452 @@
+@(tajob: TAJob)
+@import helper._
+@import models._
+@import models.TAJob
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <script type="text/javascript">
+            count = 0;
+            delc = 0;
+            var originCreator;
+            var quill;
+            function checkCreator() {
+                $("#warningModal").modal("open");
+                $("#challengeCreatorMsg").text("");
+            }
+            $(document).ready(function () {
+                quill = new Quill('#editor', {
+                    modules: {
+                        toolbar: [
+                            [{ 'font': [] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                            ['blockquote'],
+
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+                            [{ 'direction': 'rtl' }],                         // text directio
+                            [{ 'align': [] }],
+                            ['link', 'image']
+                        ]
+                    },
+                    placeholder: 'Enter project description...',
+                    theme: 'snow'
+                });
+
+                var limit = jobDescriptionMaxLength;
+                quill.on('text-change', function (delta, old, source) {
+                    if (quill.getLength() > limit+1) {
+                        document.getElementById("descriptionMsg").innerHTML = "Field should be no longer than "+ limit +" chatacters";
+                    }else{
+                        document.getElementById("descriptionMsg").innerHTML = "";
+                    }
+                });
+
+                quill.clipboard.dangerouslyPasteHTML(entityToString());
+                //  $("#description").val();
+                $("#addPanel").hide();
+                $("#previewPanel").hide();
+                if($("#showImg").attr("src") == "") {
+                    $("#projectPreview").hide();
+                }
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "ttansform:rotate(-45deg);ttansition:ttansform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "ttansform:rotate(0deg);ttansition:ttansform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+
+                });
+
+
+                //preview the updated image
+                $("#addmember").click(function changepic() {
+                    if (document.getElementById("memberName").value.trim().length==0){
+                        document.getElementById("memberName").classList.add("invalid");
+                    }
+                    if (document.getElementById("email").value.trim().length==0){
+                        document.getElementById("email").classList.add("invalid");
+                    }
+                    // document.getElementById("email").value.trim().length()==0;
+                    var isName = document.getElementById("memberName").classList.contains("invalid") ? false : true;
+                    var isEmail = document.getElementById("email").classList.contains("invalid") ? false : true;
+
+                    if(!isName || !isEmail) return;
+                    if (document.getElementById("photo").value == "") {
+                        var url = "../../../../assets/images/person.jpg";
+                        showPreview(url);
+                        return;
+                    }
+                    var reads = new FileReader();
+                    f = document.getElementById("photo").files[0];
+                    reads.readAsDataURL(f);
+                    reads.onload = function (e) {
+                        showPreview(this.result);
+
+                    };
+                });
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            });
+
+            function entityToString(){
+                var div=document.createElement('div');
+                @if(tajob.getShortDescription!=null){
+                div.innerHTML = "@tajob.getShortDescription";
+                }
+                var res=div.innerText||div.textContent;
+                return res;
+            }
+
+            function getHTML() //display current HTML
+            {
+                if(document.getElementById("descriptionMsg").innerText.length != 0)
+                    return false;
+                console.log(Number.isInteger('fjidsao'));
+                //console.log("isnan:" + isNaN($("#challengeCreator").text());
+                var cid = $("#challengeCreator").val()
+                console.log("cid" + $("#challengeCreator").val());
+                console.log("typeof" + typeof($("#challengeCreator").val()));
+
+                if(isNaN(cid)){
+                    //document.getElementById(urlMsgId).setAttribute('data-error', msg);
+                    console.log("cidddMSg:" + $("#challengeCreatorMsg").text())
+                    $("#challengeCreatorMsg").text("Please specify correct id format");
+
+                    return false;
+                }
+                exist = false;
+                $.ajax({
+                    url: "/user/allUserIds",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    async: false,
+                    type: "GET"
+                }).done(function (data) {
+                    console.log("data:" + data)
+                    console.log("id:" + cid)
+                    for(i in data){
+                        console.log(Number(data[i]) + "," + Number(cid))
+                        if(Number(data[i]) == Number(cid)){
+                            exist = true;
+                            console.log("loop:" + exist);
+                        }
+                    }
+
+                });
+                console.log("out" + exist)
+                if(!exist){
+                    $("#challengeCreatorMsg").text("This user does not exist!");
+                    return false;
+                }
+                $("#editor").find("img").each(function () {
+                    if($(this).attr("width") == null) {
+                        // If this is a new image
+                        var img = this;
+                        var dataurl = $(this).attr("src");
+                        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Artay(n);
+                        while (n--) {
+                            u8arr[n] = bstr.charCodeAt(n);
+                        }
+                        var f = new File([u8arr], "file", {type: mime});
+                        var fd = new FormData();
+                        fd.append('file', f);
+                        countImagesInDescription ++;
+                        $.ajax({
+                            url: "/tajob/uploadImg/@tajob.getId/" + (countImagesInDescription-1) ,
+                            data: fd,
+                            contentType: false,
+                            dataType: "text",
+                            processData: false,
+                            async: false,
+                            type: "POST",
+                            success: function (data) {
+                                console.log(data);
+                                $(img).attr("src", data);
+                                $(img).attr("width", "50%");
+                            },
+                            error: function (msg) {
+                                console.log("123123123");
+                            }
+                        });
+                    }
+
+
+
+                });
+
+                var ajaxflag = true;
+
+                if(!ajaxflag){
+                    return false;
+                }
+
+                var html = quill.root.innerHTML;
+                $("#description").val(html);
+                $("#countImagesInDescription").val(countImagesInDescription);
+
+
+
+
+                return true;
+            }
+
+            function showProPreview(obj) {
+                if($("#showImg").attr("src") == "") {
+                    $("#deleteBtn").hide();
+                }
+                else {
+                    $("#deleteBtn").show();
+                    //$('#previewMsg').text("");
+                }
+                var panel = document.getElementById("previewPanel");
+                if (panel.style.display == "none") {
+                    $(obj).text("Close Preview");
+                }
+                else {
+                    $(obj).text("Preview Or Delete Picture");
+                }
+                $("#previewPanel").slideToggle();
+
+            }
+
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function markAsPrivate() {
+
+            }
+
+
+    </script>
+}
+
+@main("TA Job Edit", scripts) {
+
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Edit TA Job Information</h4>
+                    <div id="warningModal" class="modal">
+                        <div class="modal-content">
+                            <h5 style="color: red">Warning!</h5>
+                            <p style="font-weight: bold">Do you really want to change the publisher of this TA job?
+                                Please note that after this change, You <span style="color: red">
+                                MAY NOT</span> edit this project again.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="cancel-change-creator" class="modal-close waves-effect waves-green btn-flat">
+                                Cancel</a>
+                            <a id="confirm-change-creator"
+                            class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                        </div>
+                    </div>
+                    <form class="form-signin" enctype="multipart/form-data" id="editTechnologyForm" method="post" onsubmit="return getHTML()" action="@routes.TAJobController.tajobEditPOST(tajob.getId)">
+                        <div id="hiddenDiv" style="display: none;">
+                            <input name="id" id="id" class="validate" value="@tajob.getId">
+                            <input name="isActive" id="isActive" class="validate" value="@tajob.getIsActive">
+                            @*<input name="isPopular" id="isPopular" class="validate" value="@technology.getIsPopular">
+                            <input name="popularRanking" id="popularRanking" class="validate" value="@technology.getPopularRanking">
+                            <input name="authentication" id="authentication" class="validate" value="@technology.getAuthentication">
+                            <input name="accessTimes" id="accessTimes" class="validate" value="@technology.getAccessTimes">*@
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="title" id="title" class="validate" value="@tajob.getTitle" required>
+                                <label for="title">Title* </label>
+                                <span id="titleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="goals" id="goals"  class="validate" required value="@tajob.getGoals">
+                                <label for="goals">
+                                    Goals* </label>
+                                <span id="goalsMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="organization" id="organization" value="@tajob.getOrganization" class="validate" required>
+                                <label for="organization">
+                                    Department/Lab Name* </label>
+                                <span id="organizationMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" value = "@tajob.getShortDescription"  class="validate" required onchange="validateRegex(this.id, /.{,100}/)">
+                                <label for="shortDescription">
+                                    Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-success="✓" data-error="The short description must be under 100 characters"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wtap: break-word; margin-top: 10px;" id="longDescription" placeholder="" name="longDescription" value="@tajob.getLongDescription" onchange="validateRegex(this.id, /.{,600}/)">@tajob.getLongDescription</textarea>
+                                <label for="longDescription">Long Description</label>
+                                <span id="longDescriptionMsg" class="helper-text" data-success="✓" data-error="The long description must be under 600 characters" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="location" id="location" value="@tajob.getLocation" class="validate" required>
+                                <label for="location">
+                                    Location* </label>
+                                <span id="locationMsg" class="helper-text" data-success="✓" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="fields" id="fields" value="@tajob.getFields" class="validate" required>
+                                <label for="fields">
+                                    Fields* </label>
+                                <span id="fieldsMsg" class="helper-text" data-success="✓" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="requiredExpertise" id="location" value = "@tajob.getRequiredExpertise"  class="validate" required>
+                                <label for="requiredExpertise">
+                                    Required Expertise* </label>
+                                <span id="requiredExpertiseMsg" class="helper-text" data-success="✓" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredExpertise" id="location" value = "@tajob.getPreferredExpertise"  class="validate" required>
+                                <label for="preferredExpertise">
+                                    Preferred Expertise* </label>
+                                <span id="preferredExpertiseMsg" class="helper-text" data-success="✓" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="number" name="workTime" id="workTime" min="0" max="20" value="@tajob.getWorkTime" class="validate" required>
+                                <label for="fields">
+                                    TA Hours/Week* </label>
+                                <span id="workTimeMsg" class="helper-text" data-success="✓"  data-error="Please input a positive number and less than or equal to 20 hours"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>TA Type</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taTypes" id="taType1" value="1" checked>
+                                        <span>Grading, TA Office House, Recitation/Lab</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taTypes" id="taType2" value="2">
+                                        <span>Grading Only</span>
+                                    </label>
+                                </div>
+
+                            </fieldset>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="url" id="url" value="@tajob.getUrl" class="validate" onchange="validateRegex(this.id, 'URL')">
+                                <label for="url">
+                                    TA Job URL </label>
+                                <span id="urlMsg" class="helper-text" data-success="✓" data-error="Please input a valid URL"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Change TA Job PDF</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wtapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                                <div id="pdfPreviewMsg" style="color:blue"></div>
+                                @if(tajob.getPdf != null && tajob.getPdf != "") {
+                                    <a id="pdfDownload" href="@tajob.getPdf">
+                                        Download Current Current TA Job PDF</a>
+                                    <a id = "pdfDeleteBtn" class="right" href="#" style="color: red;" onclick="deletePDF()">
+                                        <i class="material-icons">cross</i> Delete Current TA Job PDF</a>
+                                }
+                                <input id="pdfRecord" name = "pdfRecord" style="display: none;"/>
+                            </div>
+                        </div>
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="jobRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Update</button>
+                                <a href="@routes.TAJobController.tajobDetail(tajob.getId)" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

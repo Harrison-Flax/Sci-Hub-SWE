@@ -1,0 +1,227 @@
+@(relation:String)
+    @import helper._
+    @main("Relationship graph") {
+        <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+        rel="stylesheet" />
+        <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+        <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/d3.js")'></script>
+        <div id='pie-chart'>
+
+        </div>
+        <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/d3-v3.js")'></script>
+
+        <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <title>Node Relationship Graph</title>
+        <h4 class="center form-signin-heading" align="center">
+            Topic Distribution</h4>
+        <style> #chart {
+            height: 360px;
+            /* NEW */
+            position: relative;
+            width: 360px;
+            align:center;
+        }
+        .tooltip {
+            background: #eee;
+            box-shadow: 0 0 5px #999999;
+            color: #333;
+            display: none;
+            font-size: 12px;
+            left: 130px;
+            padding: 10px;
+            position: absolute;
+            text-align: center;
+            top: 95px;
+            width: 180px;
+            z-index: 10;
+        }
+        .legend{
+            height: 1060px;
+            margin: 0 auto;
+            /* NEW */
+            position: relative;
+            width: 1060px;
+            font-size: 12px;
+        }
+        rect {
+            cursor: pointer;
+            /* NEW */
+            stroke-width: 2;
+        }
+        rect.disabled {
+            /* NEW */
+            fill: transparent !important;
+            /* NEW */
+        }
+        /* NEW */
+        h1 {
+            /* NEW */
+            font-size: 14px;
+            /* NEW */
+            text-align: center;
+            /* NEW */
+        }
+        .flex-container{
+            flex: 1;
+        }
+        main{
+            height:600px !important
+        }
+        </style>
+
+        <div id="chart"></div>
+        <div id="legend"></div>
+
+
+        <script>
+
+
+                var dataset = @Html(relation);
+
+                var width = 550;
+                var height = 550;
+                var radius = 400 / 2;
+                var donutWidth = 75;
+                var legendRectSize = 20;
+                var legendSpacing = 4;
+
+                var color = d3.scale.category20b();
+
+                var svg = d3.select('#chart')
+                        .append('svg')
+                        .attr('width', 900)
+                        .attr('height', height)
+                        .append('g')
+                        .attr('class','flex-container')
+                        .attr('transform', 'translate(' + (width / 2) +
+                                ',' + (height / 2) + ')');
+                $("svg").css({top: 0, left: '90%', position: 'relative'});
+
+                var arc = d3.svg.arc()
+                        .innerRadius(radius - donutWidth)
+                        .outerRadius(radius);
+
+                var pie = d3.layout.pie()
+                        .value(function (d) {
+                            return d.count;
+                        })
+                        .sort(null);
+
+                var tooltip = d3.select('#chart')
+                        .append('div')
+                        .attr('class', 'tooltip');
+
+                tooltip.append('div')
+                        .attr('class', 'label');
+
+                tooltip.append('div')
+                        .attr('class', 'count');
+
+                tooltip.append('div')
+                        .attr('class', 'percent');
+
+                //d3.csv('weekdays.csv', function (error, dataset) {
+                dataset.forEach(function (d) {
+                    d.count = +d.count;
+                    d.enabled = true; // NEW
+                });
+
+                var path = svg.selectAll('path')
+                        .data(pie(dataset))
+                        .enter()
+                        .append('path')
+                        .attr('d', arc)
+                        .attr('fill', function (d, i) {
+                            return color(d.data.label);
+                        }) // UPDATED (removed semicolon)
+                        .each(function (d) {
+                            this._current = d;
+                        }); // NEW
+
+                path.on('mouseover', function (d) {
+                    var total = d3.sum(dataset.map(function (d) {
+                        return (d.enabled) ? d.count : 0; // UPDATED
+                    }));
+                    var percent = Math.round(1000 * d.data.count / total) / 10;
+                    tooltip.select('.label').html(d.data.label);
+                    tooltip.select('.count').html(d.data.count);
+                    tooltip.select('.percent').html(percent + '%');
+                    tooltip.style('display', 'block');
+                });
+
+                path.on('mouseout', function () {
+                    tooltip.style('display', 'none');
+                });
+
+                /* OPTIONAL
+              path.on('mousemove', function(d) {
+                tooltip.style('top', (d3.event.pageY + 10) + 'px')
+                  .style('left', (d3.event.pageX + 10) + 'px');
+              });
+              */
+
+                var legend = svg.selectAll('.legend')
+                        .data(color.domain())
+                        .enter()
+                        .append('g')
+                        .attr('class', 'legend')
+                        .attr('transform', function (d, i) {
+                            var height = legendRectSize + legendSpacing;
+                            var offset = height * color.domain().length / 2;
+                            var horz = -2 * legendRectSize+250;
+                            var vert = i * height - offset;
+                            return 'translate(' + horz + ',' + vert + ')';
+                        });
+
+                legend.append('rect')
+                        .attr('width', legendRectSize)
+                        .attr('height', legendRectSize)
+                        .style('fill', color)
+                        .style('stroke', color) // UPDATED (removed semicolon)
+                        .on('click', function (label) { // NEW
+                            var rect = d3.select(this); // NEW
+                            var enabled = true; // NEW
+                            var totalEnabled = d3.sum(dataset.map(function (d) { // NEW
+                                return (d.enabled) ? 1 : 0; // NEW
+                            })); // NEW
+
+                            if (rect.attr('class') === 'disabled') { // NEW
+                                rect.attr('class', ''); // NEW
+                            } else { // NEW
+                                if (totalEnabled < 2) return; // NEW
+                                rect.attr('class', 'disabled'); // NEW
+                                enabled = false; // NEW
+                            } // NEW
+
+                            pie.value(function (d) { // NEW
+                                if (d.label === label) d.enabled = enabled; // NEW
+                                return (d.enabled) ? d.count : 0; // NEW
+                            }); // NEW
+
+                            path = path.data(pie(dataset)); // NEW
+
+                            path.transition() // NEW
+                                    .duration(750) // NEW
+                                    .attrTween('d', function (d) { // NEW
+                                        var interpolate = d3.interpolate(this._current, d); // NEW
+                                        this._current = interpolate(0); // NEW
+                                        return function (t) { // NEW
+                                            return arc(interpolate(t)); // NEW
+                                        }; // NEW
+                                    }); // NEW
+                        }); // NEW
+
+                legend.append('text')
+                        .attr('x', legendRectSize + legendSpacing)
+                        .attr('y', legendRectSize - legendSpacing)
+                        .text(function (d) {
+                            return d;
+                        });
+
+
+
+
+
+        </script>
+
+        }}

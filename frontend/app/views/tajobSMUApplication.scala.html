@@ -1,0 +1,1579 @@
+@(tajob: TAJob)
+@import helper._
+@import models._
+@import models.Project
+@import models.Job
+
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <script type="text/javascript">
+            count = 0;
+            delc = 0;
+            var originCreator;
+            var quill;
+
+            function checkCreator() {
+                $("#warningModal").modal("open");
+                $("#JobCreatorMsg").text("");
+            }
+            $(document).ready(function () {
+                originCreator = '@tajob.getTajobPublisher.getId';
+
+                $("#cancel-change-creator").click(function () {
+                    $("#JobCreator").val(originCreator);
+                })
+                $("#confirm-change-creator").click(function () {
+                    originCreator = $("#JobCreator").val();
+                })
+
+                quill = new Quill('#editor', {
+                    modules: {
+                        toolbar: [
+                            [{ 'font': [] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                            ['blockquote'],
+
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+                            [{ 'direction': 'rtl' }],                         // text directio
+                            [{ 'align': [] }],
+                            ['link', 'image']
+                        ]
+                    },
+                    placeholder: 'Enter editor description...',
+                    theme: 'snow'
+                });
+
+                var limit = JobDescriptionMaxLength;
+                quill.on('text-change', function (delta, old, source) {
+                    if (quill.getLength() > limit+1) {
+                        document.getElementById("longDescriptionMsg").innerHTML = "Field should be no longer than "+ limit +" characters";
+                    }else{
+                        document.getElementById("longDescriptionMsg").innerHTML = "";
+                    }
+                });
+
+                // quill.clipboard.dangerouslyPasteHTML(entityToString());
+                //  $("#description").val();
+                $("#addPanel").hide();
+                $("#previewPanel").hide();
+                if($("#showImg").attr("src") == "") {
+                    $("#JobPreview").hide();
+                }
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+
+                });
+
+
+                //preview the updated image
+                $("#addmember").click(function changepic() {
+                    if (document.getElementById("memberName").value.trim().length==0){
+                        document.getElementById("memberName").classList.add("invalid");
+                    }
+                    if (document.getElementById("email").value.trim().length==0){
+                        document.getElementById("email").classList.add("invalid");
+                    }
+                    // document.getElementById("email").value.trim().length()==0;
+                    var isName = document.getElementById("memberName").classList.contains("invalid") ? false : true;
+                    var isEmail = document.getElementById("email").classList.contains("invalid") ? false : true;
+
+                    if(!isName || !isEmail) return;
+                    if (document.getElementById("photo").value == "") {
+                        var url = "../../../../assets/images/person.jpg";
+                        showPreview(url);
+                        return;
+                    }
+                    var reads = new FileReader();
+                    f = document.getElementById("photo").files[0];
+                    reads.readAsDataURL(f);
+                    reads.onload = function (e) {
+                        showPreview(this.result);
+
+                    };
+                });
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            });
+
+            function entityToString(){
+                var div=document.createElement('div');
+                @if(tajob.getShortDescription!=null){
+                div.innerHTML = "@tajob.getShortDescription";
+                }
+                var res=div.innerText||div.textContent;
+                return res;
+            }
+
+            function getHTML() //display current HTML
+            {
+
+
+                if(document.getElementById("descriptionMsg").innerText.length != 0)
+                    return false;
+                console.log(Number.isInteger('fjidsao'));
+                //console.log("isnan:" + isNaN($("#JobCreator").text());
+                var cid = $("#JobCreator").val()
+                console.log("cid" + $("#JobCreator").val());
+                console.log("typeof" + typeof($("#JobCreator").val()));
+
+                if(isNaN(cid)){
+                    //document.getElementById(urlMsgId).setAttribute('data-error', msg);
+                    console.log("cidddMSg:" + $("#JobCreatorMsg").text())
+                    $("#JobCreatorMsg").text("Please specify correct id format");
+
+                    return false;
+                }
+                exist = false;
+                $.ajax({
+                    url: "/user/allUserIds",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    async: false,
+                    type: "GET"
+                }).done(function (data) {
+                    console.log("data:" + data)
+                    console.log("id:" + cid)
+                    for(i in data){
+                        console.log(Number(data[i]) + "," + Number(cid))
+                        if(Number(data[i]) == Number(cid)){
+                            exist = true;
+                            console.log("loop:" + exist);
+                        }
+                    }
+
+                });
+                console.log("out" + exist)
+                if(!exist){
+                    $("#JobCreatorMsg").text("This user does not exist!");
+                    return false;
+                }
+                @*$("#editor").find("img").each(function () {*@
+                @*    if($(this).attr("width") == null) {*@
+                @*        // If this is a new image*@
+                @*        var img = this;*@
+                @*        var dataurl = $(this).attr("src");*@
+                @*        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],*@
+                @*                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);*@
+                @*        while (n--) {*@
+                @*            u8arr[n] = bstr.charCodeAt(n);*@
+                @*        }*@
+                @*        var f = new File([u8arr], "file", {type: mime});*@
+                @*        var fd = new FormData();*@
+                @*        fd.append('file', f);*@
+                @*        countImagesInDescription ++;*@
+                @*        $.ajax({*@
+                @*            url: "/job/uploadDescriptionImg/@job.getId/" + (countImagesInDescription-1) ,*@
+                @*            data: fd,*@
+                @*            contentType: false,*@
+                @*            dataType: "text",*@
+                @*            processData: false,*@
+                @*            async: false,*@
+                @*            type: "POST",*@
+                @*            success: function (data) {*@
+                @*                console.log(data);*@
+                @*                $(img).attr("src", data);*@
+                @*                $(img).attr("width", "50%");*@
+                @*            },*@
+                @*            error: function (msg) {*@
+                @*                console.log("123123123");*@
+                @*            }*@
+                @*        });*@
+                @*    }*@
+                @*});*@
+
+                var ajaxflag = true;
+                var parentProjectId = $("#parentProjectId").val();
+                if(parentProjectId !== "0") {
+                    $.ajax({
+                        url: "/tajob/checkParentProject/" + parentProjectId,
+                        async: false,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        type: "GET",
+                        success: function (data) {
+                            var response = data;
+                            console.log(data);
+                            if ('badFormat' in response) {
+                                console.log(response['badFormat']);
+                                $("#parentProjectIdMsg").text(response['badFormat']);
+                                ajaxflag = false;
+                            } else {
+                                if ('notExisted' in response) {
+                                    $("#parentProjectIdMsg").text(response['notExisted']);
+                                    ajaxflag = false;
+                                } else {
+
+                                }
+
+                            }
+                        }
+                    });
+                }
+                if(!ajaxflag){
+                    return false;
+                }
+
+                var html = quill.root.innerHTML;
+                $("#description").val(html);
+                $("#countImagesInDescription").val(countImagesInDescription);
+
+                return true;
+            }
+
+            function showProPreview(obj) {
+                if($("#showImg").attr("src") == "") {
+                    $("#deleteBtn").hide();
+                }
+                else {
+                    $("#deleteBtn").show();
+                    //$('#previewMsg').text("");
+                }
+                var panel = document.getElementById("previewPanel");
+                if (panel.style.display == "none") {
+                    $(obj).text("Close Preview");
+                }
+                else {
+                    $(obj).text("Preview Or Delete Picture");
+                }
+                $("#previewPanel").slideToggle();
+
+            }
+
+            function deleteMember(obj) {
+                var tr  = $(obj).parent().parent();
+                if(tr.attr("id") != null) {
+                    tr.append("<td style='display: none;' > <input name ='delete" + delc + "' value='" + tr.attr("id") + "'></td>")
+                    //tr.attr("name", "delete" + delc);
+                    delc++;
+                    $("#delc").val(delc);
+                    tr.hide();
+                }
+                else tr.remove();
+            }
+            function showPreview(url) {
+                if($("#memberName").val() == ""){
+                    $("#msg").text("Member Name cannot be null.");
+                    document.getElementById("addmember").disabled = true;
+                    return;
+                }
+                $("#msg").text("");
+                document.getElementById("addmember").disabled = false;
+                var appendItem = "<tr><td><img src=\"" + url + "\" height='35px' style=\"width:35px;border-radius:50%;\"</td>" +
+                        "<td>" + $("#memberName").val() + "<input type=\"text\" name='member" + count + "' id='member" + count + "' value=\""+ $("#memberName").val() +"\" style=\"display: none;\"></td>" +
+                        "<td>" + $("#email").val() + "<input type=\"text\" name='email" + count + "' id='email" + count + "' value=\""+ $("#email").val() +"\" style=\"display: none;\"></td>" +
+                        "<td><a href='javascript:void(0)' onclick='deleteMember(this)'><i style='color:red;' class=\"material-icons\">delete</i></a></td><td id='clone"+count+"'></td></tr>";
+                $("#previewTable").append(appendItem);
+                var td = $("#clone" + count);
+                var obj = $("#photo").clone();
+                obj.attr("id", "photo" + count);
+                obj.attr("name", "photo" + count);
+                td.append(obj);
+                td.attr("style","display:none;");
+                count++;
+                $("#count").val(count);
+                $("#memberName").val("");
+                $("#email").val("");
+                $("#showpath").val("");
+                $("#photo").val("");
+            }
+
+            //preview the updated image
+            function changProjectPic() {
+                if(document.getElementById("picture").value == "") return;
+                var reads = new FileReader();
+                f = document.getElementById("picture").files[0];
+                reads.readAsDataURL(f);
+                reads.onload = function(e) {
+                    document.getElementById('showImg').src = this.result;
+                    $('#record').val("update");
+                    $('#previewMsg').text("This is the preview image. You need to click \"UPDATE\" button below if you want to save the changes.");
+                    $("#deleteBtn").show();
+                    $("#projectPreview").show();
+                };
+            }
+
+            function deleteImg() {
+                document.getElementById('showImg').src = "";
+                $('#record').val("delete");
+                $("#deleteBtn").hide();
+                $("#projectPreview").hide();
+                showProPreview("#projectPreview");
+                $('#previewMsg').text("The image is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function getMultipleCheckBox() {
+
+                var taCoursesPreferenceHiddenList = [];
+                var arr = document.getElementsByName("taCoursesPreference");
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].checked){
+                        taCoursesPreferenceHiddenList.push(arr[i].value);
+                    }
+                }
+
+                for(var i = 0; i <taCoursesPreferenceHiddenList.length; i++){
+                    document.getElementById("taCoursesPreferenceHidden").value = document.getElementById("taCoursesPreferenceHidden").value + taCoursesPreferenceHiddenList[i] + "; ";
+                }
+                document.getElementById("taCoursesPreferenceHidden").value = document.getElementById("taCoursesPreferenceHidden").value.trim();
+
+
+
+                var taCoursesNotPreferenceHiddenList = [];
+                var arr1 = document.getElementsByName("taCoursesNotPreference");
+                for (var i = 0; i < arr1.length; i++) {
+                    if (arr1[i].checked){
+                        taCoursesNotPreferenceHiddenList.push(arr1[i].value);
+                    }
+                }
+
+                for(var i = 0; i <taCoursesNotPreferenceHiddenList.length; i++){
+                    document.getElementById("taCoursesNotPreferenceHidden").value = document.getElementById("taCoursesNotPreferenceHidden").value + taCoursesNotPreferenceHiddenList[i] + "; ";
+                }
+                document.getElementById("taCoursesNotPreferenceHidden").value = document.getElementById("taCoursesNotPreferenceHidden").value.trim();
+
+
+
+                return true;
+            }
+
+
+    </script>
+}
+
+@main("TAJob Apply", scripts) {
+
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("../../public/javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        CS Graduate Teaching Assistant Application Page</h4>
+                    <div id="warningModal" class="modal">
+                        <div class="modal-content">
+                            <h5 style="color: red">Warning!</h5>
+                            <p style="font-weight: bold">Do you really want to change the creator of this tajob?
+                                Please note that after this change, You <span style="color: red">
+                                MAY NOT</span> edit this tajob again.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="cancel-change-creator" class="modal-close waves-effect waves-green btn-flat">
+                                Cancel</a>
+                            <a id="confirm-change-creator"
+                            class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                        </div>
+                    </div>
+
+                    <!-- declare form -->
+                    <form class="form-signin" onsubmit="return getMultipleCheckBox()" id="applyTAJobForm" method="get"  action="@routes.TAJobController.tajobApplyPOST(tajob.getId)">
+                        <div id="hiddenDiv" style="display: none;">
+                            <input name="isActive" id="isActive" class="validate" value="@tajob.getIsActive">
+                        </div>
+
+                        <!-- read-only portion -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <label>TA Job Title: @tajob.getTitle </label>
+                                <span id="JobTitleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <!-- SMU ID -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="number" name="smuID" id="smuID" class="validate" required onchange="validateRegex(this.id, 'SMUID')"/>
+                                <label for="smuID">SMU ID* </label>
+                                <span id="smuIDMsg" class="helper-text" data-success="✓" data-error="Please input correct ID"></span>
+                            </div>
+                        </div>
+
+                        <!-- Student Type -->
+                        <div class="row">
+                            <fieldset>
+                                <legend>Student Type</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taStudentTypes" id="taStudentTypes1" value="1">
+                                        <span>New Student</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taStudentTypes" id="taStudentTypes1" value="2">
+                                        <span>Continuing Student</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <!-- Applied to Lyle? -->
+                        <div class="row">
+                            <fieldset>
+                                <legend>If new student, have you submitted a completed application for admission to the Lyle School of Engineering Graduate Admissions office?</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taStudentAdmissionTypes" id="taStudentAdmissionTypes1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taStudentAdmissionTypes" id="taStudentAdmissionTypes2" value="2">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <!-- GRE Section -->
+                        <div class="row">
+                            <h6>G.R.E. Score</h6>
+                            <div class="input-field col s12 m3">
+                                <input type="number" name="greV" id="greV" class="validate">
+                                <label for="greV">V.</label>
+                                <span id="greVMsg" class="helper-text" data-success="✓" data-error="Please input correct number" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m3">
+                                <input type="number" name="greQ" id="greQ" class="validate">
+                                <label for="greQ">Q.</label>
+                                <span id="greQMsg" class="helper-text" data-success="✓" data-error="Please input correct number" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m3">
+                                <input type="number" name="greA" id="greA" class="validate">
+                                <label for="greA">A.</label>
+                                <span id="greAMsg" class="helper-text" data-success="✓" data-error="Please input correct number" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m3">
+                                <input type="date" name="greDate" id="greDate">
+                                <label for="greDate">G.R.E. Date</label>
+                                <span id="greDateMsg" class="helper-text" data-success="✓" data-error="This date is invalid" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- GPA and Grades -->
+                        <div class="row">
+                            <h6> If your current educational institution uses a GPA system, please provide the following:</h6>
+                            <div class="input-field col s12 m6">
+                                <input type="number" step="0.01" name="undergraduateGPA" id="undergraduateGPA" class="validate" onchange="validateRegex(this.id, 'GPA')">
+                                <label for="undergraduateGPA">Undergraduate GPA:</label>
+                                <span id="undergraduateGPAMsg" class="helper-text" data-success="✓" data-error="Not correct undergraduate GPA" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="undergraduateSchool" id="undergraduateSchool">
+                                <label for="undergraduateSchool">School:</label>
+                                <span id="undergraduateSchoolMsg" class="helper-text" data-success="✓" data-error="Not correct undergraduate school" style="color: red"></span>
+                            </div>
+
+                            <div class="input-field col s12 m6">
+                                <input type="number" step="0.01" name="graduateGPA" id="graduateGPA" class="validate" onchange="validateRegex(this.id, 'GPA')">
+                                <label for="graduateGPA">Graduate GPA:</label>
+                                <span id="graduateGPAMsg" class="helper-text" data-success="✓" data-error="Not correct graduate GPA" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="graduateSchool" id="graduateSchool">
+                                <label for="graduateSchool">School:</label>
+                                <span id="graduateSchoolMsg" class="helper-text" data-success="✓" data-error="Not correct graduate school" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- Other Grading Info -->
+                        <div class="row">
+                            <h6>If your current educational institution does NOT use a GPA system, please answer all that may apply:</h6>
+                            <div class="input-field col s12">
+                                <input type="number" name="classRankNoGPA" id="classRankNoGPA" class="validate" onchange="validateRegex(this.id, /^[0-9]|[1-9][0-9]|[1-9][0-9][0-9]$/)">
+                                <label for="classRankNoGPA">What was your class rank? (e.g. #2 out of 50)</label>
+                                <span id="classRankNoGPAMsg" class="helper-text" data-success="✓" data-error="Not correct class rank" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12">
+                                <input type="text" name="scorePercentageNoGPA" id="scorePercentageNoGPA" class="validate", onchange="validateRegex(this.id, /^[0-9]|[1-9][0-9]$/)">
+                                <label for="scorePercentageNoGPA">What was your score percentage in your year of graduation? (e.g. 90%)</label>
+                                <span id="scorePercentageNoGPAMsg" class="helper-text" data-success="✓" data-error="Not correct score percentage" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12">
+                                <input type="text" name="gradeNoGPA" id="gradeNoGPA" class="validate">
+                                <label for="gradeNoGPA">What was your grade in the year of graduation? (e.g. Distinction with Honor)</label>
+                                <span id="gradeNoGPAMsg" class="helper-text" data-success="✓" data-error="Not correct grade" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="otherInfoNoGPA" id="otherInfoNoGPA" class="validate">
+                                <label for="otherInfoNoGPA">Others:</label>
+                                <span id="otherInfoNoGPAMsg" class="helper-text" data-success="✓" data-error="Not correct other info" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- Degree Info -->
+                        <div class="row">
+                            <fieldset>
+                                <legend>Enrolled in which degree program?</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="enrolledDegree" id="enrolledDegree1" value="1">
+                                        <span>MS Computer Science</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    I plan to continue in Ph.D. CS program
+                                    <label>
+                                        <input type="radio" name="enrolledPhdDegree" id="enrolledPhdDegree1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="enrolledPhdDegree" id="enrolledPhdDegree2" value="2">
+                                        <span>no</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="radio" name="enrolledDegree" id="enrolledDegree2" value="2">
+                                        <span>MS Security Engineering/Cyber Security</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="radio" name="enrolledDegree" id="enrolledDegree3" value="3">
+                                        <span>MS Software Engineering</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="radio" name="enrolledDegree" id="enrolledDegree4" value="4">
+                                        <span>D.Eng. Software Engineering</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="radio" name="enrolledDegree" id="enrolledDegree5" value="5">
+                                        <span>Ph.D. Computer Science</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="radio" name="enrolledDegree" id="enrolledDegree6" value="6">
+                                        <span>Other</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <!-- Research Info -->
+                        <div class="row">
+                            <h6>Areas of Research Interest in order of preference:</h6>
+                            <div class="input-field col s12">
+                                <input type="text" name="areasResearchInterest1" id="areasResearchInterest1" class="validate">
+                                <label for="areasResearchInterest1">1.</label>
+                                <span id="areasResearchInterest1Msg" class="helper-text" data-success="✓" data-error="Not correct areas research interest" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12">
+                                <input type="text" name="areasResearchInterest2" id="areasResearchInterest2" class="validate">
+                                <label for="areasResearchInterest1">2.</label>
+                                <span id="areasResearchInterest2Msg" class="helper-text" data-success="✓" data-error="Not correct areas research interest" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12">
+                                <input type="text" name="areasResearchInterest3" id="areasResearchInterest3" class="validate">
+                                <label for="areasResearchInterest3">3.</label>
+                                <span id="areasResearchInterest3Msg" class="helper-text" data-success="✓" data-error="Not correct areas research interest" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="areasResearchInterest4" id="areasResearchInterest4" class="validate">
+                                <label for="areasResearchInterest4">4.</label>
+                                <span id="areasResearchInterest4Msg" class="helper-text" data-success="✓" data-error="Not correct areas research interest" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- RA Info -->
+                        <div class="row">
+                            <fieldset class="col s12 m6">
+                                <legend>Have you ever been a Research Assistant at SMU?</legend>
+                                <div>
+                                    <label>
+                                        <input type="radio" name="raSMU" id="raSMU1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <input type="radio" name="raSMU" id="raSMU2" value="2">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                            <div class="input-field col s12 m5">
+                                <input type="date" name="raSMUTime" id="raSMUTime" class="validate">
+                                <label for="raSMUTime">If yes, when?</label>
+                                <span id="raSMUTimeMsg" class="helper-text" data-success="✓" data-error="Not correct time" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="raSMUAdvisorName" id="raSMUAdvisorName" class="validate">
+                                <label for="raSMUAdvisorName">Name of Faculty Research Advisor:</label>
+                                <span id="raSMUAdvisorNameMsg" class="helper-text" data-success="✓" data-error="Not correct name" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="raSMUAdvisorEmail" id="raSMUAdvisorEmail" class="validate" onchange="validateRegex(this.id, 'EMAIL')">
+                                <label for="raSMUAdvisorEmail">Advisor's E-mail address:</label>
+                                <span id="raSMUAdvisorEmailMsg" class="helper-text" data-success="✓" data-error="Not correct Email" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- TA Info -->
+                        <div class="row">
+                            <fieldset class="col s12 m6">
+                                <legend>Have you ever been a Teaching Assistant at SMU?</legend>
+                                <div>
+                                    <label>
+                                        <input type="radio" name="taSMU" id="taSMU1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <input type="radio" name="taSMU" id="taSMU2" value="2">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                            <div class="input-field col s12 m5">
+                                <input type="date" name="taSMUTime" id="taSMUTime" class="validate">
+                                <label for="taSMUTime">If yes, when?</label>
+                                <span id="taSMUTimeMsg" class="helper-text" data-success="✓" data-error="Not correct time" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="taSMUAdvisorName" id="taSMUAdvisorName" class="validate">
+                                <label for="taSMUAdvisorName">Name of TA Supervisor:</label>
+                                <span id="taSMUAdvisorNameMsg" class="helper-text" data-success="✓" data-error="Not correct name" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="taSMUAdvisorEmail" id="taSMUAdvisorEmail" class="validate" onchange="validateRegex(this.id, 'EMAIL')">
+                                <label for="taSMUAdvisorEmail">Supervisor's E-mail address:</label>
+                                <span id="taSMUAdvisorEmailMsg" class="helper-text" data-success="✓" data-error="Not correct Email" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- Programming Languages -->
+                        <div class="row">
+                            <fieldset>
+                                <legend>Programming Languages: (Please identify your level of experience in each language)</legend>
+
+                                <!-- C++ -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>C++</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageCpp" id="programmingLanguageCpp1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageCpp" id="programmingLanguageCpp2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageCpp" id="programmingLanguageCpp3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageCpp" id="programmingLanguageCpp4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Java -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>Java</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJava" id="programmingLanguageJava1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJava" id="programmingLanguageJava2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJava" id="programmingLanguageJava3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJava" id="programmingLanguageJava4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Python -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>Python</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguagePython" id="programmingLanguagePython1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguagePython" id="programmingLanguagePython2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguagePython" id="programmingLanguagePython3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguagePython" id="programmingLanguagePython4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- R -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>R</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageR" id="programmingLanguageR1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageR" id="programmingLanguageR2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageR" id="programmingLanguageR3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageR" id="programmingLanguageR4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- SQL -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>SQL</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageSQL" id="programmingLanguageSQL1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageSQL" id="programmingLanguageSQL2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageSQL" id="programmingLanguageSQL3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageSQL" id="programmingLanguageSQL4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Javascript -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>Javascript</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJavascript" id="programmingLanguageJavascript1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJavascript" id="programmingLanguageJavascript2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJavascript" id="programmingLanguageJavascript3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageJavascript" id="programmingLanguageJavascript4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Verilog -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>Verilog</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageVerilog" id="programmingLanguageVerilog1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageVerilog" id="programmingLanguageVerilog2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageVerilog" id="programmingLanguageVerilog3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageVerilog" id="programmingLanguageVerilog4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Assembler -->
+                                <div class="input-field col s12">
+                                    <div class="input-field col s12 m3"><h6>Assembler*</h6></div>
+                                    <div class="input-field col s12 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageAssembler" id="programmingLanguageAssembler1" value="1">
+                                            <span>Expert</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageAssembler" id="programmingLanguageAssembler2" value="2">
+                                            <span>Knowledgeable</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageAssembler" id="programmingLanguageAssembler3" value="3">
+                                            <span>Familiar</span>
+                                        </label>
+                                    </div>
+                                    <div class="input-field col s2 m2">
+                                        <label>
+                                            <input type="radio" name="programmingLanguageAssembler" id="programmingLanguageAssembler4" value="4">
+                                            <span>Not Familiar</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <!-- Assembler Type Info -->
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="programmingLanguageAssemblerType" id="programmingLanguageAssemblerType" class="validate">
+                                <label for="programmingLanguageAssemblerType">Assembler: List Type (ARM, MIPS, etc.):</label>
+                                <span id="programmingLanguageAssemblerTypeMsg" class="helper-text" data-success="✓" data-error="Not correct Assembler type" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- Computer Systems Type -->
+                        <div class="row">
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="computerSystemsType" id="computerSystemsType" class="validate">
+                                <label for="computerSystemsType">Computer Systems: List Type (Linux, MAC OS, Windows, etc.): </label>
+                                <span id="computerSystemsTypeMsg" class="helper-text" data-success="✓" data-error="Not correct computer systems type" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <!-- Course List -->
+                        @if(tajob.getTaJobCourseSelections == 2){
+                            <div class="row">
+                                <h5>Courses listed below are all CS courses that need Teaching Assistants</h5>
+                                <fieldset>
+                                    <legend>Which Courses would you like to TA?</legend>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference1" value="CS 1340 Introduction to Computing Concepts Python">
+                                            <span>CS 1340 Introduction to Computing Concepts Python</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference2" value="CS 1341 Principles of Computer Science Java">
+                                            <span>CS 1341 Principles of Computer Science Java</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference3" value="CS 1342 Programming Concepts C++">
+                                            <span>CS 1342 Programming Concepts C++</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference4" value="CS 2353 Discrete Math">
+                                            <span>CS 2353 Discrete Math</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference5" value="CS 2240 Assembly Language ARM">
+                                            <span>CS 2240 Assembly Language ARM</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference6" value="CS 2341 Data Structures">
+                                            <span>CS 2341 Data Structures</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference7" value="CS 3330 Database Concepts">
+                                            <span>CS 3330 Database Concepts</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference8" value="CS 3339 Information Assurance and Security">
+                                            <span>CS 3339 Information Assurance and Security</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference9" value="CS 3342 Programming Language">
+                                            <span>CS 3342 Programming Language</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference10" value="CS 3345 Graphical User Interface Design and Implementation">
+                                            <span>CS 3345 Graphical User Interface Design and Implementation</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference11" value="CS 3353 Fundamentals of Algorithms">
+                                            <span>CS 3353 Fundamentals of Algorithms</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference12" value="CS 4344 Computer Networks and Distributed Systems">
+                                            <span>CS 4344 Computer Networks and Distributed Systems</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference13" value="CS 4345 Software Engineering Principles">
+                                            <span>CS 4345 Software Engineering Principles</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference14" value="CS 4351/4352 Senior Design">
+                                            <span>CS 4351/4352 Senior Design</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference15" value="CS 4381 Digital Computer Design">
+                                            <span>CS 4381 Digital Computer Design</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference16" value="CS 5/7314 Software Testing and Quality Assurance">
+                                            <span>CS 5/7314 Software Testing and Quality Assurance</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference17" value="CS 5/7315 Software Project Planning and Management">
+                                            <span>CS 5/7315 Software Project Planning and Management</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference18" value="CS 5/7316 Software Requirements">
+                                            <span>CS 5/7316 Software Requirements</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference19" value="CS 5/7317 Leadership for Architecting Software Systems">
+                                            <span>CS 5/7317 Leadership for Architecting Software Systems</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference20" value="CS 5/7319 Software Architecture and Design">
+                                            <span>CS 5/7319 Software Architecture and Design</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference21" value="CS 5/7320 Artificial Intelligence">
+                                            <span>CS 5/7320 Artificial Intelligence</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference22" value="CS 5/7323 Mobile Applications for Sensing and Learning">
+                                            <span>CS 5/7323 Mobile Applications for Sensing and Learning</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference23" value="CS 5/7331 Data Mining">
+                                            <span>CS 5/7331 Data Mining</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference24" value="CS 5/7339 Computer System Security">
+                                            <span>CS 5/7339 Computer System Security</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference25" value="CS 5/7343 Operating Systems and System Software">
+                                            <span>CS 5/7343 Operating Systems and System Software</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference26" value="CS 5/7345 Advanced Application Programming">
+                                            <span>CS 5/7345 Advanced Application Programming</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference27" value="CS 5/7350 Algorithm Engineering">
+                                            <span>CS 5/7350 Algorithm Engineering</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference28" value="CS 5/7383 Computer Graphics">
+                                            <span>CS 5/7383 Computer Graphics</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference29" value="CS 8313 Object Oriented Analysis and Design">
+                                            <span>CS 8313 Object Oriented Analysis and Design</span>
+                                        </label>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend>Which courses would you not mind TA-ing?</legend>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference1" value="CS 1340 Introduction to Computing Concepts Python">
+                                            <span>CS 1340 Introduction to Computing Concepts Python</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference2" value="CS 1341 Principles of Computer Science Java">
+                                            <span>CS 1341 Principles of Computer Science Java</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference3" value="CS 1342 Programming Concepts C++">
+                                            <span>CS 1342 Programming Concepts C++</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference4" value="CS 2353 Discrete Math">
+                                            <span>CS 2353 Discrete Math</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference5" value="CS 2240 Assembly Language ARM">
+                                            <span>CS 2240 Assembly Language ARM</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference6" value="CS 2341 Data Structures">
+                                            <span>CS 2341 Data Structures</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference7" value="CS 3330 Database Concepts">
+                                            <span>CS 3330 Database Concepts</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference8" value="CS 3339 Information Assurance and Security">
+                                            <span>CS 3339 Information Assurance and Security</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference9" value="CS 3342 Programming Language">
+                                            <span>CS 3342 Programming Language</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference10" value="CS 3345 Graphical User Interface Design and Implementation">
+                                            <span>CS 3345 Graphical User Interface Design and Implementation</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference11" value="CS 3353 Fundamentals of Algorithms">
+                                            <span>CS 3353 Fundamentals of Algorithms</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference12" value="CS 4344 Computer Networks and Distributed Systems">
+                                            <span>CS 4344 Computer Networks and Distributed Systems</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference13" value="CS 4345 Software Engineering Principles">
+                                            <span>CS 4345 Software Engineering Principles</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference14" value="CS 4351/4352 Senior Design">
+                                            <span>CS 4351/4352 Senior Design</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference15" value="CS 4381 Digital Computer Design">
+                                            <span>CS 4381 Digital Computer Design</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference16" value="CS 5/7314 Software Testing and Quality Assurance">
+                                            <span>CS 5/7314 Software Testing and Quality Assurance</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference17" value="CS 5/7315 Software Project Planning and Management">
+                                            <span>CS 5/7315 Software Project Planning and Management</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference18" value="CS 5/7316 Software Requirements">
+                                            <span>CS 5/7316 Software Requirements</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference19" value="CS 5/7317 Leadership for Architecting Software Systems">
+                                            <span>CS 5/7317 Leadership for Architecting Software Systems</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference20" value="CS 5/7319 Software Architecture and Design">
+                                            <span>CS 5/7319 Software Architecture and Design</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference21" value="CS 5/7320 Artificial Intelligence">
+                                            <span>CS 5/7320 Artificial Intelligence</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference22" value="CS 5/7323 Mobile Applications for Sensing and Learning">
+                                            <span>CS 5/7323 Mobile Applications for Sensing and Learning</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference23" value="CS 5/7331 Data Mining">
+                                            <span>CS 5/7331 Data Mining</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference24" value="CS 5/7339 Computer System Security">
+                                            <span>CS 5/7339 Computer System Security</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference25" value="CS 5/7343 Operating Systems and System Software">
+                                            <span>CS 5/7343 Operating Systems and System Software</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference26" value="CS 5/7345 Advanced Application Programming">
+                                            <span>CS 5/7345 Advanced Application Programming</span>
+                                        </label>
+                                    </div>
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference27" value="CS 5/7350 Algorithm Engineering">
+                                            <span>CS 5/7350 Algorithm Engineering</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference28" value="CS 5/7383 Computer Graphics">
+                                            <span>CS 5/7383 Computer Graphics</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col s12">
+                                        <label>
+                                            <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference29" value="CS 8313 Object Oriented Analysis and Design">
+                                            <span>CS 8313 Object Oriented Analysis and Design</span>
+                                        </label>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+                        } else {
+                            <div class="row">
+                                <h5>Courses listed below are all CS courses that need Teaching Assistants</h5>
+                                <fieldset>
+                                    <legend>Which Courses would you like to TA?</legend>
+                                    @for(i <- tajob.getTaCoursesSelectionHidden.split(";")){
+                                        <div class="col s12">
+                                            <label>
+                                                <input type="checkbox" name="taCoursesPreference" id="taCoursesPreference@tajob.getTaCoursesSelectionHidden.split(";").indexOf(i).toString()"  value="@i.trim()">
+                                                <span>@i.trim()</span>
+                                            </label>
+                                        </div>
+                                    }
+                                </fieldset>
+
+                                <fieldset>
+                                    <legend>Which courses would you not mind TA-ing?</legend>
+                                    @for(j <- tajob.getTaCoursesSelectionHidden.split(";")){
+                                        <div class="col s12">
+                                            <label>
+                                                <input type="checkbox" name="taCoursesNotPreference" id="taCoursesNotPreference@tajob.getTaCoursesSelectionHidden.split(";").indexOf(j).toString()"  value="@j.trim()">
+                                                <span>@j.trim()</span>
+                                            </label>
+                                        </div>
+                                    }
+                                </fieldset>
+                            </div>
+                        }
+
+                        <div class="row" hidden="true">
+                            <div class="input-field col s12">
+                                <input type="text" name="taCoursesPreferenceHidden" id="taCoursesPreferenceHidden" >
+                            </div>
+                        </div>
+                        <div class="row" hidden="true">
+                            <div class="input-field col s12">
+                                <input type="text" name="taCoursesNotPreferenceHidden" id="taCoursesNotPreferenceHidden">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h6>Previous Teaching Experience:</h6>
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="previousTeachingExp1Title" id="previousTeachingExp1Title" class="validate">
+                                <label for="previousTeachingExp1Title">Course Title: </label>
+                                <span id="previousTeachingExp1TitleMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="previousTeachingExp1Where" id="previousTeachingExp1Where" class="validate">
+                                <label for="previousTeachingExp1Where">Where:</label>
+                                <span id="previousTeachingExp1WhereMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="date" name="previousTeachingExp1Date" id="previousTeachingExp1Date" class="validate">
+                                <label for="previousTeachingExp1Date">Date:</label>
+                                <span id="previousTeachingExp1DateMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="previousTeachingExp2Title" id="previousTeachingExp2Title" class="validate">
+                                <label for="previousTeachingExp2Title">Course Title: </label>
+                                <span id="previousTeachingExp2TitleMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="previousTeachingExp2Where" id="previousTeachingExp2Where" class="validate">
+                                <label for="previousTeachingExp2Where">Where:</label>
+                                <span id="previousTeachingExp2WhereMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="date" name="previousTeachingExp2Date" id="previousTeachingExp2Date" class="validate">
+                                <label for="previousTeachingExp2Date">Date:</label>
+                                <span id="previousTeachingExp2DateMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+
+                            <div class="input-field col s12 m12">
+                                <input type="text" name="previousTeachingExp3Title" id="previousTeachingExp3Title" class="validate">
+                                <label for="previousTeachingExp3Title">Course Title: </label>
+                                <span id="previousTeachingExp3TitleMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="previousTeachingExp3Where" id="previousTeachingExp3Where" class="validate">
+                                <label for="previousTeachingExp3Where">Where:</label>
+                                <span id="previousTeachingExp3WhereMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <input type="date" name="previousTeachingExp3Date" id="previousTeachingExp3Date" class="validate">
+                                <label for="previousTeachingExp3Date">Date:</label>
+                                <span id="previousTeachingExp3DateMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h6>Please answer all questions (REQUIRED):</h6>
+                            <fieldset>
+                                <legend>Are you a US citizen/permanent resident?</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taUSCitizen" id="taUSCitizen1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taUSCitizen" id="taUSCitizen2" value="2">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>Do you speak English as your native language? (If your answer is "yes" you may skip the following questions)</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taNativeLanguage" id="taNativeLanguage1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taNativeLanguage" id="taNativeLanguage2" value="2">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Have you taken an English proficiency test?</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taEnglishProficiencyTest" id="taEnglishProficiencyTest1" value="1">
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taEnglishProficiencyTest" id="taEnglishProficiencyTest2" value="2">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="taEnglishProficiencyTestName" id="taEnglishProficiencyTestName" class="validate">
+                                <label for="taEnglishProficiencyTestName">If yes, what test did you take (e.g. TOEFL, IELTS, Duolingo)</label>
+                                <span id="taEnglishProficiencyTestNameMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m3">
+                                <input type="number" name="taEnglishProficiencyTestScore" id="taEnglishProficiencyTestScore" class="validate">
+                                <label for="taEnglishProficiencyTestScore">Score:</label>
+                                <span id="taEnglishProficiencyTestScoreMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m3">
+                                <input type="date" name="taEnglishProficiencyTestDate" id="taEnglishProficiencyTestDate" class="validate">
+                                <label for="taEnglishProficiencyTestDate">Date:</label>
+                                <span id="taEnglishProficiencyTestDateMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6>Other information that will help us to evaluate your qualifications for a TA position:</h6>
+                            You may attach a resume to this application
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <textarea type="text" style="height: 200px;
+                                        word-wtap: break-word; margin-top: 10px;" id="applyCoverLetter" placeholder="" name="applyCoverLetter"class="validate"> </textarea>
+                                    <label for="applyCoverLetter">Cover Letter</label>
+                                    <span id="applyCoverLetterMsg" class="helper-text" data-error="" style="color: red; font-size: 12px"></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        Personal Document Upload
+                        <div class="row">
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Resume</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                                <div id="pdfPreviewMsg" style="color:blue"></div>
+                                @if(tajob.getPdf != null && tajob.getPdf != "") {
+                                    <a id="pdfDownload" href="@tajob.getPdf">
+                                        Download Current Current PDF</a>
+                                    <a id = "pdfDeleteBtn" class="right" href="#" style="color: red;" onclick="deletePDF()">
+                                        <i class="material-icons">cross</i> Delete Current TA Job PDF</a>
+                                }
+                                <input id="pdfRecord" name = "pdfRecord" style="display: none;"/>
+                            </div>
+
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Cover Letter</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                                <div id="pdfPreviewMsg" style="color:blue"></div>
+                                @if(tajob.getPdf != null && tajob.getPdf != "") {
+                                    <a id="pdfDownload" href="@tajob.getPdf">
+                                        Download Current Current PDF</a>
+                                    <a id = "pdfDeleteBtn" class="right" href="#" style="color: red;" onclick="deletePDF()">
+                                        <i class="material-icons">cross</i> Delete Current TA Job PDF</a>
+                                }
+                                <input id="pdfRecord" name = "pdfRecord" style="display: none;"/>
+                            </div>
+
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Transcript File</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                                <div id="pdfPreviewMsg" style="color:blue"></div>
+                                @if(tajob.getPdf != null && tajob.getPdf != "") {
+                                    <a id="pdfDownload" href="@tajob.getPdf">
+                                        Download Current Current PDF PDF</a>
+                                    <a id = "pdfDeleteBtn" class="right" href="#" style="color: red;" onclick="deletePDF()">
+                                        <i class="material-icons">cross</i> Delete Current TA Job PDF</a>
+                                }
+                                <input id="pdfRecord" name = "pdfRecord" style="display: none;"/>
+                            </div>
+
+
+
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Degree Certificate</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                                <div id="pdfPreviewMsg" style="color:blue"></div>
+                                @if(tajob.getPdf != null && tajob.getPdf != "") {
+                                    <a id="pdfDownload" href="@tajob.getPdf">
+                                        Download Current Current PDF PDF</a>
+                                    <a id = "pdfDeleteBtn" class="right" href="#" style="color: red;" onclick="deletePDF()">
+                                        <i class="material-icons">cross</i> Delete Current TA Job PDF</a>
+                                }
+                                <input id="pdfRecord" name = "pdfRecord" style="display: none;"/>
+                            </div>
+
+                        </div>
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="TAJobApplication" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.TAJobController.tajobDetail(tajob.getId)" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

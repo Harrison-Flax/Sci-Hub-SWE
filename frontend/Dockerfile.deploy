@@ -1,0 +1,15 @@
+FROM openjdk:8
+
+WORKDIR /app
+
+# Copy dependencies first to retrieve them
+COPY sbt build.sbt ./
+COPY project project
+COPY sbt-dist sbt-dist
+RUN ./sbt update
+
+# Copy the rest of the application
+COPY . .
+RUN ./sbt stage
+
+CMD ["target/universal/stage/bin/basicframework", "-Dplay.http.secret.key=TEMPORARYKEYFORNOW"]

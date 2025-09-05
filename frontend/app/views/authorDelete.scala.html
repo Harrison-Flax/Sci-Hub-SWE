@@ -1,0 +1,23 @@
+@(id: String)
+	@import helper._
+
+	@main("Delete Account"){
+		<div class="container">
+			<div class="row">
+				<div class="col s12 m10 offset-m1">
+					<div class="card-panel">
+						<br><br><br>
+						<h4 class="center">Are you sure you want to delete your account?</h4>
+						<br><br>
+						<form class="form-horizontal" action="@routes.AuthorController.authorDelete()" method="POST">
+							<div class="form-group center">
+								<div class="col-md-6 col-md-offset-3">
+									<button type="submit" class="btn waves-effect waves-light blue darken-2" style="padding-left: 28px; padding-right: 28px;">Yes</button> <a href="/" class="btn waves-effect waves-light red">Cancel</a>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	}

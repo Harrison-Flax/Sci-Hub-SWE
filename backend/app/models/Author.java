@@ -1,0 +1,124 @@
+package models;
+
+import com.fasterxml.jackson.annotation.*;
+import io.ebean.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Author.class)
+@ToString
+public class Author extends Model {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    private String authorName="";
+
+
+    private String firstName="";
+    private String lastName="";
+    private String middleInitial="";
+    private String affiliation="";
+    private String title="";
+    private String email="";
+    private String mailingAddress="";
+    private String phoneNumber="";
+    private String researchFields="";
+    private String highestDegree="";
+    private String level=""; // user level, e.g., admin, normal
+
+    private String homepage="";
+    private String avatar="";
+
+    
+    private String createTime;
+
+    
+    private String isActive;
+
+    private double rating;
+    private long ratingCount;
+    private double recommendRating;
+    private long recommendRatingCount;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "author_paper")
+    private List<Paper> papersByAuthor;
+
+    /****************** Constructors **********************************************************************************/
+
+    public Author() {
+    }
+
+    public Author(long authorId) {
+        this.id = authorId;
+    }
+    public Author(String authorName, String email) {
+        this.authorName = authorName;
+        this.email = email;
+
+        String [] splitName = authorName.split(" ");
+        String firstName = splitName[0];
+        String lastName = "";
+        String middleInitial = "";
+        if (authorName.trim().length() > firstName.trim().length())
+            if(splitName.length >2){
+                middleInitial = splitName[1];
+                lastName = splitName[2];
+            }
+            else
+                lastName = splitName[1];
+        else
+            lastName = firstName;
+        this.firstName = firstName;
+        this.middleInitial = middleInitial;
+        this.lastName = lastName;
+        this.level = "normal";
+        this.isActive = "True";
+
+    }
+
+    public Author(String authorName,  String email,
+                  String phoneNumber) {
+        super();
+        this.authorName = authorName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    /****************** End of Constructors ***************************************************************************/
+
+
+    public static Finder<Long, Author> find =
+            new Finder<Long, Author>(Author.class);
+
+
+    /****************** Utility functions *****************************************************************************/
+    /**
+     * Combine first name + middle initial + last name to get full name for author.
+     * @param firstName
+     * @param middleInitial
+     * @param lastName
+     * @return
+     */
+    public static String createAuthorName(String firstName, String middleInitial, String lastName) {
+        StringBuffer authorName = new StringBuffer();
+        authorName.append(firstName);
+        authorName.append(" ");
+        if (!middleInitial.equals("")) {
+            authorName.append(middleInitial);
+            authorName.append(" ");
+        }
+        authorName.append(lastName);
+        return authorName.toString();
+    }
+    /****************** End of Utility functions **********************************************************************/
+
+}

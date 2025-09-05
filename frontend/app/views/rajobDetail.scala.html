@@ -1,0 +1,225 @@
+@import org.apache.commons.lang3.StringUtils
+@(rajob: RAJob, userId: Long, userTypes: String, tableName: String, rajobFileType: String, tableRecorderId: String, backendPort: String, rajobDocument: Boolean)
+
+@import helper._
+
+@main("RAJob Profile") {
+
+    <link href='@routes.Assets.at("stylesheets/textarea-resize.css")'
+    rel="stylesheet" />
+
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+
+                    <h4 class="center">RA Job: @rajob.getTitle</h4>
+
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+                                <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;
+                                    border-style: solid;
+                                    border-radius: 50%;
+                                    height: auto;
+                                    width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">RA Job Title</th>
+                                        <td style="word-wrap: break-word;">@rajob.getTitle</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Department/Lab Name</th>
+                                        @if(rajob.getOrganization!="null" && rajob.getOrganization != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getOrganization</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Goals</th>
+                                        @if(rajob.getGoals!="null" && rajob.getGoals != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getGoals</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="width: 200px;">Short Description</th>
+                                        @if(rajob.getShortDescription != "null" && rajob.getShortDescription != "") {
+                                            <td style="white-space: pre-wrap; word-wrap: break-word; text-align: left;">@rajob.getShortDescription</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="width: 200px;">Long Description</th>
+                                        @if(rajob.getLongDescription != "null" && rajob.getLongDescription != "") {
+                                            <td style="white-space: pre-wrap; word-wrap: break-word; text-align: left;">@rajob.getLongDescription</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Fields</th>
+                                        @if(rajob.getFields!="null" && rajob.getFields != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getFields</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Required Expertise</th>
+                                        @if(rajob.getRequiredExpertise!="null" && rajob.getRequiredExpertise != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getRequiredExpertise</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Preferred Expertise</th>
+                                        @if(rajob.getPreferredExpertise!="null" && rajob.getPreferredExpertise != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getPreferredExpertise</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Location</th>
+                                        @if(rajob.getLocation!="null" && rajob.getLocation != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getLocation</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">RA Job Type</th>
+                                        <td style="word-wtap: break-word;">
+                                        @if(rajob.getRaTypes!="null" && rajob.getRaTypes != "" ) {
+                                            @if(rajob.getRaTypes == 1){
+                                                Hourly RA (Graduate Students: $20/Hour; Undergraduate Student: $15/Hour)
+                                            }
+                                            @if(rajob.getRaTypes == 2) {
+                                                Full-time RA (Tuition waiver + $2500/Month)
+                                            }
+                                        } else{
+                                            N/A
+                                        }
+                                        </td>
+                                    </tr>
+                                    @*                                    <tr>*@
+                                    @*                                        <th style="max-width: 50px">Salary Range</th>*@
+                                    @*                                        <td style="word-wtap: break-word;">*@
+                                    @*                                            @if(rajob.getMinSalary!="null" && rajob.getMinSalary != "" ) {*@
+                                    @*                                                @rajob.getMinSalary*@
+                                    @*                                            } else {*@
+                                    @*                                                N/A*@
+                                    @*                                            }*@
+                                    @*                                        -*@
+                                    @*                                            @if(rajob.getMaxSalary!="null" && rajob.getMaxSalary != "" ) {*@
+                                    @*                                                @rajob.getMaxSalary*@
+                                    @*                                            } else {*@
+                                    @*                                                N/A*@
+                                    @*                                            }*@
+                                    @*                                        </td>*@
+                                    @*                                    </tr>*@
+                                    <tr>
+                                        <th style="max-width: 50px">RA Job URL</th>
+                                        @if(rajob.getUrl !=null && rajob.getUrl != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getUrl</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">RA Job Publisher</th>
+                                        @if(rajob.getRajobPublisher!="null" && rajob.getRajobPublisher != "") {
+                                            <td style="word-wrap: break-word;">@rajob.getRajobPublisher.getUserName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    @*<tr>
+                                    <th style="max-width: 50px">RA Job PDF</th>
+                                    @if(rajob.getPdf !=null && rajob.getPdf != "") {
+                                    <td style="word-wrap: break-word;">@rajob.getPdf</td>
+                                    } else {
+                                    <td>-</td>
+                                    }
+                                    </tr>*@
+                                    @if(rajobDocument) {
+                                        <tr>
+                                            <th style="max-width: 50px">RA Job Document</th>
+                                            <td style="word-wrap: break-word;">
+                                                <a href="javascript:void(0);"
+                                                data-url="@routes.FileController.getFile(tableName, rajobFileType, tableRecorderId)"
+                                                class="blue-text text-darken-3"
+                                                onclick="openAndCheckNewTabUrl(this)">
+                                                    Download RA Job Document
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        @* Admin breadcrumb *@
+                        @if(userTypes == "0") {
+                            <a href="@routes.AdminController.jobManagement(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                                Back to job management
+                            </a>
+                        }
+                        @if((userTypes == "1" && rajob.getRajobPublisher().getId().equals(userId)) || userTypes == "0") {
+                            <a href="@routes.RAJobController.rajobEditPage(rajob.getId, rajob.getStatus())" class="btn waves-effect waves-light blue darken-2">
+                                Edit RA Job Info</a>
+                        }
+                        <a href="@routes.RAJobController.rajobList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to RA Job List</a>
+
+                        @if((userTypes == "4" || userTypes == "0") && !rajob.getRajobApplicationIdList.contains(userId) && rajob.getStatus != "closed"  ) {
+                            <a href="@routes.RAJobController.rajobApplyPage(rajob.getId)" class="btn waves-effect waves-light green darken-2">
+                                Apply Job
+                            </a>
+                        }
+                        @if((userTypes == "1" && rajob.getRajobPublisher().getId().equals(userId)) || userTypes == "0" ) {
+                            <a href="@routes.RAJobController.closeRAJob(rajob.getId)" class="btn waves-effect waves-light blue darken-2">
+                                Close RA Job</a>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+                fetch(url, { method: 'HEAD' }).then(response => {
+                    if (response.ok) {
+                        const newTab = window.open(url, '_blank');
+                        if (!newTab) {
+                            alert("Please allow pop-ups in your browser to view this file.");
+                        }
+                    } else {
+                        alert("The user did not upload this file");
+                    }
+                })
+                        .catch(error => {
+                            console.error("Error checking the URL:", error);
+                            alert("Failed to check the file. Please try again later.");
+                        });
+            }
+    </script>
+
+}

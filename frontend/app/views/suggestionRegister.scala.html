@@ -1,0 +1,68 @@
+@import helper._
+@scripts  = {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            function validateFormBeforeSubmit() {
+                if (document.getElementById("longDescriptionMsg").innerText !== "") {
+                    return false;
+                }
+                return true;
+            }
+    </script>
+}
+
+@main("Suggestion Register", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel z-depth-0">
+                    <form class="form-signin" enctype="multipart/form-data" method="post" onsubmit="return validateFormBeforeSubmit();" action="@routes.SuggestionController.suggestionRegisterPOST()">
+                        <h4 class="center">Add a Suggestion</h4>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="title" id="title" class="validate"
+                                required >
+                                <label for="title">Suggestion Title*</label>
+                                <span class="helper-text red-text" id="titleMsg"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="description" id="description" class="validate"
+                                required="true">
+                                <label for="description">Suggestion Short Description*</label>
+                                <span class="helper-text red-text" id="descriptionMsg"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                @*<textarea class="materialize-textarea validate" required id="description" name="description" onchange="checkPageValidity()"></textarea>*@
+                                <br/>
+                                <textarea style="height: 200px;
+                                    word-wrap: break-word" name="longDescription" id="longDescription" placeholder=""  onchange="validateTextarea('longDescription', 'suggestion', 'addASuggestion')"></textarea>
+                                <label for="description">Suggestion Long Description</label>
+                                <span class="helper-text red-text" id="longDescriptionMsg"></span>
+                            </div>
+                        </div>
+
+                        <div class="actions row">
+                            <div class="input-field col s12 center">
+                                <button type="submit" class="btn waves-effect waves-light blue darken-2" id="addASuggestion">Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">Cancel</a>
+                                <div class="helper-text red-text" id="submitErrorMsg"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script >
+            var requiredFieldList = ["title", "description"];
+            var notRequiredFieldList = [];
+            setPattern(requiredFieldList, notRequiredFieldList, 'suggestion');
+    </script>
+}

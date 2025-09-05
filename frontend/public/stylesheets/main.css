@@ -1,0 +1,101 @@
+.errorMsg {display: none;}
+:invalid + .errorMsg {
+    display: block;
+    color: red;
+}
+
+.project-zone-panel {
+    margin-top: -24px;
+    margin-left: -24px;
+    margin-right: -24px;
+    background-color: #204782;
+    color: white;
+    padding-top: -5px;
+    border-bottom-style: solid;
+    border-color: black;
+    border-bottom-width: 1px;
+}
+
+tr.list-header {
+    border-bottom: 1px solid;
+!important;
+    font-family: AmazonEmberBold, Helvetica Neue Bold, Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+#myProjects {
+    padding-left: 15px;
+}
+
+#othersProjects {
+    padding-left: 15px;
+}
+
+#citation {
+    word-wrap: break-word;
+    border: 1px dashed;
+    margin-top: 15px;
+    margin-left: 15px;
+}
+
+/*Before having this css, what was happening was that clicking on some inputs was not automatically enabling input writing for
+inputs (and we couldn't fill the input) and after searching I realized it's a problem with materialize and can only be fixed this way*/
+input[type="text"] + label:not(.tootltipLabel) {
+    pointer-events: none;
+
+* {
+    pointer-events: all;
+}
+
+}
+
+#profile-dropDown {
+    background: 0 0 !important;
+    border: none;
+    padding: 0;
+    margin-top: 10px;
+    margin-right: 15px;
+    margin-left: 15px;
+    line-height: 12px;
+}
+
+#userAvatar {
+    border-color: #B4B4B4;
+    border-style: solid;
+    border-width: 1px;
+    transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+    transition-duration: 167ms;
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    opacity: 1;
+    position: relative;
+    left: auto;
+    top: auto;
+    margin-left: 0;
+    -webkit-clip-path: none;
+    clip-path: none;
+    transform: scale(1);
+    background-color: white;
+}
+
+#me {
+    margin: 0;
+    margin-top: -20px;
+    margin-left: -5px;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    background: 0 0;
+    text-transform: none;
+    font-weight: bold;
+    color: white;
+    align-items: center;
+}
+
+#userDetailCards {
+    cursor: pointer;
+    width: 22%;
+    margin-right: 2%;
+    height: 100px;
+    padding-top:20px;
+}

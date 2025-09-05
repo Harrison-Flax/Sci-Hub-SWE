@@ -1,0 +1,77 @@
+package models;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import io.ebean.Finder;
+import io.ebean.Model;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import javax.persistence.*;
+
+@Entity
+@Getter
+@Setter
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = JobApplication.class)
+@ToString
+/**
+ * @author LUO, QIUYU
+ * @version 1.0
+ */
+
+
+public class TaPool extends Model {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private int isActive;
+    private int isResumeSent;
+
+    @Column(columnDefinition = "TEXT")
+    private String smuId = "";
+
+    @Column(columnDefinition = "TEXT")
+    private String status = "";
+
+    @Column(columnDefinition = "INT")
+    private int minHours;
+
+    @Column(columnDefinition = "INT")
+    private int maxHours;
+
+    @Column(columnDefinition = "TEXT")
+    private String courses = "";
+
+    @ManyToOne
+    @JoinColumn(name = "ta_applicant_id", referencedColumnName = "id")
+    private User applicant;
+
+
+    @Column(columnDefinition = "TEXT")
+    private String preference = "";
+
+    @Column(columnDefinition = "TEXT")
+    private String unwanted = "";
+
+    @Column(columnDefinition = "TEXT")
+    private String comment = "";
+
+
+
+    /****************** Constructors **********************************************************************************/
+
+    public TaPool() {
+    }
+
+    public TaPool(long Id) {
+        this.id = Id;
+    }
+
+    /****************** End of Constructors ***************************************************************************/
+
+
+    public static Finder<Long, TaPool> find = new Finder<Long, TaPool>(TaPool.class);
+
+}
+

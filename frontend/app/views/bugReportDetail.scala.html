@@ -1,0 +1,160 @@
+@import org.apache.commons.lang3.StringUtils
+@(bugReport: BugReport)
+
+@import helper._
+
+@scripts = {
+  <script type="text/javascript">
+  </script>
+}
+
+@main("Bug Detail", scripts) {
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/starrs.js")'></script>
+
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4 class="center">@bugReport.getTitle</h4>
+
+          <div class="row">
+            <div class="col s12">
+              <table class="striped responsive-table">
+                <tbody>
+                  <tr>
+                    <th>Title</th>
+                    <td name="tablefield" id="title" style="word-wrap: break-word;" contenteditable="false">@bugReport.getTitle</td>
+                  </tr>
+                  <tr>
+                    <th>Reporter Name</th>
+                    <td name="tablefield" id="name" style="word-wrap: break-word;" contenteditable="false">@bugReport.getReporter.getUserName</td>
+                  </tr>
+                  <tr>
+                    <th>Reporter Email</th>
+                    <td name="tablefield" id="email" style="word-wrap: break-word;" contenteditable="false">@bugReport.getReporter.getEmail</td>
+                  </tr>
+                  @if(bugReport.getReporter.getOrganization != null&&bugReport.getReporter.getOrganization != "") {
+                    <tr>
+                      <th>Reporter Organization</th>
+                      <td name="tablefield" id="organization" style=" word-wrap: break-word;" contenteditable="false">@bugReport.getReporter.getOrganization</td>
+                    </tr>
+                  }
+                  <tr>
+                    <th>Short Description</th>
+                    <td name="tablefield" id="description" style="word-wrap: break-word;" contenteditable="false">@bugReport.getDescription</td>
+                  </tr>
+                  <tr>
+                    <th>Long Description</th>
+                    @if(bugReport.getLongDescription != "null" && bugReport.getLongDescription != "") {
+                      <td name="tablefield" id="longDescription" style="word-wrap: break-word;" contenteditable="false">@bugReport.getLongDescription</td>
+                    } else {
+                      <td name="tablefield" id="longDescription" style="word-wrap: break-word;" contenteditable="false">-</td>
+                    }
+                  </tr>
+                  <tr>
+                    <th>Report Time</th>
+                    <td name="tablefield" id="createdTime" style="word-wrap: break-word;" contenteditable="false">@bugReport.getCreateTime</td>
+                  </tr>
+                  <tr>
+                    <th>Reporter's Actions</th>
+                    <td>
+                      <a class="btn-floating waves-effect waves-light blue darken-2" title="Edit" href="@routes.BugReportController.bugReportEditPage(bugReport.getId)"><i class="material-icons">
+                        edit</i></a>  &nbsp;
+                      <a class="btn-floating waves-effect waves-light red modal-trigger" title="Delete" href="#warningModal"><i class="material-icons">
+                        delete</i></a>
+
+
+
+                        <!-- Inactive Warning Modal Structure -->
+                      <div id="warningModal" class="modal">
+                        <div class="modal-content">
+                          <h5 style="color: red">Warning</h5>
+                          <p style="font-weight: bold">
+                            Do you really want to delete this bug report: @bugReport.getTitle ?
+                            Please note that after deletion, this bug report<span style="color: red">
+                            CANNOT</span> be recovered.</p>
+                        </div>
+                        <div class="modal-footer">
+                          <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                            Cancel</a>
+                          <a href='@routes.BugReportController.bugReportDelete(bugReport.getId)'
+                          class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <div class="row col s12 center">
+              <br/>
+
+
+              <a href="@routes.BugReportController.bugReportList(1)" class="btn waves-effect waves-light blue darken-2">Bug Report List</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+}
+
+<script>
+        function editAPITable()
+        {
+          $("td[name=tablefield]").attr("contenteditable", "true");
+          //document.getElementById("editSubmit").style.visibility = "visible";
+
+        }
+
+        function submitUpdate(){
+          var id = '@bugReport.getId';
+          var title = document.getElementById("title").innerHTML;
+          var email = document.getElementById("email").innerHTML;
+          var name = document.getElementById("name").innerHTML;
+          var organization = document.getElementById("organization").innerHTML;
+          var description = document.getElementById("description").innerHTML;
+          var longDescription = document.getElementById("longDescription").innerHTML;
+          var createdTime = document.getElementById("createdTime").innerHTML;
+          var obj = {
+            id: id,
+            title: title,
+            email : email,
+            name:name,
+            orgnization:organization,
+            description:description,
+            longDescription:longDescription,
+            createdTime:createdTime
+          }
+          console.log(JSON.stringify(obj));
+          $.ajax({
+            url: "/bugUpdate",
+            data: JSON.stringify(obj),
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            type: "POST"
+          }).done(function(data) {
+            console.log(data);
+            if(data == false){
+              $("#mainPage").hide();
+              $("#updateSuccess").attr("class","alert alert-danger")
+              @*document.getElementById("updateSuccess").innerHTML = " API name has existed, click " +*@
+              @*"<a href = '@routes.ResourcesController.getAPIsByPage(0)'><strong>here</strong></a>"*@
+              @*+ " to return.";*@
+              @*document.getElementById("updateSuccess").style.display = "block";*@
+
+            }else{
+              $("#mainPage").hide();
+              $("#updateSuccess").attr("class","alert alert-info")
+
+              @*document.getElementById("updateSuccess").innerHTML = " Update Success, click " +*@
+              @*"<a href = '@routes.ResourcesController.getAPIsByPage(0)'><strong>here</strong></a>"*@
+              @*+ " to return.";*@
+              @*document.getElementById("updateSuccess").style.display = "block";*@
+            }
+          });
+        }
+</script>

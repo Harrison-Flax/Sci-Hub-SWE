@@ -1,0 +1,233 @@
+@import java.util
+@import helper._
+@(organization: Organization, userOrganization: String)
+
+@scripts = {
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/responsive-table.css")">
+    <link rel="stylesheet" href="/assets/stylesheets/responsive-table.css">
+}
+
+
+@main("Organization Profile", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    @if(session.get("id").equalsIgnoreCase(organization.getId.toString)) {
+                        <h4 class="center">My Space</h4>
+                    } else {
+                        <h4 class="center">@organization.getOrganizationName</h4>
+                    }
+
+                        <!-- desktop table -->
+                    <div class="detail-desktop">
+                        <div class="row">
+                            <div class="col s4 center">
+                                <img class="circle" id="showImg" src='@routes.Assets.at("/images/SMULogoRrgb.png")' style="border-width: 1px; border-style: solid; border-radius: 50%; height: auto; width: 70%;">
+                                </div>
+                                <div class="col s8">
+                                <table class="striped responsive-table">
+                                <tbody>
+                                <tr>
+                                <th style="max-width: 50px">Organization Name</th>
+                                <td style="word-wrap: break-word;">@organization.getOrganizationName</td>
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Address</th>
+                                    @if(organization.getAddress!="null" && organization.getAddress != "") {
+                                        <td style="word-wrap: break-word;">@organization.getAddress</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">State</th>
+                                    @if(organization.getState!="null" && organization.getState != "") {
+                                        <td style="word-wrap: break-word;">@organization.getState</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">City</th>
+                                    @if(organization.getCity!="null" && organization.getCity != "") {
+                                        <td style="word-wrap: break-word;">@organization.getCity</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Zipcode</th>
+                                    @if(organization.getZipCode!="null" && organization.getZipCode != "") {
+                                        <td style="word-wrap: break-word;">@organization.getZipCode</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Street Address 1</th>
+                                    @if(organization.getStreetAddress1!="null" && organization.getStreetAddress1 != "") {
+                                        <td style="word-wrap: break-word;">@organization.getStreetAddress1</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Street Address 2</th>
+                                    @if(organization.getStreetAddress2!="null" && organization.getStreetAddress2 != "") {
+                                        <td style="word-wrap: break-word;">@organization.getStreetAddress2</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Short Description</th>
+                                    @if(organization.getShortDescription!="null" && organization.getShortDescription != "") {
+                                        <td style="word-wrap: break-word;">@organization.getShortDescription</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Long Description</th>
+                                    @if(organization.getLongDescription!="null" && organization.getLongDescription != "") {
+                                        <td style="word-wrap: break-word;">@organization.getLongDescription</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Contact Person Name</th>
+                                    @if(organization.getContactPersonName!="null" && organization.getContactPersonName != "") {
+                                        <td style="word-wrap: break-word;">@organization.getContactPersonName</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+
+
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Contact Person Email</th>
+                                    @if(organization.getContactPersonEmail!="null" && organization.getContactPersonEmail != "") {
+                                        <td style="word-wrap: break-word;">@organization.getContactPersonEmail</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Contact Person Phone</th>
+                                    @if(organization.getContactPersonPhone!="null" && organization.getContactPersonPhone != "") {
+                                        <td style="word-wrap: break-word;">@organization.getContactPersonPhone</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+
+                                <tr>
+                                    <th style="max-width: 50px">Fields</th>
+                                    @if(organization.getFields!="null" && organization.getFields != "") {
+                                        <td style="word-wrap: break-word;">@organization.getFields</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Focuses</th>
+                                    @if(organization.getFocuses!="null" && organization.getFocuses != "") {
+                                        <td style="word-wrap: break-word;">@organization.getFocuses</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Organization History</th>
+                                    @if(organization.getOrganizationHistory!="null" && organization.getOrganizationHistory != "") {
+                                        <td style="word-wrap: break-word;">@organization.getOrganizationHistory</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+                                <tr>
+                                    <th style="max-width: 50px">Number of Employee</th>
+                                    @if(organization.getNumberOfEmployees!="null" && organization.getNumberOfEmployees != "") {
+                                        <td style="word-wrap: break-word;">@organization.getNumberOfEmployees</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+
+
+                                <tr>
+                                    <th style="max-width: 49px">URL</th>
+                                    <td style="word-wrap: break-word;">@organization.getURL</td>
+                                </tr>
+                                @*                                    <tr>*@
+                                @*                                        <th style="max-width: 49px"><a href = "@routes.OrganizationController.organizationEditPage()"><button id="Edit" type="submit" class="btn waves-effect waves-light blue darken-2" >*@
+                                @*                                            Edit<i class="material-icons right">edit</i></button></a></th>*@
+                                @*                                    </tr>*@
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                        <!-- Mobile Cards -->
+                    <div class="detail-mobile">
+                        <div class="card-panel detail-card">
+                            <div class="center">
+                                <img class="circle" src='@routes.Assets.at("/images/SMULogoRrgb.png")' style="border: 1px solid; border-radius: 50%; width: 100px; height: 100px;">
+                                </div>
+
+                                <div><h6>Organization Name:</h6> @organization.getOrganizationName</div>
+                            <div><h6>Address:</h6> @organization.getAddress</div>
+                            <div><h6>State:</h6> @organization.getState</div>
+                            <div><h6>City:</h6> @organization.getCity</div>
+                            <div><h6>Zipcode:</h6> @organization.getZipCode</div>
+                            <div><h6>Street Address 1:</h6> @organization.getStreetAddress1</div>
+                            <div><h6>Street Address 2:</h6> @organization.getStreetAddress2</div>
+                            <div><h6>Short Description:</h6> @organization.getShortDescription</div>
+                            <div><h6>Long Description:</h6> @organization.getLongDescription</div>
+                            <div><h6>Contact Person Name:</h6> @organization.getContactPersonName</div>
+                            <div><h6>Contact Person Email:</h6> @organization.getContactPersonEmail</div>
+                            <div><h6>Contact Person Phone:</h6> @organization.getContactPersonPhone</div>
+                            <div><h6>Fields:</h6> @organization.getFields</div>
+                            <div><h6>Focuses:</h6> @organization.getFocuses</div>
+                            <div><h6>Organization History:</h6> @organization.getOrganizationHistory</div>
+                            <div><h6>Number of Employees:</h6> @organization.getNumberOfEmployees</div>
+                            <div><h6>URL:</h6> <a href="@organization.getURL">@organization.getURL</a></div>
+                        </div>
+                    </div>
+
+                    <div class="row center">
+
+                        <a href="@routes.OrganizationController.organizationEditPage()" class="btn waves-effect waves-light blue darken-2">
+                            Edit Profile</a>
+
+                        <a href="@routes.OrganizationController.organizationListPage(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to List</a>
+                        @*                    @if(session.get("id").equalsIgnoreCase(organization.getId.toString)) {*@
+
+                        @*                        <a href="@routes.OrganizationController.organizationEditPage()" class="btn waves-effect waves-light blue darken-2">*@
+                        @*                            Edit Profile</a>*@
+                        @*                    } else {*@
+                        @*                        <a href="@routes.OrganizationController.organizationList(1, "id")" class="btn waves-effect waves-light blue darken-2">*@
+                        @*                            Back to Organization List</a>*@
+                        @*                    }*@
+                    </div>
+                </div>
+            </div>
+        </div>
+}

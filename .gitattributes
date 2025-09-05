@@ -1,0 +1,3 @@
+backend/conf/application.conf merge=ours
+frontend/conf/application.conf merge=ours
+

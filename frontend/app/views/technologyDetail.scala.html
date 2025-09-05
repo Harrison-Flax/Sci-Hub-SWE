@@ -1,0 +1,137 @@
+@import helper._
+@import models._
+@import models.Technology
+
+@(technology: Technology, currentUserId: String, backendPort: String, tableName: String, technologyFileType: String, tableRecorderId: String)
+
+
+@main("Technology Profile") {
+<div class="container">
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel">
+
+                <h4 class="center">Technology: @technology.getTechnologyTitle</h4>
+
+                <div class="row">
+                    <div class="col s4">
+                        <div class="center">
+                            <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;
+                                border-style: solid;
+                                border-radius: 50%;
+                                height: auto;
+                                width: 70%;">
+                        </div>
+                    </div>
+                    <div class="col s8">
+                        <table class="striped responsive-table">
+                            <tbody>
+                                <tr>
+                                    <th style="max-width: 50px">Technology Title</th>
+                                    @if(technology.getTechnologyTitle!="null" && technology.getTechnologyTitle != "") {
+                                        <td style="word-wrap: break-word;">@technology.getTechnologyTitle</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Goals</th>
+                                    @if(technology.getGoals!="null" && technology.getGoals != "") {
+                                        <td style="word-wrap: break-word;">@technology.getGoals</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                @if(technology.getPdf != null && technology.getPdf != "") {
+                                    <a href="@routes.TechnologyController.downloadTechnologyFile(technology.getId)" class="btn waves-effect waves-light blue darken-3">
+                                        Download Technology Representative Paper
+                                    </a>
+                                    <p><br/></p>
+                                }
+
+                                <tr>
+                                    <th style="max-width: 50px">Short Description</th>
+                                    @if(technology.getShortDescription!="null" && technology.getShortDescription != "") {
+                                        <td style="word-wrap: break-word;">@technology.getShortDescription</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Long Description</th>
+                                    @if(technology.getLongDescription!="null" && technology.getLongDescription != "") {
+                                        <td style="word-wrap: break-word;">@technology.getLongDescription</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Representative Paper URL</th>
+                                    @if(technology.getRepresentativePaperURL!="null" && technology.getRepresentativePaperURL != "") {
+                                        <td style="word-wrap: break-word;">@technology.getRepresentativePaperURL</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Keywords</th>
+                                    @if(technology.getKeywords!=null && technology.getKeywords != "") {
+                                        <td style="word-wrap: break-word;">@technology.getKeywords</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Fields</th>
+                                    @if(technology.getFields!="null" && technology.getFields != "") {
+                                        <td style="word-wrap: break-word;">@technology.getFields</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">PI Name</th>
+                                    @if(technology.getPIName != "null" && technology.getPIName != "") {
+                                        <td style="word-wrap: break-word;">@technology.getPIName</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Team Members</th>
+                                    @if(technology.getTeamMembers!="null" && technology.getTeamMembers != "") {
+                                        <td style="word-wrap: break-word;">@technology.getTeamMembers</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th style="max-width: 50px">Job Publisher</th>
+                                    @if(technology.getTechnologyPublisher!="null" && technology.getTechnologyPublisher != "") {
+                                        <td style="word-wrap: break-word;">@technology.getTechnologyPublisher.getUserName</td>
+                                    } else {
+                                        <td>-</td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row center">
+
+
+                    @if(currentUserId == "109" || technology.getTechnologyPublisher().getId().equals(Long.valueOf(currentUserId))) {
+                        <a href="@routes.TechnologyController.technologyEditPage(technology.getId)" class="btn waves-effect waves-light blue darken-2">
+                            Edit Technology Info</a>
+                    }
+
+                    <a href="@routes.TechnologyController.technologyList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                        Back to Technology List</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    }

@@ -1,0 +1,127 @@
+@(newId: Long, registeredType: String)
+
+@import models._
+@import models.Project
+@import models.Challenge
+
+@* This confirmation page is a post-registration page for API, docker, notebook, dataset, news, bug report, suggestion, API study case, docker study case, and notebook study case *@
+@main("General registerPage confirmation page") {
+    <div class="container">
+        <div class="center">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4>Congratulations!</h4>
+
+                    @if(registeredType=="Project") {
+                        <h5>Your project has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your project ID is @newId</h6>
+                    }
+                    @if(registeredType=="User"){
+                        <h5>Your user account has been successfully created onto SMU-Hub.</h5>
+                        <h6>Your user ID is @newId</h6>
+                    }
+                    @if(registeredType=="Challenge"){
+                        <h5>Your challenge has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your challenge ID is @newId</h6>
+                    }
+                    @if(registeredType=="Reviewer"){
+                        <h5>Your Reviewer has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your Reviewer ID is @newId</h6>
+                    }
+                    @if(registeredType=="Job"){
+                        <h5>Your Job has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your Job ID is @newId</h6>
+                    }
+                    @if(registeredType=="Rajob"){
+                        <h5>Your RA Job has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your RA Job ID is @newId</h6>
+                    }
+                    @if(registeredType=="Tajob"){
+                        <h5>Your TA Job has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your TA Job ID is @newId</h6>
+                    }
+                    @if(registeredType=="Tacandidate"){
+                        <h5>Your TA application has been successfully registered onto SMU-Hub.</h5>
+                        <h6>Your candidate ID is @newId</h6>
+                    }
+                    @if(registeredType=="CourseTAAssignment"){
+                        <h5>An hiring email has been sent to Monique, we are working on the hiring process now.</h5>
+                    }
+
+                    @if(registeredType=="Organization"){
+                        <h5>Your organization has been successfully created onto SMU-Hub.</h5>
+                        <h6>Your organization ID is @newId</h6>
+                    }
+
+                    @if(registeredType=="Technology"){
+                        <h5>Your technology has been successfully created onto SMU-Hub.</h5>
+                        <h6>Your technology ID is @newId</h6>
+                    }
+
+                    <br>
+                    <br>
+                    <span id="show"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+            var t = 5;
+            var timer = setInterval(refer, 1000);
+            function refer() {
+                if (t <= 0) {
+                    clearInterval(timer);
+                    if('@registeredType' =="Project"){
+                        location='@routes.ProjectController.projectList(1)';
+                    }else if('@registeredType' =="User"){
+                        location='@routes.Application.home()';
+                    }else if('@registeredType' == "Reviewer"){
+                        location='@routes.ReviewerController.reviewerList(1,"id")';
+                    }else if('@registeredType' == "Challenge"){
+                        location='@routes.ChallengeController.challengeList(1,"")';
+                    }else if('@registeredType' == "Job"){
+                        location='@routes.JobController.jobList(1, "")';
+                    }else if('@registeredType' == "Tajob"){
+                        location='@routes.TAJobController.tajobList(1,"")';
+                    }else if('@registeredType' == "Rajob"){
+                        location='@routes.RAJobController.rajobList(1,"")';
+                    }else if('@registeredType' == "Organization"){
+                        location='@routes.Application.home()';
+                    }else if('@registeredType' == "Technology"){
+                        location='@routes.Application.home()';
+                    }
+                }
+
+                if('@registeredType' =="Project"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the project list page in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="User"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the user login page in "
+                            +""+t+" seconds";
+                } else if('@registeredType' =="Reviewer"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the reviewer list page in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="Challenge"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the Challenge List in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="Job"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the Home page in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="Tajob"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the Home page in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="Rajob"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the Home page in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="Organization"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the Home page in "
+                            +""+t+" seconds";
+                }else if('@registeredType' =="Technology"){
+                    document.getElementById('show').innerHTML="The page will be redirected to the Home page in "
+                            +""+t+" seconds";
+                }
+                t--;
+            }
+    </script>
+}

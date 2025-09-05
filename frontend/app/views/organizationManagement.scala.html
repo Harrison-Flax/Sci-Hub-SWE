@@ -1,0 +1,162 @@
+@(organizations: List[Organization], pageNum: Integer, sortCriteria: String, totalCount: Integer, totalPages: Integer)
+
+@import helper._
+@import models._
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('.tooltipped').tooltip();
+            });
+    </script>
+}
+
+@main("Organization Management - Admin Dashboard", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+            </div>
+        </div>
+
+        <div class="card-panel">
+            <div class="row">
+                <div class="col s12">
+                    <h4 class="center">Organization Management</h4>
+                </div>
+            </div>
+
+            @if(organizations.size() > 0) {
+                <div class="row">
+                    <div class="col s6">
+                        <h6 class="left">@totalCount Organizations，Page@pageNum </h6>
+                    </div>
+                    <div class="col s6" style="padding-top: -5px; margin-top: -2px">
+                        <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown-sort' style="text-transform: none; font-weight: bold; color: black;">
+                            sort: &nbsp; <font color="#3a5dc3">
+                            @if(sortCriteria.equals("id")) {
+                                ID
+                            } else if(sortCriteria.equals("organizationName")) {
+                        Name
+                        } else if(sortCriteria.equals("numberOfEmployees")) {
+                        number of employees
+                        } else {
+                        ID
+                        }
+                        </font> <i class="material-icons right">expand_more</i>
+                        </a>
+
+                        <ul id='dropdown-sort' class='dropdown-content'>
+                            <li><a href="@routes.AdminController.organizationManagement(1, "id")" class="grey-text text-darken-4">
+                                <i class="material-icons">tag</i>ID</a></li>
+                            <li><a href="@routes.AdminController.organizationManagement(1, "organizationName")" class="grey-text text-darken-4">
+                                <i class="material-icons">business</i>name</a></li>
+                            <li><a href="@routes.AdminController.organizationManagement(1, "numberOfEmployees")" class="grey-text text-darken-4">
+                                <i class="material-icons">people</i>number of employees</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <table class="centered responsive-table striped">
+                    <thead>
+                        <tr class="list-header">
+                            <th>ID</th>
+                            <th>name</th>
+                            <th>address</th>
+                            <th>focus area</th>
+                            <th>number of employees</th>
+                            <th>contact</th>
+                            <th>email</th>
+                            <th>website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(org <- organizations) {
+                        <tr>
+                            <td>@org.getId()</td>
+                            <td><a href="@routes.OrganizationController.organizationDetailPageAdmin(org.getId())">@org.getOrganizationName()</a></td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@org.getOrganizationName()">
+                                @org.getOrganizationName()
+                                </div>
+                            </td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@org.getAddress()">
+                                @org.getAddress()
+                                </div>
+                            </td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@org.getFocuses()">
+                                @org.getFocuses()
+                                </div>
+                            </td>
+                            <td>@org.getNumberOfEmployees()</td>
+                            <td>@org.getContactPersonName()</td>
+                            <td>@org.getContactPersonEmail()</td>
+                            <td>
+                            @if(org.getURL() != null && org.getURL().nonEmpty) {
+                                <a href="@org.getURL()" target="_blank" class="btn-small blue">
+                                    <i class="material-icons">link</i>
+                                </a>
+                            } else {
+                                -
+                            }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+
+                    <!-- pagination -->
+                @if(totalPages > 1) {
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="pagination center-align">
+                                @if(pageNum == 1) {
+                                    <li class="waves-effect disabled">
+                                        <i class="material-icons">chevron_left</i>
+                                    </li>
+                                } else {
+                                    <li class="waves-effect">
+                                        <a href="@routes.AdminController.organizationManagement(pageNum - 1, sortCriteria)">
+                                            <i class="material-icons">chevron_left</i>
+                                        </a>
+                                    </li>
+                                }
+
+                                @for(i <- 1 to totalPages) {
+                                    @if(i == pageNum) {
+                                        <li class="active">
+                                            <a href="@routes.AdminController.organizationManagement(i, sortCriteria)">@i</a>
+                                        </li>
+                                    } else {
+                                        <li class="waves-effect">
+                                            <a href="@routes.AdminController.organizationManagement(i, sortCriteria)">@i</a>
+                                        </li>
+                                    }
+                                }
+
+                                @if(pageNum == totalPages) {
+                                    <li class="waves-effect disabled">
+                                        <i class="material-icons">chevron_right</i>
+                                    </li>
+                                } else {
+                                    <li class="waves-effect">
+                                        <a href="@routes.AdminController.organizationManagement(pageNum + 1, sortCriteria)">
+                                            <i class="material-icons">chevron_right</i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            } else {
+                <div class="row">
+                    <div class="col s12 center">
+                        <h5>no organization data</h5>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

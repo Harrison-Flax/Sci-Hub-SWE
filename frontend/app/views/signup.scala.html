@@ -1,0 +1,455 @@
+@(userForm: play.data.Form[models.User], regPattern: String , organizations: List[Organization])
+@import helper._
+
+@scripts = {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+@*    <script src='@routes.Assets.at("javascripts/plugins/parsley.min.js")'></script>*@
+    <script type="text/javascript">
+            var isEmailEmpty = true;
+            var isEmailInvalid = true;
+            // var isEmailAlreadyRegistered = true;
+            var isEmailAlreadyRegistered = false;
+            var isPasswordNotMatched = true;
+            var isPasswordNotSecure = false;
+            var isSQ1hasNoContent = false;
+            var isSQ2hasNoContent = false;
+            var isFirstNameEmpty = true;
+            var isLastNameEmpty = true;
+
+            var passwordNotSecureError = "Password must contain at least one special character, one uppercase, and one lowercase letter, and at least 8 or more characters <br/>";
+            var passwordsDoNotMatchError = "Your password and confirmation password do not match. <br/>";
+            var emailAlreadyRegisteredError = "Your email address has already been registered.<br/>";
+            var emailEmptyError = "Field 'Email' must be filled in.<br/>";
+            var firstNameEmptyError = "Field 'First Name' must be filled in.<br/>";
+            var organizationEmptyError = "Field 'Organization' must be filled in.<br/>";
+            var lastNameEmptyError = "Field 'Last Name' must be filled in.<br/>";
+            var emailInvalidError = "Your email address must be valid.<br/>";
+
+            var isResearcherChecked = false;
+            var isStudentChecked = false;
+
+            function checkFormValid() {
+
+                var userTypes = 0;
+                var userTypesChecked = false;
+                for (var i = 0; i < document.getElementsByName("userTypes").length; i++) {
+                    var userType = document.getElementsByName("userTypes")[i];
+                    if (userType.checked) {
+                        userTypes = parseInt(userType.value);
+                        userTypesChecked = true;
+                    }
+                }
+                document.getElementById("hiddenUserType").value = userTypes;
+
+                if (!userTypesChecked) {
+                    var userTypeError = document.getElementById("userTypeError");
+                    userTypeError.style.display = "block";
+                    userTypeError.innerText = "Please select at least one user type.";
+                    return false;
+                } else {
+                    document.getElementById("userTypeError").style.display = "none";
+                }
+
+                if(isEmailAlreadyRegistered){
+                    document.getElementById("warningMessage").innerText = "Your email address has already been registered.";
+                    $("#warningModal").modal();
+                    $("#warningModal").modal('open');
+                    return false;
+                }
+
+                if(isPasswordNotMatched){
+                    document.getElementById("warningMessage").innerText = "Your password and confirmation password do not match.";
+                    $("#warningModal").modal();
+                    $("#warningModal").modal('open');
+                    return false;
+                }
+
+                return true;
+            }
+
+            function hiddenOrNot(userType) {
+                var hiddenDiv = "divHidden" + userType;
+                for (var i = 0; i < document.getElementsByName(hiddenDiv).length; i++) {
+                    var div = document.getElementsByName(hiddenDiv)[i];
+                    div.hidden = !div.hidden;
+                }
+            }
+
+            // the "other organization" field
+            function otherOrganization() {
+                var inputOtherOrganization = document.getElementById("organization");
+                var selectedIndex = inputOtherOrganization.selectedIndex;
+                var selectedValue = inputOtherOrganization.options[selectedIndex].value;
+                document.getElementById("hiddenOrganization").hidden = !(selectedValue == "-1");
+                document.getElementsByName("hiddenOrganization")[0].required = (selectedValue == "-1");
+            }
+
+            /**
+             * This function checks the password entries are the same
+             */
+            function checkPwd() {
+                var p1 = document.getElementById("password").value;
+                var p2 = document.getElementById("repassword").value;
+                if (p1 !== p2) {
+                    isPasswordNotMatched = true;
+                    document.getElementById("repasswordMsg").innerHTML = "Your password and confirmation password do not match."
+                } else {
+                    isPasswordNotMatched = false;
+                    document.getElementById("repasswordMsg").innerHTML = ""
+                }
+            }
+            /**
+             * This function checks the email validity and sets
+             * isEmailEmpty
+             * isEmailInvalid
+             * isEmailAlreadyRegistered
+             */
+            function checkValidEmail() {
+                var email = document.getElementById("email").value;
+                var obj = {
+                    email: email
+                };
+                if(!email){
+                    isEmailEmpty = true;
+                } else {
+                    isEmailEmpty = false;
+                    $.ajax({
+                        url: "/user/isEmailExisted",
+                        data: JSON.stringify(obj),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        type: "POST",
+                        success: function (data) {
+                            console.log(data);
+                            var response = data;
+                            if (false || "error" in response) {
+                                isEmailAlreadyRegistered = true;
+                                document.getElementById("emailMsg").innerHTML = "Your email address has already been registered."
+                            } else {
+                                isEmailAlreadyRegistered = false;
+                                document.getElementById("emailMsg").innerHTML = ""
+                            }
+                        }
+                    })
+                }
+            }
+            /**
+             * If the password fails any of these rules
+             * the function returns true:
+             * at least one lowercase character
+             * at least one uppercase character
+             * at least 8 characters total
+             * at least one special character
+             * TODO: At early stage, allow simple password
+             */
+            function doesPasswordFailRules(){
+                @*
+                var p1 = document.getElementById("password").value;
+                var foundSpecialChar = false;
+                var iChars = "~`!#$%^&*+=-[]\\\';,/{}|\":<>?";
+                console.log(p1);
+                console.log(p1.length);
+                if(p1.length < 8){
+                    return true;
+                }
+                if(p1.toLowerCase() === p1){
+                    return true;
+                }
+                if(p1.toUpperCase() === p1){
+                    return true;
+                }
+                for (var i = 0; i < p1.length; i++)
+                {
+                    if (iChars.indexOf(p1.charAt(i)) !== -1)
+                    {
+                        foundSpecialChar = true;
+                    }
+                }
+                if(foundSpecialChar === false){
+                    return true;
+                }
+                *@
+                return false;
+            }
+
+    </script>
+}
+
+@main("User Register/Signup", scripts) {
+        <div class="container">
+            <div class="row">
+                <div class="col s12 l10 offset-l1">
+                    <div class="card-panel z-depth-0">
+                        <h4 class="form-signin-heading center">Sign up to SMU-Sci-Hub</h4>
+                        <form data-parsley-validate class="form-signin" onsubmit="return checkFormValid();" enctype="multipart/form-data" method="get" action="@routes.UserController.userRegisterPOST()">
+                            <div class="row">
+                                <div class="input-field col s12 m4">
+                                    <input type="text" name="firstName" id="firstName" class="validate" required>
+                                    <label for="firstName">First Name*</label>
+                                    <span id="firstNameMsg" class="helper-text" data-error=""></span>
+                                </div>
+                                <div class="input-field col s12 m4">
+                                    <input type="text" name="middleInitial" id="middleInitial" class="validate">
+                                    <label for="middleInitial">Middle Name</label>
+                                    <span id="middleInitialMsg" class="helper-text" data-error=""></span>
+                                </div>
+                                <div class="input-field col s12 m4">
+                                    <input type="text" name="lastName" id="lastName" class="validate" required>
+                                    <label for="lastName">Last Name*</label>
+                                    <span id="lastNameMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="email" name="email" id="email" class="validate" required onchange="checkValidEmail()">
+                                    <label for="email">Email Address*</label>
+                                    <span id="emailValidationMsg" class="helper-text" data-error="Please enter a valid email address"  data-success="✓"></span>
+                                    <span id="emailMsg" style="color: red"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12 m6">
+                                    @*<input type="password" name="password" id="password" class="validate" required>*@
+                                    <input type="password" name="password" id="password" class="validate" required onchange="checkPwd()">
+                                    <label for="password">Password*</label>
+                                    <span id="passwordMsg" class="helper-text" data-error="" data-success="✓"></span>
+                                    @*<form action="/action_page.php">*@
+                                    @*Password: <input type="password" name="pw" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">*@
+                                    @*<input type="submit">*@
+                                    @*</form>*@
+                                </div>
+                                <div class="input-field col s12 m6">
+                                    @*<input type="password" name="repassword" id="repassword" class="validate" oninput="checkPwd()" required>*@
+                                    <input type="password" name="repassword"   id="repassword" class="validate" required onchange="checkPwd()">
+                                    <label for="repassword">Re-enter Password*</label>
+                                    <span id="repasswordMsg" class="helper-text" data-error=""  data-success="✓" style="color: red"></span>
+                                </div>
+                            </div>
+
+@*                            <div class="row">*@
+@*                                <div class="input-field col s12">*@
+@*                                    <input type="text" name="organization" id="organization" class="validate" required>*@
+@*                                    <label for="organization">Organization*</label>*@
+@*                                    <span id="organizationMsg" class="helper-text" data-error=""></span>*@
+@*                                </div>*@
+@*                            </div>*@
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <select id="organization" name="organization" onchange="otherOrganization()" required>
+                                        @for((org, idx) <- organizations.zipWithIndex) {
+                                            <option value="@org.getId()">@org.getOrganizationName()</option>
+                                        }
+@*                                        <option value="@organizations.get(0).getId()" selected="false">@organizations.get(0).getOrganizationName()</option>*@
+@*                                        <option value="">vad</option>*@
+                                    </select>
+                                    <input type="text" name="organization" id="organization" class="validate">
+                                    <label for="organization">Organization</label>
+                                    <span id="organizationMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" id="hiddenOrganization">
+                                <div class="input-field col s12">
+                                    <input type="text" name="hiddenOrganization" class="validate">
+                                    <label for="hiddenOrganization">Other Organization*</label>
+                                    <span id="hiddenOrganizationMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+@*                            <div class="row">*@
+@*                                <div class="input-field col s12">*@
+@*                                    <input type="text" name="researchFields" id="researchFields" class="validate">*@
+@*                                    <label for="researchFields">Research Fields</label>*@
+@*                                    <span id="researchFieldsMsg" class="helper-text" data-error=""></span>*@
+@*                                </div>*@
+@*                            </div>*@
+
+
+@*                            <div class="row">*@
+@*                                <div class="input-field col s12">*@
+@*                                    <input type="text" name="affiliation" id="affiliation" class="validate">*@
+@*                                    <label for="affiliation">Affiliation</label>*@
+@*                                    <span id="affiliationMsg" class="helper-text" data-error=""></span>*@
+@*                                </div>*@
+@*                            </div>*@
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="mailingAddress" id="mailingAddress" class="validate">
+                                    <label for="mailingAddress">Mailing Address</label>
+                                    <span id="mailingAddressMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="tel" name="phoneNumber" id="phoneNumber" class="validate" pattern="^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$">
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <span id="phoneNumberMsg" class="helper-text" data-error="Please enter a valid phone number" data-success="✓"></span>
+                                </div>
+                            </div>
+@*                            <div class="row">*@
+@*                                <div class="input-field col s12">*@
+@*                                    <input type="text" name="highestDegree" id="highestDegree" class="validate">*@
+@*                                    <label for="highestDegree">Highest Degree</label>*@
+@*                                    <span id="highestDegreeMsg" class="helper-text" data-error=""></span>*@
+@*                                </div>*@
+@*                            </div>*@
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="url" name="homepage" id="homepage" class="validate">
+                                    <label for="homepage">URL</label>
+                                    <span id="urlMsg" class="helper-text" data-error="Please enter a valid URL, start from http:// or https://" data-success="✓"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <fieldset>
+                                    <legend>Sign up as*</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="userTypes" id="userType1" value="1" onchange='hiddenOrNot("Researcher")'>
+                                        <span>Researcher/Professor</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label><input type="radio" name="userTypes" id="userType2" value="2"><span>Sponsor</span></label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label><input type="radio" name="userTypes" id="userType4" value="4" onchange='hiddenOrNot("Student")'><span>Student</span></label>
+                                </div>
+                                </fieldset>
+                                <span id="userTypeError" style="color: red; display: none;">Please select at least one user type.</span>
+                            </div>
+                            <div class="row" hidden="true">
+                                <div class="input-field col s12">
+                                    <input type="text" name="hiddenUserType" id="hiddenUserType">
+                                </div>
+                            </div>
+
+@*                            <div class="row">*@
+@*                                <label>*@
+@*                                    <input id="isResearcher" name="isResearcher" type="checkbox" onchange="isResearcherOrNot()" />*@
+@*                                    <span>I am a researcher.</span>*@
+@*                                </label>*@
+@*                            </div>*@
+
+                            <div class="row" hidden="true" name="divHiddenResearcher">
+                                <div class="input-field col s12">
+                                    <input type="text" name="highestDegree" id="highestDegree" class="validate">
+                                    <label for="highestDegree">Highest Degree</label>
+                                    <span id="highestDegreeMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenResearcher">
+                                <div class="input-field col s12">
+                                    <input type="text" name="orcid" id="orcid" class="validate">
+                                    <label for="orcid">ORC ID</label>
+                                    <span id="orcidMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenResearcher">
+                                <div class="input-field col s12">
+                                    <input type="text" name="researchFields" id="researchFields" class="validate">
+                                    <label for="researchFields">Research Fields</label>
+                                    <span id="researchFieldsMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenResearcher">
+                                <div class="input-field col s12">
+                                    <input type="text" name="school" id="school" class="validate">
+                                    <label for="school">School</label>
+                                    <span id="schoolMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenResearcher">
+                                <div class="input-field col s12">
+                                    <input type="text" name="department" id="department" class="validate">
+                                    <label for="department">Department</label>
+                                    <span id="departmentMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenStudent">
+                                <div class="input-field col s12">
+                                    <input type="text" name="studentIdNumber" id="studentIdNumber" class="validate">
+                                    <label for="studentIdNumber">ID #</label>
+                                    <span id="studentIdNumberMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenStudent">
+                                <div class="input-field col s12">
+                                    <select id="studentType" name="studentType">
+                                        <option value="Undergraduate">Undergraduate</option>
+                                        <option value="Master">Master</option>
+                                        <option value="Ph.D.">Ph.D.</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <label for="studentType">Type</label>
+                                    <span id="studentTypeMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenStudent">
+                                <div class="input-field col s12">
+                                    <select id="studentYear" name="studentYear">
+                                        <option value="First">First year</option>
+                                        <option value="Second">Second year</option>
+                                        <option value="Third">Third year</option>
+                                        <option value="Forth">Forth year</option>
+                                        <option value="Fifth">Fifth year</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <label for="studentYear">Current academic year</label>
+                                    <span id="studentYearNumberMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenStudent">
+                                <div class="input-field col s12">
+                                    <input type="text" name="studentMajor" id="studentMajor" class="validate">
+                                    <label for="studentMajor">Major</label>
+                                    <span id="studentMajorMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row" hidden="true" name="divHiddenStudent">
+                                <div class="input-field col s12">
+                                    <input type="date" name="studentEnrollDate" id="studentEnrollDate" class="validate">
+                                    <label for="studentEnrollDate">First Enrollment Date</label>
+                                    <span id="studentEnrollDateMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div id="warningModal" class="modal">
+                                <div class="modal-content">
+                                    <h5 class="center" style="color: red">Warning!</h5>
+                                    <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                                </div>
+                            </div>
+                            <div class="center actions row">
+                                <div class="input-field col s12">
+                                    <button type="submit" class="btn waves-effect waves-light blue darken-2" id="create">
+                                        Create</button>
+                                    <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">Cancel</a>
+                                    <div class="helper-text red-text" id="submitErrorMsg"></div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script >
+            var requiredFieldList = ["firstName", "lastName", "email", "password", "repassword", "organization"];
+            var notRequiredFieldList = ["middleInitial", "researchFields", "mailingAddress", "highestDegree", "phoneNumber"];
+            setPattern(requiredFieldList, notRequiredFieldList, 'user');
+    </script>
+}

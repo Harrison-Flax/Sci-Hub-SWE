@@ -1,0 +1,94 @@
+@import org.apache.commons.lang3.StringUtils
+@(user: Reviewer)
+
+@import helper._
+
+@main("User Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    @if(session.get("id").equalsIgnoreCase(user.getId.toString)) {
+                        <h4 class="center">My Space</h4>
+                    } else {
+                        <h4 class="center">@user.getReviewerName</h4>
+                    }
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+                                <img class="circle" id="showImg" src="@user.getAvatar" width="360" height="360" style="border-width: 1px;
+                                    border-style: solid;
+                                    border-radius: 50%;
+                                    height: auto;
+                                    width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">First Name</th>
+                                        <td style="word-wrap: break-word;">@user.getFirstName</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Middle Initial</th>
+                                        @if(user.getMiddleInitial!="null" && user.getMiddleInitial != "") {
+                                            <td style="word-wrap: break-word;">@user.getMiddleInitial</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Last Name</th>
+                                        <td style="word-wrap: break-word;">@user.getLastName</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Affiliation</th>
+                                        @if(user.getAffiliation!="null" && user.getAffiliation != "") {
+                                            <td style="word-wrap: break-word;">@user.getAffiliation</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Title</th>
+                                        @if(user.getTitle != "null" && user.getTitle != "") {
+                                            <td style="word-wrap: break-word;">@user.getTitle</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Research Fields</th>
+                                        @if(user.getResearchFields != "null" && user.getResearchFields != "") {
+                                            <td style="word-wrap: break-word;">@user.getResearchFields</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Highest Degree</th>
+                                        @if(user.getHighestDegree != "null" && user.getHighestDegree != "") {
+                                            <td style="word-wrap: break-word;">@user.getHighestDegree</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+
+                        <a href="@routes.ReviewerController.reviewerList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to Reviewer List</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+}

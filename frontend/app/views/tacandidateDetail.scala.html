@@ -1,0 +1,200 @@
+@(taCandidate: TACandidate)
+
+@import helper._
+@import models._
+@import models.TACandidate
+@import services._
+
+
+
+@main("TA Candidate Profile") {
+
+    <script>
+            function showHireForm() {
+                var modal = document.getElementById('hireModal');
+                modal.style.display = 'block';
+
+                $.ajax({
+                    url: "http://localhost:9037/courses",
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log(data);
+                        var coursesHtml = '';
+                        data.forEach(function(course) {
+                            coursesHtml += '<div class="col s12 m4">' +
+                                    '<label>' +
+                                    '<input type="radio" name="courseId" value="' + course.id + '">' +
+                                    '<span>' + course.courseId + '</span>' +
+                                    '</label>' +
+                                    '</div>';
+                        });
+                        $('#coursesContainer').html(coursesHtml);
+                    },
+                    error: function(error) {
+                        console.log("Error fetching courses: ", error);
+                    }
+                });
+            }
+
+            function hideHireForm() {
+                var modal = document.getElementById('hireModal');
+                modal.style.display = 'none';
+            }
+
+            // No longer need submitHireForm function
+            // Since the form is now submitted natively by the browser
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('hireNowButton').addEventListener('click', showHireForm);
+                document.getElementById('hireFormCancel').addEventListener('click', hideHireForm);
+                // Remove the event listener for hireFormSubmit
+            });
+    </script>
+
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">@taCandidate.getApplicant.getUserName()</h4>
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+                                <img class="circle" id="showImg" src="@taCandidate.getApplicant.getAvatar()" width="360" height="360" style="border-width: 1px;
+                                    border-style: solid;
+                                    border-radius: 50%;
+                                    height: auto;
+                                    width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tr>
+                                    <th>SMU ID</th>
+                                    <td>@taCandidate.getSmuId()</td>
+                                </tr>
+                                <tr>
+                                    <th>Student Status</th>
+                                    <td>@taCandidate.getStatus()</td>
+                                </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Available Hours</th>
+                                        <td style="word-wtap: break-word;">@(taCandidate.getHours - taCandidate.computeTotalApprovedHours)</td>
+                                    </tr>
+
+
+                                <tr>
+                                    <th style="max-width: 50px">Hired by</th>
+                                    @if(taCandidate.getAssignments.filter(assignment => assignment.getCourse.isActive && assignment.getYear == "2024" && assignment.getSemester == "spring").nonEmpty) {
+                                        <td style="word-wrap: break-word;">
+                                        @taCandidate.getAssignments.filter(assignment => assignment.getCourse.isActive && assignment.getYear == "2024" && assignment.getSemester == "spring").map(assignment => assignment.getCourse().getCourseId()).mkString(", ")
+                                        </td>
+                                    } else {
+                                        <td>This candidate is not hired by any courses.</td>
+                                    }
+                                </tr>
+
+
+                                <tr>
+                                    <th style="max-width: 50px">Hired History</th>
+                                    @if(taCandidate.getAssignments.filter(assignment => !assignment.getCourse.isActive || assignment.getYear != "2024" || assignment.getSemester != "spring").nonEmpty) {
+                                        <td style="word-wrap: break-word;">
+                                        @taCandidate.getAssignments.filter(assignment => !assignment.getCourse.isActive || assignment.getYear != "2024" || assignment.getSemester != "spring").map(assignment => assignment.getCourse().getCourseId()).mkString(", ")
+                                        </td>
+                                    } else {
+                                        <td>This candidate has no hired history.</td>
+                                    }
+                                </tr>
+
+
+
+
+                                <tr>
+                                        <th style="max-width: 50px">Courses Completed</th>
+                                        @if(taCandidate.getCourses!="") {
+                                            <td style="word-wtap: break-word;">@taCandidate.getCourses</td>
+                                        } else {
+                                            <td>No information.</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Preference</th>
+                                        @if(taCandidate.getPreference!="") {
+                                            <td style="word-wrap: break-word;">
+                                            @Html(taCandidate.getPreference.split(";").map(_.trim).mkString("<br>"))
+                                            </td>
+                                        } else {
+                                            <td>No preference.</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Unwanted</th>
+                                        @if(taCandidate.getUnwanted!="") {
+                                            <td style="word-wrap: break-word;">
+                                            @Html(taCandidate.getUnwanted.split(";").map(_.trim).mkString("<br>"))
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Comment</th>
+                                        @if(taCandidate.getComment!="") {
+                                            <td style="word-wtap: break-word;">@taCandidate.getComment</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        <a class="btn waves-effect waves-light green darken-2" id="hireNowButton">Hire Now</a>
+                        <a href="@routes.TACandidateController.tacandidateList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to TA Pool List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="hireModal" style="display:none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4);">
+        <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+            <form method="post" action="@routes.CourseTAAssignmentController.assignmentRegisterPOST()">
+                <h4>Hire @taCandidate.getApplicant.getUserName now</h4>
+                    <div class="row">
+                        <h6>Once you submit the hiring decision, Monique will receive an email and start the hiring process.</h6>
+                        <br>
+                        <div class="row">
+
+                            <fieldset>
+                                <legend>Select a course to hire:</legend>
+                                <div id="coursesContainer">
+                                        <!-- The course list that dynamically generated will be filled in here -->
+                                </div>
+                            </fieldset>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="number" name="approvedHours" id="approvedHours" min="0" max=@(taCandidate.getHours - taCandidate.computeTotalApprovedHours) value="0" class="validate" required>
+                                <label for="fields" style="font-size: larger;">
+                                    How many hours/week do you want to approve </label>
+                                <span id="hoursMsg" class="helper-text" data-success="✓" data-error="Please input a positive number and less than or equal to available hours"></span>
+                            </div>
+                        </div>
+
+                </div>
+                <br><br>
+                    <!-- Include the TACandidate ID as a hidden field -->
+                <input type="hidden" name="taCandidateId" value="@taCandidate.getId()">
+                    <!-- Include a submit button instead of an anchor -->
+                <button type="submit" class="btn waves-effect waves-light green darken-2">Submit</button>
+                <a class="btn waves-effect waves-light blue darken-2" id="hireFormCancel">Cancel</a>
+            </form>
+        </div>
+    </div>
+}

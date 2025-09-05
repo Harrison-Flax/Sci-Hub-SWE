@@ -1,0 +1,31 @@
+@import helper._
+@import models._
+@(id: String)
+
+
+
+@main("Prime Connections") {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Prime Connection Author Names
+                    </h4>s
+                </div>
+            </div>
+            <div class="row card-panel z-depth-0 paper-zone-panel">
+                <div class="col s12" style="margin-top: -10px;
+                    margin-bottom: -10px;">
+                    <h6 class="center tooltipped" data-position="bottom" data-tooltip="This list shows all the papers." >
+                    @id
+                    </h6>
+                </div>
+            </div>
+        </div>
+    </div>
+}

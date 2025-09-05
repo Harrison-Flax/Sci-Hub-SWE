@@ -1,0 +1,103 @@
+@font-face {
+	font-family: AmazonEmberBold;
+	src: url(/assets/fonts/Amazon-Ember-Bold.ttf);
+}
+@font-face {
+	font-family: AmazonEmberLight;
+	src: url(/assets/fonts/Amazon-Ember-Light.ttf);
+}
+body {
+	font-family: AmazonEmberLight,Helvetica Neue Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+	background: #e1f5fe;
+}
+h1,h2,h3,h4,h5,h6 {
+	font-family: AmazonEmberBold,Helvetica Neue Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+/* Adding shade of blue required to all the items */
+.dropdown-content li > a, .dropdown-content li > span {
+	color: #1565c0;
+}
+.g-recaptcha>div {
+	margin: 0 auto;display: table;
+}
+button, input, optgroup, select, textarea {
+    font-family: AmazonEmberLight,Helvetica Neue Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+
+input.valid:not([type]), input.valid:not([type]):focus, input[type=text].valid:not(.browser-default), input[type=text].valid:not(.browser-default):focus, input[type=password].valid:not(.browser-default), input[type=password].valid:not(.browser-default):focus, input[type=email].valid:not(.browser-default), input[type=email].valid:not(.browser-default):focus, input[type=url].valid:not(.browser-default), input[type=url].valid:not(.browser-default):focus, input[type=time].valid:not(.browser-default), input[type=time].valid:not(.browser-default):focus, input[type=date].valid:not(.browser-default), input[type=date].valid:not(.browser-default):focus, input[type=datetime].valid:not(.browser-default), input[type=datetime].valid:not(.browser-default):focus, input[type=datetime-local].valid:not(.browser-default), input[type=datetime-local].valid:not(.browser-default):focus, input[type=tel].valid:not(.browser-default), input[type=tel].valid:not(.browser-default):focus, input[type=number].valid:not(.browser-default), input[type=number].valid:not(.browser-default):focus, input[type=search].valid:not(.browser-default), input[type=search].valid:not(.browser-default):focus, textarea.materialize-textarea.valid, textarea.materialize-textarea.valid:focus, .select-wrapper.valid > input.select-dropdown {
+	border-bottom: 1px solid #1565c0;
+	-webkit-box-shadow: 0 1px 0 0 #1565c0;
+	box-shadow: 0 1px 0 0 #1565c0;
+}
+input:not([type]):focus.valid ~ label, input[type=text]:not(.browser-default):focus.valid ~ label, input[type=password]:not(.browser-default):focus.valid ~ label, input[type=email]:not(.browser-default):focus.valid ~ label, input[type=url]:not(.browser-default):focus.valid ~ label, input[type=time]:not(.browser-default):focus.valid ~ label, input[type=date]:not(.browser-default):focus.valid ~ label, input[type=datetime]:not(.browser-default):focus.valid ~ label, input[type=datetime-local]:not(.browser-default):focus.valid ~ label, input[type=tel]:not(.browser-default):focus.valid ~ label, input[type=number]:not(.browser-default):focus.valid ~ label, input[type=search]:not(.browser-default):focus.valid ~ label, textarea.materialize-textarea:focus.valid ~ label {
+	color: #1565c0;
+}
+input:not([type]):focus:not([readonly]) + label, input[type=text]:not(.browser-default):focus:not([readonly]) + label, input[type=password]:not(.browser-default):focus:not([readonly]) + label, input[type=email]:not(.browser-default):focus:not([readonly]) + label, input[type=url]:not(.browser-default):focus:not([readonly]) + label, input[type=time]:not(.browser-default):focus:not([readonly]) + label, input[type=date]:not(.browser-default):focus:not([readonly]) + label, input[type=datetime]:not(.browser-default):focus:not([readonly]) + label, input[type=datetime-local]:not(.browser-default):focus:not([readonly]) + label, input[type=tel]:not(.browser-default):focus:not([readonly]) + label, input[type=number]:not(.browser-default):focus:not([readonly]) + label, input[type=search]:not(.browser-default):focus:not([readonly]) + label, textarea.materialize-textarea:focus:not([readonly]) + label {
+	color: #1565c0;
+}
+input:not([type]):focus:not([readonly]), input[type=text]:not(.browser-default):focus:not([readonly]), input[type=password]:not(.browser-default):focus:not([readonly]), input[type=email]:not(.browser-default):focus:not([readonly]), input[type=url]:not(.browser-default):focus:not([readonly]), input[type=time]:not(.browser-default):focus:not([readonly]), input[type=date]:not(.browser-default):focus:not([readonly]), input[type=datetime]:not(.browser-default):focus:not([readonly]), input[type=datetime-local]:not(.browser-default):focus:not([readonly]), input[type=tel]:not(.browser-default):focus:not([readonly]), input[type=number]:not(.browser-default):focus:not([readonly]), input[type=search]:not(.browser-default):focus:not([readonly]), textarea.materialize-textarea:focus:not([readonly]) {
+	color: #1565c0;
+}
+[type="radio"]:checked + span:after, [type="radio"].with-gap:checked + span:before, [type="radio"].with-gap:checked + span:after {
+	border: 2px solid #1565c0;
+}
+[type="radio"]:checked + span:after, [type="radio"].with-gap:checked + span:after {
+	background-color: #1565c0;
+}
+.pagination li.active {
+	background-color: #1565c0;
+}
+input:not([type]):focus:not([readonly]), input[type=text]:not(.browser-default):focus:not([readonly]), input[type=password]:not(.browser-default):focus:not([readonly]), input[type=email]:not(.browser-default):focus:not([readonly]), input[type=url]:not(.browser-default):focus:not([readonly]), input[type=time]:not(.browser-default):focus:not([readonly]), input[type=date]:not(.browser-default):focus:not([readonly]), input[type=datetime]:not(.browser-default):focus:not([readonly]), input[type=datetime-local]:not(.browser-default):focus:not([readonly]), input[type=tel]:not(.browser-default):focus:not([readonly]), input[type=number]:not(.browser-default):focus:not([readonly]), input[type=search]:not(.browser-default):focus:not([readonly]), textarea.materialize-textarea:focus:not([readonly]) {
+	border-bottom: 1px solid #1565c0;
+	-webkit-box-shadow: 0 1px 0 0 #1565c0;
+	box-shadow: 0 1px 0 0 #1565c0;
+ }
+.tabs .tab a, .tabs .tab a:hover, .tabs .tab a.active {
+	color: #1565c0;
+}
+.tabs .indicator {
+	background-color: #204782;
+}
+.tabs .tab a:focus, .tabs .tab a:focus.active {
+	background-color: rgba(225, 245, 254, 0.2);
+}
+.collection.borderless, .collapsible.borderless {
+	border: 0;
+	border-radius: 2px;
+}
+.select-wrapper input.select-dropdown:focus {
+	border-bottom: 1px solid #1565c0;
+}
+.collapsible-body {
+	background: #ffffff;
+}
+ul.tabs {
+	margin-bottom: 24px;
+	border-bottom: 1px solid #e0e0e0;
+}
+table.striped > tbody > tr:nth-child(odd) {
+	background-color: rgba(225, 245, 254, 0.5);
+}
+
+.highlight-tabs .tab a, .highlight-tabs .tab a:hover, .highlight-tabs .tab a.active {
+	color: black;
+}
+
+.highlight-tabs .tab a:focus, .highlight-tabs .tab a:focus.active {
+	background-color: #204782;
+}
+
+ul.highlight-tabs {
+	margin-bottom: 0px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.progress{
+	background-color:#204782;
+	color:#204782;
+}
+.indeterminate{
+	background-color:#204782;
+	color:#204782;
+}
+

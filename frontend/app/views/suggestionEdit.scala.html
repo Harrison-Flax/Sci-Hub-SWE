@@ -1,0 +1,112 @@
+@(suggestion: Suggestion)
+@import helper._
+
+@main("Update Suggestion") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">@suggestion.getTitle</h4>
+                    <div class="row">
+                        <div class="col s12">
+                            <form class="form-signin" id="update" enctype="multipart/form-data" method="post" action="@routes.SuggestionController.suggestionEditPOST(suggestion.getId)">
+                                <div class="row">
+                                    <div class="col s12">
+                                        <h6 class="col s6" align="left">Immutable</h6>
+                                        <div class="col s12">
+                                            <table class="striped responsive-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <td>@suggestion.getSuggestionReporter.getUserName</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Email</th>
+                                                        <td>@suggestion.getSuggestionReporter.getEmail</td>
+                                                    </tr>
+                                                    @if(suggestion.getSuggestionReporter.getOrganization != null && suggestion.getSuggestionReporter.getOrganization != "") {
+                                                        <tr>
+                                                            <th>Organization</th>
+                                                            <td>@suggestion.getSuggestionReporter.getOrganization</td>
+                                                        </tr>
+                                                    }
+                                                    <tr>
+                                                        <th>createdTime</th>
+                                                        <td>@suggestion.getCreateTime</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>solvedTime</th>
+                                                        @if(suggestion.getSolveTime == ""){
+                                                            <td>Not Realized Yet</td>
+                                                        }else {
+                                                            <td>@suggestion.getSolveTime</td>
+                                                        }
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col s12">
+                                        <h6 class="col s6" align="left">Editable</h6>
+                                        <input type="hidden" name="id" value="@suggestion.getId()">
+                                        <input type="hidden" name="email" value="@suggestion.getSuggestionReporter.getEmail()">
+                                        <input type="hidden" name="name" value="@suggestion.getSuggestionReporter.getUserName()">
+                                        <input type="hidden" name="organization" value="@suggestion.getSuggestionReporter.getOrganization()">
+
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input
+                                                type="text" name="title" id="title" class="validate"
+                                                value="@suggestion.getTitle" required="true">
+                                                <label for="title" class="tootltipLabel">
+                                                    title* <i class=" tiny material-icons tooltipped" data-position="bottom">
+                                                    help</i></label>
+                                                <span id="titleMsg" class="helper-text" data-error=""></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input
+                                                type="text" name="description" id="description" class="validate"
+                                                value="@suggestion.getDescription" required="true">
+                                                <label for="description" class="tootltipLabel">
+                                                    description* <i class=" tiny material-icons tooltipped" data-position="bottom">
+                                                    help</i></label>
+                                                <span id="descriptionMsg" class="helper-text" data-error=""></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input type="text" class="validate" id="longDescription" value="@suggestion.getLongDescription" name="longDescription" >
+                                                <label for="longDescription">Long Description</label>
+                                                <span id="longDescriptionMsg" class="helper-text" data-error=""></span>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="solved" value="@suggestion.getSolved()">
+                                        <input type="hidden" name="createdTime" value="@suggestion.getCreateTime()">
+                                        <input type="hidden" name="createdTime" value="@suggestion.getSolveTime()">
+
+                                        <div class="row center">
+                                            <button type="submit" id="updateNotebook" class="center btn waves-effect waves-light blue darken-2">
+                                                Update</button>
+                                            @**** Then return to the Dataset Detail page *******@
+                                            <a class=" center btn waves-effect waves-light blue darken-2" href="@routes.SuggestionController.suggestionList(1)">
+                                                Back</a>
+                                            <div class="helper-text red-text" id="submitErrorMsg"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

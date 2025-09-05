@@ -1,0 +1,271 @@
+@(id: String, userForm: play.data.Form[models.Reviewer], user: Reviewer)
+    @import helper._
+    @scripts = {
+        <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+        <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+        <script type="text/javascript">
+                var projectList = [];
+                $(document).ready(function () {
+                    /**
+                     * This portion defines all the (non)required fields that need validation on max lengths and special
+                     * characters, as well as URL validity.
+                     */
+                    validateField("firstName", "firstNameMsg", "varChar255", true);
+                    validateField("lastName", "lastNameMsg", "varChar255", true);
+                    validateField("middleInitial", "middleInitialMsg", "varChar255", false);
+                    validateField("researchFields", "researchFieldsMsg", "varChar255", false);
+                    validateField("affiliation", "affiliationMsg", "varChar255", false);
+                    validateField("title", "titleMsg", "varChar255", false);
+                    validateField("mailingAddress", "mailingAddressMsg", "varChar255", false);
+                    validateField("highestDegree", "highestDegreeMsg", "varChar255", false);
+                    validateField("phoneNumber", "phoneNumberMsg", "varChar20", false);
+                    /****************************** End of Validation Portion ******************************************/
+
+                    $.get("/project/getProjects", function (res) {
+                        projectList = res;
+                        var availableObj = {};
+                        for (var i = 0; i < projectList.length; i++) {
+                            availableObj[projectList[i]['text']] = null;
+                        }
+                        $('#projectName').autocomplete({
+                            data: availableObj
+                        });
+                    });
+                });
+
+                /**
+                 * This method triggers the user image change
+                 */
+                function updateImg() {
+                    document.getElementById("Img").click();
+                }
+
+                /**
+                 * This method previews the selected image for update
+                 */
+                function changepic() {
+                    if (document.getElementById("Img").value == "") return;
+                    var reads = new FileReader();
+                    f = document.getElementById("Img").files[0];
+                    reads.readAsDataURL(f);
+                    reads.onload = function (e) {
+                        document.getElementById('showImg').src = this.result;
+                        $('#record').val("update");
+                        $('#previewMsg').text("This is the preview image. You need to click \"UPDATE\" button below if you want to save the changes.");
+
+                    };
+                }
+
+                /**
+                 * This method deletes the image and provides the default image for user
+                 */
+                function deleteImg() {
+                    url = "../../../../assets/images/user.png";
+                    document.getElementById('showImg').src = url;
+                    $('#record').val("delete");
+                    $('#previewMsg').text("This is the default image. You need to click \"UPDATE\" button below if you want to save the changes.");
+                }
+
+                /**
+                 * This method parses and sets up default project based on input.
+                 * If not set or opennex typed, the project is set to OpenNEX. Otherwise check the name.
+                 */
+                function projectValidation() {
+                    if ($("#projectName").val() == "") {
+                        document.getElementById("project-msg").innerHTML = "";
+                        document.getElementById("projectName").value = "OpenNEX";
+                        document.getElementById("projectId").value = "0";
+                        if ($('#msg').text() == "" && $('#homepage-msg').text() == "") {
+                            document.getElementById("Save").disabled = false;
+                        }
+                        return;
+                    }
+                    var project = $("#projectName").val();
+                    var pid = 0;
+                    if (project.toLowerCase() === "opennex") {
+                        document.getElementById("projectId").value = "0";
+                        document.getElementById("project-msg").innerHTML = "";
+                        if ($('#msg').text() == "" && $('#homepage-msg').text() == "") {
+                            document.getElementById("Save").disabled = false;
+                        }
+                    } else {
+                        found = false;
+                        for (var i = 0; i < projectList.length; i++) {
+                            if (projectList[i]['text'].toLowerCase().trim() === project.toLowerCase().trim()) {
+                                found = true;
+                                document.getElementById("projectId").value = projectList[i]['id'];
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            document.getElementById("project-msg").innerHTML = "Project does not exist";
+                            document.getElementById("Save").disabled = true;
+                        } else {
+                            document.getElementById("project-msg").innerHTML = "";
+                            if ($('#msg').text() == "" && $('#homepage-msg').text() == "") {
+                                document.getElementById("Save").disabled = false;
+                            }
+                        }
+                    }
+
+                }
+        </script>
+    }
+
+@main("Account Management", scripts) {
+    <div class="container row">
+        <div class="col s12">
+            <div class="card-panel">
+                <form class="form-signin" id="update" enctype="multipart/form-data" method="post" action="@routes.ReviewerController.reviewerEditPOST()">
+                    <h4 class="form-signin-heading" align="center">Edit Your Profile</h4>
+                    <div class="row">
+                        <div class="col s8">
+                            <h6 class="col s6" align="left">Immutable</h6>
+                            <div class="col s12">
+                                <table class="striped responsive-table">
+                                    <tbody>
+                                        <tr>
+                                            <th>User ID</th>
+                                            <td>@user.getId</td>
+                                        </tr>
+                                        <tr>
+                                            <th>User Email Address</th>
+                                            <td>@user.getEmail</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col center s3">
+                            <tr>
+                                <th>Picture:</th>
+                                <td>
+                                    <img class="circle" id="showImg" src="@user.getAvatar" width="360" height="360" style="border-width:1px; border-style:solid; border-radius: 50%;
+                                        height: auto;
+                                        width: 80%;">
+                                    <div id="previewMsg" style="color: blue"></div>
+                                    <br>
+                                    <div>
+                                        <a class="btn-floating waves-effect waves-light blue darken-2" title="Update Image" href="javascript:void(0)" onclick="updateImg(@user.getId)"><i class="material-icons">
+                                            edit</i><input type="file" id="Img" name="Img" style="display: none;" accept=".jpeg,.png,.jpg" onchange="changepic(this)"/></a>  &nbsp;
+                                        <a class="btn-floating waves-effect waves-light red modal-trigger" title="Delete Image" href="javascript:void(0)" onclick="deleteImg(@user.getId)"><i class="material-icons">
+                                            delete</i></a>
+                                        <input id="record" name = "record" style="display: none;"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <h6 class="col s12" align="left">Editable</h6>
+                            <div class="row">
+                                <div class="input-field col s12 m4 l4">
+                                    <input id="firstName" type="text" class="validate" name="firstName"
+                                    onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode === 32" onpaste="return false" value="@user.getFirstName" required>
+                                    <label for="firstName">First Name* </label>
+                                    <span id="firstNameMsg" class="helper-text" data-error=""></span>
+                                </div>
+                                <div class="input-field col s12 m4 l4">
+                                    <input id="middleInitial" type="text" class="validate" name="middleInitial"
+                                    onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode === 32" onpaste="return false" value="@if(user.getMiddleInitial!="null") {@user.getMiddleInitial}">
+                                    <label for="middleInitial">Middle Name</label>
+                                    <span id="middleInitialMsg" class="helper-text" data-error=""></span>
+                                </div>
+                                <div class="input-field col s12 m4 l4">
+                                    <input id="lastName" type="text" class="validate" name="lastName"
+                                    onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode === 32" onpaste="return false" value="@user.getLastName" required>
+                                    <label for="lastName">Last Name*</label>
+                                    <span id="lastNameMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    @if(user.getProjectZone() != null && user.getProjectZone().getId()!=0) {
+                                        <input type="text" name="projectName" id = "projectName" onchange="projectValidation()" class="validate autocomplete" value="@user.getProjectZone().getTitle()">
+                                    } else {
+                                        <input type="text" name="projectName" id = "projectName" onchange="projectValidation()" class="validate autocomplete" value="OpenNEX">
+                                    }
+                                    <label for="project">
+                                        Default Project Zone<i class=" tiny material-icons tooltipped" data-position="bottom" data-tooltip="Selecting a default project allows you to only view APIs, dockers, notebooks, and datasets associated with the given project while you work in OpenNEX.">
+                                        help</i></label>
+                                    <div class="form-group" id="project-msg" style="color: red;"></div>
+                                    <input hidden name="projectId" id="projectId" value='0'>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="affiliation" id="affiliation" class="validate" value='@if(user.getAffiliation!="null") {@user.getAffiliation}'>
+                                    <label for="affiliation">Affiliation</label>
+                                    <span id="affiliationMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="title" id="title" class="validate" value='@if(user.getTitle!="null") {@user.getTitle}'>
+                                    <label for="title">Title</label>
+                                    <span id="titleMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="mailingAddress" id="mailingAddress" class="validate" value='@if(user.getMailingAddress!="null") {@user.getMailingAddress}'>
+                                    <label for="mailingAddress">Mailing Address</label>
+                                    <span id="mailingAddressMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="phoneNumber" id="phoneNumber" class="validate" value='@if(user.getPhoneNumber!="null") {@user.getPhoneNumber}'>
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <span id="phoneNumberMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="researchFields" id="researchFields" class="validate" value='@if(user.getResearchFields!="null") {@user.getResearchFields}'>
+                                    <label for="researchFields">Research Fields</label>
+                                    <span id="researchFieldsMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="highestDegree" id="highestDegree" class="validate" value='@if(user.getHighestDegree!="null") {@user.getHighestDegree}'>
+                                    <label for="highestDegree">Highest Degree</label>
+                                    <span id="highestDegreeMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <input type="text" name="email" hidden value="@user.getEmail">
+
+                            <div class="actions row">
+                                <button id="Save" type="submit" class="btn waves-effect waves-light col s12 blue darken-2">
+                                    Save<i class="material-icons right">save_alt</i></button>
+                            </div>
+                            <div class="actions row">
+                                <a href="#warningModal" class="btn waves-effect waves-light col s5 red  modal-trigger">
+                                    Delete Account<i class="material-icons right">delete_outline</i></a>
+                                <div id="warningModal" class="modal">
+                                    <div class="modal-content">
+                                        <h5 style="color: red">Warning</h5>
+                                        <p style="font-weight: bold">
+                                            Do you really want to delete your account?
+                                            Please note that after deletion, this account <span style="color: red">
+                                            CANNOT</span> be recovered!</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                            Cancel</a>
+                                        <a href='@routes.ReviewerController.reviewerDelete()'
+                                        class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                                    </div>
+                                </div>
+                                <a href="/" class="btn waves-effect waves-light col s5 offset-s2 grey">
+                                    Cancel<i class="material-icons right">cancel</i></a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

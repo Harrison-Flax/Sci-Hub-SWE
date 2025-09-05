@@ -1,0 +1,211 @@
+@import org.apache.commons.lang3.StringUtils
+@(tajob: TAJob)
+
+@import helper._
+
+@main("TAJob Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+
+                    <h4 class="center">TA Job: @tajob.getTitle</h4>
+
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+                                <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;
+                                    border-style: solid;
+                                    border-tadius: 50%;
+                                    height: auto;
+                                    width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">TA Job Title</th>
+                                        <td style="word-wtap: break-word;">@tajob.getTitle</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">TA Job Semester</th>
+                                        @if(tajob.getTaJobSemesterTypes!="null" && tajob.getTaJobSemesterTypes != "") {
+                                            @if(tajob.getTaJobSemesterTypes == 1){
+                                                <td style="word-wrap: break-word;">Fall</td>
+                                            }
+                                            @if(tajob.getTaJobSemesterTypes == 2){
+                                                <td style="word-wrap: break-word;">Spring</td>
+                                            }
+                                            @if(tajob.getTaJobSemesterTypes == 3){
+                                                <td style="word-wrap: break-word;">Summer</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Department/Lab Name</th>
+                                        @if(tajob.getOrganization!="null" && tajob.getOrganization != "") {
+                                            <td style="word-wrap: break-word;">@tajob.getOrganization</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Goals</th>
+                                        @if(tajob.getGoals!="null" && tajob.getGoals != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getGoals</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Short Description</th>
+                                        @if(tajob.getShortDescription!="null" && tajob.getShortDescription != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getShortDescription</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Long Description</th>
+                                        @if(tajob.getLongDescription!="null" && tajob.getLongDescription != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getLongDescription</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Fields</th>
+                                        @if(tajob.getFields!="null" && tajob.getFields != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getFields</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Required Expertise</th>
+                                        @if(tajob.getRequiredExpertise!="null" && tajob.getRequiredExpertise != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getRequiredExpertise</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Preferred Expertise</th>
+                                        @if(tajob.getPreferredExpertise!="null" && tajob.getPreferredExpertise != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getPreferredExpertise</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Location</th>
+                                        @if(tajob.getLocation!="null" && tajob.getLocation != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getLocation</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">TA Hours/Week</th>
+                                        @if(tajob.getWorkTime!="null" && tajob.getWorkTime != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getWorkTime</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">TA Job Type</th>
+                                        <td style="word-wtap: break-word;">
+                                        @if(tajob.getTaTypes!="null" && tajob.getTaTypes != "" ) {
+                                            @if(tajob.getTaTypes == 1){
+                                                Grading, TA Office House, Recitation/Lab
+                                            }
+                                            @if(tajob.getTaTypes == 2) {
+                                                Grading Only
+                                            }
+                                        } else{
+                                            N/A
+                                        }
+                                        </td>
+                                    </tr>
+                                    @if(tajob.getTaJobCourseSelections == 1) {
+                                        <tr>
+                                            <th style="max-width: 50px">Available TA Job Course</th>
+                                            <td style="word-wtap: break-word;">
+                                            @if(tajob.getTaCoursesSelectionHidden != "null" && tajob.getTaCoursesSelectionHidden != "") {
+                                                @tajob.getTaCoursesSelectionHidden
+                                            } else {
+                                                N/A
+                                            }
+                                            </td>
+                                        </tr>
+                                    }
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Salary Range</th>*@
+@*                                        <td style="word-wtap: break-word;">*@
+@*                                        @if(tajob.getMinSalary!="null" && tajob.getMinSalary != "" ) {*@
+@*                                            @tajob.getMinSalary*@
+@*                                        } else {*@
+@*                                            N/A*@
+@*                                        }*@
+@*                                        -*@
+@*                                        @if(tajob.getMaxSalary!="null" && tajob.getMaxSalary != "" ) {*@
+@*                                            @tajob.getMaxSalary*@
+@*                                        } else {*@
+@*                                            N/A*@
+@*                                        }*@
+@*                                        </td>*@
+
+@*                                    </tr>*@
+                                    <tr>
+                                        <th style="max-width: 50px">TA Job URL</th>
+                                        @if(tajob.getUrl !=null && tajob.getUrl != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getUrl</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    @*<tr>
+                                        <th style="max-width: 50px">TA Job PDF</th>
+                                        @if(tajob.getPdf !=null && tajob.getPdf != "") {
+                                            <td style="word-wtap: break-word;">@tajob.getPdf</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>*@
+                                    <tr>
+                                        <th style="max-width: 50px">TA Job Publisher</th>
+                                        @if(tajob.getTajobPublisher!="null" && tajob.getTajobPublisher != "") {
+                                            <td><a href = "@routes.UserController.userDetailPage(tajob.getTajobPublisher.getId)">@tajob.getTajobPublisher.getUserName</a></td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        <a href="@routes.TAJobController.tajobEditPage(tajob.getId)" class="btn waves-effect waves-light blue darken-2">
+                            Edit TA Job Info</a>
+
+                        <a href="@routes.TAJobController.tajobList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to TA Job List</a>
+                        <a href="@routes.TAJobController.tajobApplyPage(tajob.getId)" class="btn waves-effect waves-light green darken-2">
+                            Apply Job
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

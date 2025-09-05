@@ -1,0 +1,191 @@
+@(title: String, moreScripts: Html = Html(""))(content: Html)
+
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<title>@title</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet"
+	href='@routes.Assets.at("stylesheets/materialize.css")'>
+
+<link rel="stylesheet"
+	href='@routes.Assets.at("stylesheets/custom.css")'>
+<link rel="stylesheet" media="screen"
+	href='@routes.Assets.at("stylesheets/main.css")'>
+<link rel="shortcut icon" type="image/png"
+	href='@routes.Assets.at("images/favicon.png")'>
+<link href='@routes.Assets.at("stylesheets/style.css")'
+	rel="stylesheet" />
+<link rel="stylesheet"
+	href='@routes.Assets.at("stylesheets/livefitler.css")'>
+<link rel="stylesheet"
+    href='@routes.Assets.at("stylesheets/custom_recommend.css")'>
+<link rel="stylesheet" href='@routes.Assets.at("stylesheets/detail.css")'>
+<link rel="stylesheet" href='@routes.Assets.at("stylesheets/chatbox-materialize.css")'>
+
+<script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/jquery-1.11.3.min.js")'></script>
+<script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/materialize.js")'></script>
+<script type="text/javascript" src='@routes.Assets.at("javascripts/parameter.js")'></script>
+
+<script type="text/javascript" src='@routes.Assets.at("javascripts/tablesort.js")'></script>
+<script type="text/javascript" src='@routes.Assets.at("javascripts/forum.js")'></script>
+	<script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/d3.js")'></script>
+<script type="text/javascript" src='@routes.Assets.at("javascripts/init.js")'></script>
+	<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$.ajax({
+				url: "/notification/checkRead",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				type: "GET"
+			}).done(function(data) {
+				var readJson = JSON.parse(data);
+				console.log(readJson);
+				console.log(readJson.length);
+				if (readJson.length > 0) {
+					$("#red-icon").show();
+					$("#gray-icon").hide();
+				} else {
+					$("#red-icon").hide();
+					$("#gray-icon").show();
+				}
+			});
+
+			$.ajax({
+				url: "/broadcastMessage/checkRead",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				type: "GET"
+			}).done(function(data) {
+				var readJson = JSON.parse(data);
+				console.log(readJson);
+				console.log(readJson.length);
+				if (readJson.length > 0) {
+					$("#red-icon").show();
+					$("#gray-icon").hide();
+				} else {
+					$("#red-icon").hide();
+					$("#gray-icon").show();
+				}
+			});
+
+		})
+	</script>
+
+@moreScripts
+
+</head>
+
+<body style="display: flex; min-height: 100vh; flex-direction: column;">
+	<header>	
+		@header()
+	</header>
+
+	<!-- <div class="container-fluid col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-10 col-lg-offset-1 col-lg-10"> -->
+	<main style="flex: 1 0 auto;">
+		@content
+				<ul id="slide-chatbox" class="sidenav chatbox-body">
+					<li class="grey darken-4 white-text"><div style="margin-left: 10px;"><i class="tiny material-icons green-text">brightness_1</i><span style="margin-left: 8px;">Public Chat</span><a href="#!" class="sidenav-close right white-text"><i class="tiny material-icons">close</i>&nbsp;</a></div></li>
+
+					<li style="min-height: calc(100% - 100px);"><a class="subheader">
+						<div class="chatbox_body">
+						</div>
+					</a></li>
+					<li><a class="modal-fixed-footer white"><input class="chatbox_message" placeholder="Say Something Here" id="chatInputBox"></input></a></li>
+				</ul>
+
+		@*<div class="chatbox">*@
+			@*<a href="#" data-target="slide-chatbox" class="btn-floating btn-large blue darken-3 waves-effect waves-light sidenav-trigger">*@
+				@*<i class="large material-icons">chat</i>*@
+			@*</a>*@
+		@*</div>*@
+	</main>
+
+	
+
+	
+
+	<footer class="page-footer grey darken-4" style='background: url("@routes.Assets.at("images/starfield-banner-blue.jpg")") repeat;'>
+	@footer()
+	</footer>
+
+		<!-- <div class="chatbox__title">
+			<h5><a href="#">Public Chat</a></h5>
+			<button class="chatbox__title__tray">
+				<span></span>
+			</button>
+
+		</div>
+		<input class="chatbox__message" placeholder="Say Something Here" id="chatInputBox"></input> -->
+
+	<script>
+			(function ($) {
+				$(document).ready(function () {
+					var $messages = $(".chatbox_body"), $message = $("#chatInputBox");
+					var connection = null;
+					$.ajax({
+						url: "/chatWsUrl",
+						type: "GET",
+						success: function (wsUrl) {
+							connection = new WebSocket(wsUrl);
+							connection.onopen = function () {
+								$messages.prepend($("<div class='green-text' style='font-size: 0.75em'>Connected</div>"));
+								$message.keypress(function (event) {
+									var keycode = (event.keyCode ? event.keyCode : event.which);
+									if (keycode == '13') {
+										send();
+									}
+								});
+							};
+							connection.onerror = function (error) {
+								console.log('WebSocket Error ', error);
+							};
+							connection.onmessage = function (event) {
+								$messages.append($("<div style='font-size: 1.0em'>" + event.data + "</div>"))
+							}
+						}
+					});
+
+					function send(username, message) {
+						var text = $message.val().replace(/\n/, "");
+						$message.val('');
+						if (text === '')
+							return;
+						var who = "@session.get("username")";
+						who = who.length === 0 ? "Anonymous" : who;
+						who = "<b>" + who +": </b>";
+						connection.send(who + text);
+					}
+
+
+					// var $chatbox = $('.chatbox'),
+					// 		$chatboxTitle = $('.chatbox__title'),
+					// 		$chatboxTitleClose = $('.chatbox__title__close'),
+					// 		$chatboxCredentials = $('.chatbox__credentials');
+					// $chatboxTitle.on('click', function () {
+					// 	$chatbox.toggleClass('chatbox--tray');
+					// });
+					// $chatboxTitleClose.on('click', function (e) {
+					// 	e.stopPropagation();
+					// 	$chatbox.addClass('chatbox--closed');
+					// });
+					// $chatbox.on('transitionend', function () {
+					// 	if ($chatbox.hasClass('chatbox--closed')) $chatbox.remove();
+					// });
+					// $chatbox.removeClass('chatbox--empty');
+				});
+			})(jQuery);
+
+	</script>
+</body>
+</html>

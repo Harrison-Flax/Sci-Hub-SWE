@@ -1,0 +1,68 @@
+@(data: com.fasterxml.jackson.databind.JsonNode)
+@import helper._
+@import scala.collection.JavaConverters._
+
+@main("Challenge Edit") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center">Edit Challenge Information</h4>
+
+                    <form action="@routes.ChallengeController.challengeEditPOSTAdmin((data.get("id").asText().toLong))" method="post">
+                        <table class="striped responsive-table">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for(fieldName <- data.fieldNames().asScala) {
+                                    @defining(data.get(fieldName)) { fieldValue =>
+                                        @if(fieldName == "id") {
+                                            <tr>
+                                                <td>
+                                                    <label for="@fieldName">@fieldName (read-only)</label>
+                                                </td>
+                                                <td>
+                                                    <input type="text"
+                                                    id="@fieldName"
+                                                    name="@fieldName"
+                                                    value='@fieldValue.asText()'
+                                                    readonly />
+                                                </td>
+                                            </tr>
+                                        } else {
+                                            <tr>
+                                                <td>
+                                                    <label for="@fieldName">@fieldName</label>
+                                                </td>
+                                                <td>
+                                                    <input type="text"
+                                                    id="@fieldName"
+                                                    name="@fieldName"
+                                                    value='@fieldValue.asText()' />
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="row center" style="margin-top:20px;">
+                            <button type="submit" class="btn waves-effect waves-light blue darken-2">
+                                Update
+                            </button>
+                            <a href="@routes.ChallengeController.challengeDetail((data.get("id").asText().toLong))"
+                            class="btn waves-effect waves-light red darken-2">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

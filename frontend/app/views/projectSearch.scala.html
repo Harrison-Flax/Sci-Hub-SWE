@@ -1,0 +1,111 @@
+@import helper._
+@import models._
+@import models.Project
+
+@scripts = {
+    <script type="text/javascript">
+
+            function disableOtherFields() {
+                var keywords = "" + document.getElementById("keywords").value;
+                keywords = keywords.trim();
+                if (keywords !== "") {
+                    document.getElementById("keyword-msg").innerText = "Specifying keywords for search would disable other search criteria options.";
+                    document.getElementById("name").disabled = true;
+                    document.getElementById("name").value = "";
+                    document.getElementById("description").disabled = true;
+                    document.getElementById("description").value = "";
+
+                    document.getElementById("location").disabled = true;
+                    document.getElementById("location").value = "";
+                    document.getElementById("goals").disabled = true;
+                    document.getElementById("goals").value = ""
+
+                } else {
+                    document.getElementById("keyword-msg").innerText = "";
+                    document.getElementById("name").disabled = false;
+                    document.getElementById("description").disabled = false;
+                    document.getElementById("location").disabled = false;
+                    document.getElementById("goals").disabled = false;
+
+
+                }
+            }
+
+
+
+
+
+    </script>
+}
+
+@main("Search Project", scripts) {
+
+    @helper.form(routes.ProjectController.searchPOST(1, "id")) {
+
+        <div class="container">
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card-panel">
+                        <form class="form-signin">
+                            <h3 class="form-signin-heading" align="center">Search Project</h3>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="keywords" id="keywords" onchange="disableOtherFields()">
+                                    <label for="keywords">
+                                        Keywords (Searching based on keywords, returns the projects having the specified keywords in any part of the project details).</label>
+                                    <div class="form-group" id="keyword-msg" style="color: blue;"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="name" id="name">
+                                    <label for="name">Project Name</label>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="description" id="description">
+                                    <label for="description">Description</label>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="location" id="location">
+                                    <label for="location">Location</label>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="goals" id="goals">
+                                    <label for="goals">Goals</label>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <div id="show" style="display: none;">
+                                        <textarea class="materialize-textarea" id="content"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="center">
+                                <button id="search" class="hidden btn waves-effect waves-light blue darken-2" type="submit" value="Search">
+                                    Search</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

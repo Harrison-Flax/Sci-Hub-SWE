@@ -1,0 +1,75 @@
+
+@import helper._
+
+@scripts  = {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            $(document).ready(function () {
+                /**
+                 * This portion defines all the (non)required fields that need validation on max lengths and special
+                 * characters, as well as URL validity.
+                 */
+                validateField("description", "descriptionMsg", "varChar255", true);
+                validateField("title", "titleMsg", "varChar255", true);
+                /****************************** End of Validation Portion **********************************************/
+            });
+
+            function validateFormBeforeSubmit() {
+                if (document.getElementById("longDescriptionMsg").innerText !== "") {
+                    return false;
+                }
+                return true;
+            }
+    </script>
+}
+
+@main("Bug Report", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <form enctype="multipart/form-data" method="post" onsubmit="return validateFormBeforeSubmit();" action="@routes.BugReportController.bugReportRegisterPOST()">
+                        <h4 class="center">Report Bug</h4>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" class="validate" required id="title" name="title">
+                                <label for="title">Bug title*</label>
+                                <span id="titleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="description" id="description" class="validate"
+                                required="true">
+                                <label for="description">Bug Short Description*</label>
+                                <span class="helper-text red-text" id="descriptionMsg"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                @*<textarea class="materialize-textarea validate" required id="description" name="description" onchange="checkPageValidity()"></textarea>*@
+                                <br/>
+                                <textarea style="height: 200px;
+                                    word-wrap: break-word" name="longDescription" id="longDescription" onchange="validateTextarea('longDescription', 'bug', 'addABug')" placeholder=""></textarea>
+                                <label for="description">Bug Long Description</label>
+                                <span class="helper-text red-text" id="longDescriptionMsg"></span>
+                            </div>
+                        </div>
+
+                        <div class="actions row">
+                            <div class="input-field col s12 center">
+                                <button type="submit" class="btn waves-effect waves-light blue darken-2" id="addABug">
+                                    Submit</button>
+                                <div class="helper-text red-text" id="submitErrorMsg"></div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

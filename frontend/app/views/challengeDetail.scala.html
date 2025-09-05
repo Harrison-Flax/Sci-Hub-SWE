@@ -1,0 +1,130 @@
+@import org.apache.commons.lang3.StringUtils
+@(challenge: Challenge, userTypes: String, userId: Long, userIdStr: String, tableName: String, challengeFileType: String, tableRecorderId: String, backendPort: String, challengeDocument: Boolean)
+
+@import helper._
+
+@main("Challenge Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+
+                    <h4 class="center">Challenge: @challenge.getChallengeTitle</h4>
+
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+
+                                <img class="circle" id="showImg" src='@routes.Assets.at("images/challenge.jpg")' width="360" height="360" style="border-width: 1px;
+                                    border-style: solid;
+                                    border-radius: 50%;
+                                    height: auto;
+                                    width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">Challenge Title</th>
+                                        <td style="word-wrap: break-word;">@challenge.getChallengeTitle</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Short Description</th>
+                                        <td style="word-wrap: break-word;">@challenge.getShortDescription</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Long Description</th>
+                                        <td style="word-wrap: break-word;">@challenge.getLongDescription</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Required Expertise</th>
+                                        <td style="word-wrap: break-word;">@challenge.getRequiredExpertise</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Preferred Expertise</th>
+                                        <td style="word-wrap: break-word;">@challenge.getPreferredExpertise</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Preferred Time</th>
+                                        <td style="word-wrap: break-word;">@challenge.getPreferredTime</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Technology Used</th>
+                                        <td style="word-wrap: break-word;">@challenge.getTech</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Location</th>
+                                        <td style="word-wrap: break-word;">@challenge.getLocation</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Budget</th>
+                                        <td style="word-wrap: break-word;">@challenge.getMinBudget - @challenge.getMaxBudget</td>
+                                    </tr>
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Publisher</th>*@
+@*                                        <td style="word-wrap: break-word;">@challenge.getChallengePublisher.getUserName</td>*@
+@*                                    </tr>*@
+                                    @if(challengeDocument) {
+                                        <tr>
+                                            <th style="max-width: 50px">Challenge Document</th>
+                                            <td style="word-wrap: break-word;">
+                                                <a href="javascript:void(0);"
+                                                data-url="@routes.FileController.getFile(tableName, challengeFileType, tableRecorderId)"
+                                                class="blue-text text-darken-3"
+                                                onclick="openAndCheckNewTabUrl(this)">
+                                                    Download Challenge Document
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        @if((userTypes == "2" && challenge.getChallengePublisher().getId().equals(userId)) || userTypes == "0") {
+                            <a href="@routes.ChallengeController.challengeEditPage(challenge.getId)" class="btn waves-effect waves-light blue darken-2">
+                                Edit Challenge Info
+                            </a>
+                        }
+
+                        <a href="@routes.ChallengeController.challengeList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to Challenge List</a>
+                        @if(userTypes == "1" || userTypes == "0") {
+                           <a href="@routes.ChallengeController.challengeApplyPage(challenge.getId)" class="btn waves-effect waves-light green darken-2">
+                                Bid Challenge
+                            </a>
+                        }
+                        @if((userTypes == "2" && challenge.getChallengePublisher().getId().equals(userId)) || userTypes == "0" ) {
+                            <a href="@routes.ChallengeController.closeChallenge(challenge.getId)" class="btn waves-effect waves-light blue darken-2">
+                                Close Challenge</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+        fetch(url, { method: 'HEAD' }).then(response => {
+            if (response.ok) {
+                const newTab = window.open(url, '_blank');
+                if (!newTab) {
+                    alert("Please allow pop-ups in your browser to view this file.");
+                }
+            } else {
+                alert("The user did not upload this file");
+            }
+        })
+                .catch(error => {
+                    console.error("Error checking the URL:", error);
+                    alert("Failed to check the file. Please try again later.");
+                });
+        }
+    </script>
+
+}

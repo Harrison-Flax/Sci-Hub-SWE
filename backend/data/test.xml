@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE dblp SYSTEM "dblp.dtd">
+<dblp>
+    <inproceedings mdate="2017-06-04" key="conf/icws/MaB05">
+        <author>Kevin J. Ma</author>
+        <author orcid="0000-0002-9174-0850">Radim Bartos</author>
+        <title>Performance Impact of Web Service Migration in Embedded Environments.</title>
+        <pages>409-416</pages>
+        <year>2005</year>
+        <crossref>conf/icws/2005</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2005.91</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2005.91</ee>
+        <url>db/conf/icws/icws2005.html#MaB05</url>
+    </inproceedings><inproceedings mdate="2005-05-24" key="conf/icws/ChenCSL03">
+        <author>Chen Zhou</author>
+        <author>Liang-Tien Chia</author>
+        <author>Bilhanan Silverajan</author>
+        <author>Bu-Sung Lee</author>
+        <title>UX- An Architecture Providing QoS-Aware and Federated Support for UDDI.</title>
+        <pages>171-176</pages>
+        <year>2003</year>
+        <crossref>conf/icws/2003</crossref>
+        <booktitle>ICWS</booktitle>
+        <url>db/conf/icws/icws2003.html#ChenCSL03</url>
+    </inproceedings>
+    <inproceedings mdate="2017-05-19" key="conf/icws/Etzion04">
+        <author>Opher Etzion</author>
+        <title>Complex Event Processing.</title>
+        <year>2004</year>
+        <crossref>conf/icws/2004</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2004.1314714</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2004.1314714</ee>
+        <url>db/conf/icws/icws2004.html#Etzion04</url>
+    </inproceedings><inproceedings mdate="2018-08-31" key="conf/icws/YangLWHC14">
+        <author>Rong Yang</author>
+        <author>Bing Li 0010</author>
+        <author>Jian Wang 0018</author>
+        <author>Lulu He</author>
+        <author>Xiaohui Cui</author>
+        <title>SCKY: A Method for Reusing Service Process Fragments.</title>
+        <pages>209-216</pages>
+        <year>2014</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2014.40</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2014.40</ee>
+        <crossref>conf/icws/2014</crossref>
+        <url>db/conf/icws/icws2014.html#YangLWHC14</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/TangDCL15">
+        <author>Mingdong Tang</author>
+        <author>Xiaoling Dai</author>
+        <author>Buqing Cao</author>
+        <author>Jianxun Liu</author>
+        <title>WSWalker: A Random Walk Method for QoS-Aware Web Service Recommendation.</title>
+        <pages>591-598</pages>
+        <year>2015</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2015.84</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2015.84</ee>
+        <crossref>conf/icws/2015</crossref>
+        <url>db/conf/icws/icws2015.html#TangDCL15</url>
+    </inproceedings><inproceedings mdate="2018-01-15" key="conf/icws/LiangCWB16">
+        <author>Tingting Liang</author>
+        <author>Liang Chen 0001</author>
+        <author>Jian Wu 0001</author>
+        <author>Athman Bouguettaya</author>
+        <title>Exploiting Heterogeneous Information for Tag Recommendation in API Management.</title>
+        <pages>436-443</pages>
+        <year>2016</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2016.63</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2016.63</ee>
+        <crossref>conf/icws/2016</crossref>
+        <url>db/conf/icws/icws2016.html#LiangCWB16</url>
+    </inproceedings><inproceedings mdate="2018-04-11" key="conf/icws/LiZSZ17">
+        <author>Dongsheng Li</author>
+        <author>Wanxin Zhang</author>
+        <author>Siqi Shen</author>
+        <author>Yiming Zhang</author>
+        <title>SES-LSH: Shuffle-Efficient Locality Sensitive Hashing for Distributed Similarity Search.</title>
+        <pages>822-827</pages>
+        <year>2017</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2017.99</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2017.99</ee>
+        <crossref>conf/icws/2017</crossref>
+        <url>db/conf/icws/icws2017.html#LiZSZ17</url>
+    </inproceedings><inproceedings mdate="2018-08-02" key="conf/icws/Schmidt03">
+        <author>Rainer Schmidt 0001</author>
+        <title>Web Services Based Architectures to Support Dynamic Inter-organizational Business Processes.</title>
+        <pages>123-136</pages>
+        <ee>https://doi.org/10.1007/978-3-540-39872-1_11</ee>
+        <year>2003</year>
+        <crossref>conf/icws/2003e</crossref>
+        <booktitle>ICWS-Europe</booktitle>
+        <url>db/conf/icws/icwse2003.html#Schmidt03</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/BansalPGRHS05">
+        <author>Ajay Bansal</author>
+        <author>Kunal Patel</author>
+        <author>Gopal Gupta</author>
+        <author>B. Raghavachari</author>
+        <author>E. D. Harris</author>
+        <author>James C. Staves</author>
+        <title>Towards Intelligent Services: A Case Study in Chemical Emergency Response.</title>
+        <pages>751-758</pages>
+        <year>2005</year>
+        <crossref>conf/icws/2005</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2005.122</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2005.122</ee>
+        <url>db/conf/icws/icws2005.html#BansalPGRHS05</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/ChafleDHMS07">
+        <author>Girish Chafle</author>
+        <author>Prashant Doshi</author>
+        <author>John Harney</author>
+        <author>Sumit Mittal</author>
+        <author>Biplav Srivastava</author>
+        <title>Improved Adaptation of Web Service Compositions Using Value of Changed Information.</title>
+        <pages>784-791</pages>
+        <year>2007</year>
+        <crossref>conf/icws/2007</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2007.104</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2007.104</ee>
+        <url>db/conf/icws/icws2007.html#ChafleDHMS07</url>
+    </inproceedings><inproceedings mdate="2018-08-16" key="conf/icws/WangXLC06">
+        <author>Gang Wang</author>
+        <author>Cheng Xu</author>
+        <author>Ying Li 0012</author>
+        <author>Ying Chen 0004</author>
+        <title>Analyzing XML Parser Memory Characteristics: Experiments towards ImprovingWeb Services Performance.</title>
+        <pages>681-688</pages>
+        <year>2006</year>
+        <crossref>conf/icws/2006</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2006.31</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2006.31</ee>
+        <url>db/conf/icws/icws2006.html#WangXLC06</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/BinderCF06">
+        <author>Walter Binder</author>
+        <author>Ion Constantinescu</author>
+        <author>Boi Faltings</author>
+        <title>Decentralized Orchestration of CompositeWeb Services.</title>
+        <pages>869-876</pages>
+        <year>2006</year>
+        <crossref>conf/icws/2006</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2006.48</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2006.48</ee>
+        <url>db/conf/icws/icws2006.html#BinderCF06</url>
+    </inproceedings><inproceedings mdate="2017-06-04" key="conf/icws/CruzCPC04">
+        <author>S&eacute;rgio Manuel Serra da Cruz</author>
+        <author>Maria Luiza Machado Campos</author>
+        <author orcid="0000-0001-5064-4793">Paulo F. Pires</author>
+        <author>Linair Maria Campos</author>
+        <title>Monitoring E-Business Web Services Usage through a Log Based Architecture.</title>
+        <pages>61-69</pages>
+        <year>2004</year>
+        <crossref>conf/icws/2004</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2004.1314724</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2004.1314724</ee>
+        <url>db/conf/icws/icws2004.html#CruzCPC04</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/LiCG08">
+        <author>Li Li 0001</author>
+        <author>Wu Chou</author>
+        <author>Weiping Guo</author>
+        <title>Control Flow Analysis and Coverage Driven Testing for Web Services.</title>
+        <pages>473-480</pages>
+        <year>2008</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2008.104</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2008.104</ee>
+        <crossref>conf/icws/2008</crossref>
+        <url>db/conf/icws/icws2008.html#LiCG08</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/BhattiSBG07">
+        <author>Rafae Bhatti</author>
+        <author>Daniel Sanz</author>
+        <author>Elisa Bertino</author>
+        <author>Arif Ghafoor</author>
+        <title>A Policy-Based Authorization Framework for Web Services: Integrating XGTRBAC and WS-Policy.</title>
+        <pages>447-454</pages>
+        <year>2007</year>
+        <crossref>conf/icws/2007</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2007.10</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2007.10</ee>
+        <url>db/conf/icws/icws2007.html#BhattiSBG07</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/SellamiB13">
+        <author>Sana Sellami</author>
+        <author>Omar Boucelma</author>
+        <title>Towards a Flexible Schema Matching Approach for Semantic Web Service Discovery.</title>
+        <pages>611-612</pages>
+        <year>2013</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2013.87</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2013.87</ee>
+        <crossref>conf/icws/2013</crossref>
+        <url>db/conf/icws/icws2013.html#SellamiB13</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/VermaDGMS06">
+        <author>Kunal Verma</author>
+        <author>Prashant Doshi</author>
+        <author>Karthik Gomadam</author>
+        <author>John A. Miller</author>
+        <author>Amit P. Sheth</author>
+        <title>Optimal Adaptation in Web Processes with Coordination Constraints.</title>
+        <pages>257-264</pages>
+        <year>2006</year>
+        <crossref>conf/icws/2006</crossref>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2006.97</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2006.97</ee>
+        <url>db/conf/icws/icws2006.html#VermaDGMS06</url>
+    </inproceedings><inproceedings mdate="2017-07-26" key="conf/icws/EberleFHLMUW09">
+        <author>Hanna Eberle</author>
+        <author>Stefan F&ouml;ll</author>
+        <author>Klaus Herrmann 0001</author>
+        <author orcid="0000-0002-9123-259X">Frank Leymann</author>
+        <author>Annapaola Marconi</author>
+        <author>Tobias Unger</author>
+        <author>Hannes Wolf</author>
+        <title>Enforcement from the Inside: Improving Quality of Business in Process Management.</title>
+        <pages>405-412</pages>
+        <year>2009</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2009.82</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2009.82</ee>
+        <crossref>conf/icws/2009</crossref>
+        <url>db/conf/icws/icws2009.html#EberleFHLMUW09</url>
+    </inproceedings><inproceedings mdate="2017-05-19" key="conf/icws/HewettKN09">
+        <author>Rattikorn Hewett</author>
+        <author>Phongphun Kijsanayothin</author>
+        <author>Bach Tuong Nguyen</author>
+        <title>Scalable Optimized Composition of Web Services with Complexity Analysis.</title>
+        <pages>389-396</pages>
+        <year>2009</year>
+        <booktitle>ICWS</booktitle>
+        <ee>https://doi.org/10.1109/ICWS.2009.95</ee>
+        <ee>http://doi.ieeecomputersociety.org/10.1109/ICWS.2009.95</ee>
+        <crossref>conf/icws/2009</crossref>
+        <url>db/conf/icws/icws2009.html#HewettKN09</url>
+    </inproceedings>
+</dblp>

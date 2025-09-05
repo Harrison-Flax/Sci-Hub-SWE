@@ -1,0 +1,207 @@
+@import org.apache.commons.lang3.StringUtils
+@(job: Job, userId: Long, userTypes: String, tableName: String, jobFileType: String, tableRecorderId: String, backendPort: String, jobDocument: Boolean)
+
+@import helper._
+
+@main("Job Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+
+                    <h4 class="center">Job: @job.getTitle</h4>
+
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+                                <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;
+                                    border-style: solid;
+                                    border-radius: 50%;
+                                    height: auto;
+                                    width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">Job Title</th>
+                                        <td style="word-wrap: break-word;">@job.getTitle</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Organization Name</th>
+                                        @if(job.getOrganization!="null" && job.getOrganization != "") {
+                                            <td style="word-wrap: break-word;">@job.getOrganization</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Goals</th>
+                                        @if(job.getGoals!="null" && job.getGoals != "") {
+                                            <td style="word-wrap: break-word;">@job.getGoals</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Short Description</th>
+                                        @if(job.getShortDescription!="null" && job.getShortDescription != "") {
+                                            <td style="word-wrap: break-word;">@job.getShortDescription</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Long Description</th>
+                                        @if(job.getLongDescription!="null" && job.getLongDescription != "") {
+                                            <td style="word-wrap: break-word;">@job.getLongDescription</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Fields</th>
+                                        @if(job.getFields!="null" && job.getFields != "") {
+                                            <td style="word-wrap: break-word;">@job.getFields</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Required Expertise</th>
+                                        @if(job.getRequiredExpertise!="null" && job.getRequiredExpertise != "") {
+                                            <td style="word-wrap: break-word;">@job.getRequiredExpertise</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Preferred Expertise</th>
+                                        @if(job.getPreferredExpertise!="null" && job.getPreferredExpertise != "") {
+                                            <td style="word-wrap: break-word;">@job.getPreferredExpertise</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Location</th>
+                                        @if(job.getLocation!="null" && job.getLocation != "") {
+                                            <td style="word-wrap: break-word;">@job.getLocation</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Salary Range</th>
+                                        <td style="word-wtap: break-word;">
+                                            @if(job.getMinSalary!="null" && job.getMinSalary != "" ) {
+                                                @job.getMinSalary
+                                            } else {
+                                                N/A
+                                            }
+                                        -
+                                            @if(job.getMaxSalary!="null" && job.getMaxSalary != "" ) {
+                                                @job.getMaxSalary
+                                            } else {
+                                                N/A
+                                            }
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Job URL</th>
+                                        @if(job.getUrl!="null" && job.getUrl != "") {
+                                            <td style="word-wrap: break-word;">@job.getUrl</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Job Publisher</th>
+                                        @if(job.getJobPublisher!="null" && job.getJobPublisher != "") {
+                                            <td style="word-wrap: break-word;">@job.getJobPublisher.getUserName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    @*
+                                    @if(jobDescription) {
+                                    <tr>
+                                    <th style="max-width: 50px">Job Description Document</th>
+                                    <td style="word-wrap: break-word;">
+                                    <a href="javascript:void(0);"
+                                    data-url="@routes.FileController.getFile(tableName, jobDescription, tableRecorderId)"
+                                    class="blue-text text-darken-3"
+                                    onclick="openAndCheckNewTabUrl(this)">
+                                    Download Job Description Document
+                                    </a>
+                                    </td>
+                                    </tr>
+                                    }
+                                    *@
+                                    @if(jobDocument) {
+                                        <tr>
+                                            <th style="max-width: 50px">Job Document</th>
+                                            <td style="word-wrap: break-word;">
+                                                <a href="javascript:void(0);"
+                                                data-url="@routes.FileController.getFile(tableName, jobFileType, tableRecorderId)"
+                                                class="blue-text text-darken-3"
+                                                onclick="openAndCheckNewTabUrl(this)">
+                                                    Download Job Document
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        @if(userTypes == "0") {
+                            <a href="@routes.AdminController.jobManagement(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                                back to job management
+                            </a>
+                        }
+                        @if((userTypes == "1" && job.getJobPublisher().getId().equals(userId)) || userTypes == "0") {
+                            <a href="@routes.JobController.jobEditPage(job.getId)" class="btn waves-effect waves-light blue darken-2">
+                                Edit Job Info
+                            </a>
+                        }
+                        <a href="@routes.JobController.jobList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                            Back to Job List</a>
+                        @if(userTypes == "4" || ( userTypes == "1" && !job.getjobApplicationIdList.contains(userId) && !job.getJobPublisher().getId().equals(userId)) || userTypes == "0") {
+                            <a href="@routes.JobController.jobApplyPage(job.getId)" class="btn waves-effect waves-light green darken-2">
+                                Apply Job
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+                fetch(url, { method: 'HEAD' }).then(response => {
+                    if (response.ok) {
+                        const newTab = window.open(url, '_blank');
+                        if (!newTab) {
+                            alert("Please allow pop-ups in your browser to view this file.");
+                        }
+                    } else {
+                        alert("The user did not upload this file");
+                    }
+                })
+                        .catch(error => {
+                            console.error("Error checking the URL:", error);
+                            alert("Failed to check the file. Please try again later.");
+                        });
+            }
+    </script>
+}

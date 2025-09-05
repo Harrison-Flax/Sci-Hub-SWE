@@ -1,0 +1,298 @@
+@import org.apache.commons.lang3.StringUtils
+@(rajobApplication: RAJobApplication, userTypes: String, tableName: String, resumeFileType: String, coverLetterFileType: String, transcriptFileType: String, degreeCertificateFileType: String, tableRecorderId: String, backendPort: String, resume: Boolean, coverLetter: Boolean, transcript: Boolean, degreeCertificate: Boolean)
+
+@import helper._
+
+@main("rajobApplication Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">RA Job Application Detail Page</h4>
+
+                    <div class="row">
+@*                        <div class="col s4">*@
+@*                            <div class="center">*@
+@*                                <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;*@
+@*                                    border-style: solid;*@
+@*                                    border-radius: 50%;*@
+@*                                    height: auto;*@
+@*                                    width: 70%;">*@
+@*                            </div>*@
+@*                        </div>*@
+                        <div class="col s12">
+                            <table class="striped responsive-table">
+                                <tr>
+                                    <tr>
+                                        <th style="max-width: 50px">RA Job Name</th>
+                                        <td style="word-wrap: break-word;">@rajobApplication.getAppliedRAJob.getTitle</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Name</th>
+                                        @if(rajobApplication.getApplicant!="null" && rajobApplication.getApplicant != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getApplicant.getUserName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Apply Headline</th>
+                                        @if(rajobApplication.getApplyHeadline!="null" && rajobApplication.getApplyHeadline != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getApplyHeadline</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Cover Letter</th>
+                                        @if(rajobApplication.getApplyCoverLetter!="null" && rajobApplication.getApplyCoverLetter != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getApplyCoverLetter</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+
+                                        <th style="max-width: 50px">Referee1 Name</th>
+                                        @if(rajobApplication.getReferee1Title!="null" && rajobApplication.getReferee1Title!= "" && rajobApplication.getReferee1FirstName!="null" && rajobApplication.getReferee1FirstName != "" && rajobApplication.getReferee1LastName!="null" && rajobApplication.getReferee1LastName != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee1Title. @rajobApplication.getReferee1FirstName @rajobApplication.getReferee1LastName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Email: </th>
+                                        @if(rajobApplication.getReferee1Email!="null" && rajobApplication.getReferee1Email != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee1Email</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Phone: </th>
+                                        @if(rajobApplication.getReferee1Phone!="null" && rajobApplication.getReferee1Phone != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee1Phone</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+
+                                    <tr>
+                                        <th style="max-width: 50px">Referee2 Name</th>
+                                        @if(rajobApplication.getReferee2Title!="null" && rajobApplication.getReferee2Title!= "" && rajobApplication.getReferee2FirstName!="null" && rajobApplication.getReferee2FirstName != "" && rajobApplication.getReferee2LastName!="null" && rajobApplication.getReferee2LastName != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee2Title. @rajobApplication.getReferee2FirstName @rajobApplication.getReferee2LastName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 25px">Email: </th>
+                                        @if(rajobApplication.getReferee2Email!="null" && rajobApplication.getReferee2Email != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee2Email</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 25px">Phone: </th>
+                                        @if(rajobApplication.getReferee2Phone!="null" && rajobApplication.getReferee2Phone != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee2Phone</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+
+                                    <tr>
+                                        <th style="max-width: 50px">Referee3 Name</th>
+                                        @if(rajobApplication.getReferee3Title!="null" && rajobApplication.getReferee3Title!= "" && rajobApplication.getReferee3FirstName!="null" && rajobApplication.getReferee3FirstName != "" && rajobApplication.getReferee3LastName!="null" && rajobApplication.getReferee3LastName != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee3Title. @rajobApplication.getReferee3FirstName @rajobApplication.getReferee3LastName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Email: </th>
+                                        @if(rajobApplication.getReferee3Email!="null" && rajobApplication.getReferee3Email != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee3Email</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Phone: </th>
+                                        @if(rajobApplication.getReferee3Phone!="null" && rajobApplication.getReferee3Phone != "") {
+                                            <td style="word-wrap: break-word;">@rajobApplication.getReferee3Phone</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                @if(resume) {
+                                    <tr>
+                                        <th style="max-width: 50px">Resume Document</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, resumeFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Resume Document
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if(coverLetter) {
+                                    <tr>
+                                        <th style="max-width: 50px">Cover Letter Document</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, coverLetterFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Cover Letter Document
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if(transcript) {
+                                    <tr>
+                                        <th style="max-width: 50px">Transcript File</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, transcriptFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Transcript File
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if(degreeCertificate) {
+                                    <tr>
+                                        <th style="max-width: 50px">Degree Certificate</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, degreeCertificateFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Degree Certificate
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+
+@*                        <form class="form-signin" enctype="multipart/form-data" id="editTechnologyForm" method="post" onsubmit="return getHTML()" action="@routes.RAJobController.rajobStatueChange(rajobApplication.getAppliedRAJob.getId, "pending")">*@
+                        <form class="form-signin"
+                                id="editTechnologyForm"
+                                method="post"
+                                onsubmit="return getHTML()"
+                                action="@routes.RAJobController.rajobApplicationStatusChange(rajobApplication.getId, "pending")">
+
+                            @if(userTypes == "1" && rajobApplication.getAppliedRAJob.getStatus() !="closed" ) {
+                                <a class="waves-effect waves-light btn modal-trigger blue darken-2"
+                                href="#ccModal">Select CC Recipients</a>
+                                <input type="hidden" name="ccSelected" id="ccSelectedHidden" value="" />
+                            }
+
+
+                            @if(userTypes == "1" && rajobApplication.getAppliedRAJob.getStatus() !="closed" ) {
+                                <button type="submit" id="RajobOffer" class="btn waves-effect waves-light blue darken-2">
+                                    Offer</button>
+                            }
+@*                            <a href="@routes.JobController.jobApplicationsList("rajob", rajobApplication.getAppliedRAJob.getId(), 1, "")" class="btn waves-effect waves-light red darken-2">*@
+@*                                Reject</a>*@
+                            @if(userTypes == "1"){
+                                <a href="@routes.JobController.jobApplicationsList("rajob", rajobApplication.getAppliedRAJob.getId(), 1, "")" class="btn waves-effect waves-light green darken-2">
+                                Cancel</a>
+                            }
+                            @if(userTypes == "4") {
+                                <a href="@routes.RAJobController.rajobListAppliedByUser(1)" class="btn waves-effect waves-light blue darken-2">
+                                Back to Applied RA Job List</a>
+                            }
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ccModal" class="modal">
+        <div class="modal-content">
+            <h5>Select Contacts to CC</h5>
+            <ul id="ccList"></ul>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-close waves-effect waves-green btn-flat"
+            onclick="collectSelectedCC()">
+                Done
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+            function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+                fetch(url, { method: 'HEAD' }).then(response => {
+                    if (response.ok) {
+                        const newTab = window.open(url, '_blank');
+                        if (!newTab) {
+                            alert("Please allow pop-ups in your browser to view this file.");
+                        }
+                    } else {
+                        alert("The user did not upload this file");
+                    }
+                })
+                        .catch(error => {
+                            console.error("Error checking the URL:", error);
+                            alert("Failed to check the file. Please try again later.");
+                        });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var elems = document.querySelectorAll('.modal');
+                M.Modal.init(elems);
+
+                fetch('@routes.Assets.at("data/cc_contacts.json")')
+                        .then(response => response.json())
+                        .then(data => {
+                            const ccList = document.getElementById("ccList");
+                            data.forEach(contact => {
+                                const li = document.createElement("li");
+                                li.innerHTML = `
+                            <label>
+                                <input type="checkbox" name="ccSelected" value="${contact.email}" />
+                                <span>${contact.firstname} ${contact.lastname} (${contact.email})</span>
+                            </label>
+                        `;
+                                ccList.appendChild(li);
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Failed to load CC contacts:", error);
+                        });
+            });
+
+            function collectSelectedCC() {
+                let selectedValues = [];
+                document.querySelectorAll('#ccList input[name="ccSelected"]:checked')
+                        .forEach(item => selectedValues.push(item.value));
+
+                document.getElementById('ccSelectedHidden').value = selectedValues.join(',');
+            }
+    </script>
+
+}

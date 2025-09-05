@@ -1,0 +1,269 @@
+@import helper._
+@import models._
+@import models.Project
+
+@(project: Project)
+
+
+@scripts = {
+    <style>
+        tr {
+            border-bottom: none;
+        }
+        td {
+            text-align: center;
+        }
+        p {
+            margin-bottom : 5px;
+        }
+    </style>
+    <script type="text/javascript">
+            // $(document).ready(function () {
+            //     // var doc = document.getElementById('description').contentWindow.document;
+            //     // doc.open();
+            //     var quill = new Quill('#quill-container', {
+            //         scrollingContainer: '#scrolling-container'
+            //     });
+            //
+            //     quill.clipboard.dangerouslyPasteHTML(entityToString());
+            //     quill.enable(false);
+            //     document.body.scrollTop = document.documentElement.scrollTop = 0;
+            // });
+
+            // function reinitIframe(){
+            //     var iframe = document.getElementById("description");
+            //     try{
+            //         var bHeight = iframe.contentWindow.document.body.scrollHeight;
+            //         var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+            //         var height = Math.max(bHeight, dHeight);
+            //         iframe.height = height;
+            //     }catch (ex){}
+            // }
+            @*window.setInterval("reinitIframe()", 200);*@
+            @*function entityToString(){*@
+            @*    var div=document.createElement('div');*@
+            @*    div.innerHTML="@project.getDescription";*@
+            @*    var res=div.innerText||div.textContent;*@
+            @*    return res;*@
+            @*}*@
+
+            @***** Change project viewpoint, refreshing the screen *******@
+            // function changeView(view){
+            //     $.ajax({
+            //         url: "/updateProjectZone/" + view,
+            //         headers: {
+            //             'Content-Type': 'application/json'
+            //         },
+            //         type: "GET"
+            //     }).done(function (data) {
+            //         window.location.href = "/";
+            //     });
+            // }
+    </script>
+}
+
+@main("Project Detail", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                    @project.getTitle </h4>
+                    @if(!project.getGoals.isEmpty) {
+                        <div class="row">
+                            <div class="col s12">
+                                <h6>Goals</h6>
+                                <p>@project.getGoals</p>
+                            </div>
+                        </div>
+                    }
+                    @if(project.getStartDate()!=null && !project.getStartDate.isEmpty) {
+                        <div class="row">
+                            <div class=" col s12">
+                                <h6>Start Date </h6>
+                                <textarea class="materialize-textarea" style="border-bottom: none" readonly>@project.getStartDate</textarea>
+                            </div>
+                        </div>
+                    }
+
+                    @if(project.getEndDate()!=null && !project.getEndDate.isEmpty) {
+                        <div class="row">
+                            <div class=" col s12">
+                                <h6>End Date </h6>
+                                <textarea class="materialize-textarea" style="border-bottom: none" readonly>@project.getEndDate</textarea>
+                            </div>
+                        </div>
+                    }
+@*                    @if(project.getVideoUrl != null && project.getVideoUrl.length > 0) {*@
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <h6>Video</h6>*@
+@*                                <br />*@
+@*                                <iframe frameborder="0"  height="300" src="@project.getVideoUrl" class="col l12 s12">*@
+@*                                    <p>Your browser does not support HTML5 video<p>*@
+@*                                </iframe>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+
+@*                    @if(project.getImageUrl!=null && project.getImageUrl.length > 0) {*@
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <h6>Project Image</h6>*@
+@*                                <img width="100%" style="display: block;*@
+@*                                    margin-left: auto;*@
+@*                                    margin-right: auto;" src ="@project.getImageUrl"/>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+@*                    @if(project.getPdf != null && project.getPdf != "") {*@
+@*                        <a href="@project.getPdf" class="btn waves-effect waves-light blue darken-3">*@
+@*                            Download Project PDF</a>*@
+@*                        <p><br/></p>*@
+@*                    }*@
+
+@*                    @if(parentProject != null) {*@
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <h6>Parent Project </h6>*@
+@*                                <p><a href="@routes.ProjectController.projectDetail(parentProject.getId)" target="_blank">@parentProject.getTitle</a></p>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+
+@*                    @if(project.getDescription()!=null && project.getDescription()!="<p><br></p>" && !project.getDescription.isEmpty) {*@
+@*                        <div class="row">*@
+@*                            <div class=" col s12">*@
+@*                                <h6>Project Description</h6>*@
+@*                                <div id="quill-container">*@
+@*                                </div>*@
+@*                                *@@*<iframe frameborder="0" width="100%" id="description"></iframe>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+
+@*                    @if((project.getGithubUrl != null) && (!project.getGithubUrl.isEmpty)) {*@
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <h6>Github URL </h6>*@
+@*                                <p><a href="@project.getGithubUrl" target="_blank">@project.getGithubUrl</a></p>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+
+@*                    @if(project.getTeamPageUrl!= null && !project.getTeamPageUrl.isEmpty) {*@
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <h6>Team Page URL </h6>*@
+@*                                <p><a href="@project.getTeamPageUrl" target="_blank">@project.getTeamPageUrl</a></p>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+
+                        @if(project.getTechnology()!=null && !project.getTechnology.isEmpty) {
+                            <div class="row">
+                                <div class=" col s12">
+                                    <h6>Technologies Used </h6>
+                                    <textarea class="materialize-textarea" style="border-bottom: none" readonly>@project.getTechnology</textarea>
+                                </div>
+                            </div>
+                        }
+
+                        @if(project.getLocation!=null && !project.getLocation.isEmpty) {
+                            <div class="row">
+                                <div class="col s12">
+                                    <h6>Location </h6>
+                                    <p>@project.getLocation<p>
+                                </div>
+                            </div>
+                        }
+
+
+@*                    <div class="row">*@
+@*                        <div class="col s12">*@
+@*                            <h6>Creator</h6>*@
+@*                            <p>*@
+@*                                *@@*<a href = "@routes.UserController.userDetailPage(creator.getId())">@creator.getFirstName @creator.getLastName</a>*@
+@*                                @if(project.getCreator.getIsActive != "True" ){*@
+@*                                    <span>@project.getCreator.getFirstName @project.getCreator.getLastName</span>*@
+@*                                } else {*@
+@*                                    <a href = "@routes.UserController.userDetailPage(project.getCreator.getId())">@project.getCreator.getFirstName @project.getCreator.getLastName</a>*@
+@*                            }*@
+@*                            <p>*@
+@*                        </div>*@
+@*                    </div>*@
+
+
+@*                    @if(project.getTeamMembers != null && project.getTeamMembers.size() != 0) {*@
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <h6>Team Members</h6>*@
+@*                                <table>*@
+@*                                    <tr>*@
+@*                                        <td>Avatar</td>*@
+@*                                        <td>Name</td>*@
+@*                                        <td>Email</td>*@
+@*                                    </tr>*@
+@*                                    <tbody>*@
+@*                                    @for(teamMember <- project.getTeamMembers) {*@
+@*                                        <tr>*@
+@*                                            <td><img src="@teamMember.getAvatar" style="height: 35px;*@
+@*                                                width: 35px;*@
+@*                                                border-radius: 50%;"></img>*@
+@*                                            </td>*@
+@*                                            <td>@teamMember.getUserName()</td>*@
+@*                                            <td>@if(teamMember.getEmail() == null || teamMember.getEmail() == "") {*@
+@*                                                -*@
+@*                                            }else {*@
+@*                                                @teamMember.getEmail()*@
+@*                                            }</td>*@
+@*                                        </tr>*@
+@*                                    }*@
+@*                                    </tbody>*@
+@*                                </table>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                    }*@
+                        <div class="actions row center">
+                            <div class="col s12">
+                                <a class="btn waves-effect waves-light blue accent-2"
+                                href="@routes.ProjectController.projectEditPage(project.getId)">Edit</a>
+                                <a class="btn waves-effect waves-light red accent-2 modal-trigger" title="Delete" href="#warningModal">Delete</a>
+                                @if(session.get("id").equalsIgnoreCase(project.getSponsorContact.toString)) {
+                                    <a class="btn waves-effect waves-light indigo lighten-2"
+                                    href="@routes.ProjectController.addProjectFollowersPage(project.getId)">Invite Followers</a>
+                                }
+                                    <!-- Inactive Warning Modal Structure -->
+                                <div id="warningModal" class="modal">
+                                    <div class="modal-content">
+                                        <h5 style="color: red">Warning!</h5>
+                                        <p style="font-weight: bold">Do you really want to delete this project: @project.getTitle ?
+                                            Please note that after deletion, this project <span style="color: red">
+                                            CANNOT</span> be recovered.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                            Cancel</a>
+                                        <a href='@routes.ProjectController.deleteProject(project.getId)'
+                                        class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                                    </div>
+                                </div>
+                                <br>
+                                <br>
+                                <a class="btn waves-effect waves-light blue darken-2"
+                                href="@routes.ProjectController.projectList(1, "")">Project List</a>
+
+                                <button class='btn waves-effect waves-light green darken-2' style="font-weight: bold; !important;" href='#' onclick="changeView('@project.getId()')"
+                                title="Selecting this option allows you to only view APIs, containers, and Datasets associated with this project.">Set as Project Zone</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

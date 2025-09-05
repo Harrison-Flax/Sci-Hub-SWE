@@ -1,0 +1,248 @@
+@(bugReports: List[BugReport], userEmail: String, userId: Long, pageNum: Long, offset: Integer,
+        total: Integer,
+        count: Integer, pageLimit: Integer, beginIndexForPagination: Integer, endIndexForPagination: Integer, sort: String)
+
+@import helper._
+@scripts = {
+    <script type="text/javascript">
+    </script>
+}
+
+@main("Bug Reports", scripts) {
+    <div class="container">
+    @if(bugReports == null || bugReports.size() == 0) {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h5 class="center">No Bugs Has Been Reported Yet :)</h5>
+                </div>
+            </div>
+        </div>
+    } else {
+        <div class="card-panel">
+            <div class="row card-panel z-depth-0 project-zone-panel">
+                <div class="col s12" style="margin-top: -10px;
+                    margin-bottom: -10px;">
+                    <h6 class="center tooltipped" data-position="bottom" data-tooltip="This list shows all the bug reports." >
+                        Bug Reports Registered at SMU-Lyle-Sci-Hub
+                    </h6>
+                </div>
+            </div>
+            <h4 class="center">Bug Reports</h4>
+            <div class="row">
+                <div class="col s6">
+                    <h6 class="left">Showing results: @{
+                        offset + 1
+                    } to @{
+                        offset + count
+                    } of @total</h6>
+                </div>
+                <div class="col s6" style="padding-top: -5px;
+                    margin-top: -2px">
+                    <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown11' style="text-transform: none;
+                        font-weight: bold;
+                        color: black;
+                        font-family: AmazonEmberBold, Helvetica Neue Bold, Helvetica Neue, Helvetica, Arial, sans-serif;
+                    !important; ">
+                        Sort By &nbsp; <font color="#3a5dc3">
+                        @if(sort.equals("date_created") || sort.equals("publish_time_stamp")) {
+                            Date Created
+                        }else if(sort.equals("title")){
+                    Title
+                    }else {
+                    Reporter Name
+                    }</font><i class="material-icons right">expand_more</i></a>
+
+                        <!-- Dropdown Structure -->
+                    <ul id='dropdown11' class='dropdown-content'>
+
+                        <li><a href="@routes.BugReportController.bugReportList(1, "date_created")" class="grey-text text-darken-4"><i class="material-icons">
+                            event</i>Date Created</a></li>
+                        <li><a href="@routes.BugReportController.bugReportList(1, "title")" class="grey-text text-darken-4"><i class="material-icons">
+                            sort_by_alpha</i>Title </a></li>
+                        <li><a href="@routes.BugReportController.bugReportList(1, "reporter_name")" class="grey-text text-darken-4"><i class="material-icons">
+                            star_rate</i>Reporter Name </a></li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="card-panel z-depth-0">
+                <table class="striped centered responsive-table" id ="postsTable">
+                    <thead>
+                        <tr class="info">
+                            <th style = "cursor: pointer;">Id</th>
+                            <th style = "cursor: pointer;">Bug Title</th>
+                            <th style = "cursor: pointer;">Reporter Name</th>
+                            <th style = "cursor: pointer;">Reporter Organization</th>
+                            <th style = "cursor: pointer;">Bug Content</th>
+                            <th style = "cursor: pointer;">Report Time</th>
+                            <th style = "cursor: pointer;">Solved Time</th>
+                            @*<th style = "cursor: pointer;">Bug Fixer</th>*@
+                            <th style = "vertical-align: top;">Operation</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(bugReport <- bugReports) {
+                        <tr>
+                            <td style="word-wrap: break-word;">
+                                @*{
+                                //                                            if(bugReport.getSolved() == 1) {
+                                //                                                "Yes"
+                                //                                            }
+                                //                                            else {
+                                //                                                "No"
+                                //                                            }
+                                //                                        }*@
+                                @bugReport.getId()
+                            </td>
+
+                            </td>
+                            @if(session.get("level") == "admin" || session.get("level") == "developer" || bugReport.getReporter.getEmail().equals(userEmail)) {
+                                <td style="word-wrap: break-word;"><a href = "@routes.BugReportController.bugReportDetail(bugReport.getId())">@bugReport.getTitle()</a></td>
+                            } else {
+                                <td style="word-wrap: break-word;">@bugReport.getTitle()</td>
+                            }
+
+                            <td style="word-wrap: break-word;">
+                            @bugReport.getReporter.getUserName()
+                            </td>
+
+                            <td style="word-wrap: break-word;">
+                            @if(bugReport.getReporter.getOrganization != "") {
+                                @bugReport.getReporter.getOrganization()
+                            } else {
+                                -
+                            }
+                            </td>
+                            <td style="word-wrap: break-word;">
+                            @if(bugReport.getDescription != "") {
+                                <div class="tooltip"> @bugReport.getTruncDescription()
+                                    <span class="tooltiptext"> @bugReport.getDescription()</span>
+                                </div>
+                            } else {
+                                -
+                            }
+                            </td>
+                            <td>
+                                @bugReport.getCreateTime() GMT
+                            </td>
+                            <td>
+                            @if((bugReport.getSolveTime()!=null) && (bugReport.getSolveTime() != "")) {
+                                @bugReport.getSolveTime() GMT
+                            } else {
+                                Not Solved Yet.
+                            }
+                            </td>
+                            @*<td>*@
+                            @* @bugReport.getFixer()*@
+                            @*</td>*@
+                            <td>
+                            @if(bugReport.getReporter.getEmail().equals(userEmail)) {
+                                <div class="input-group input-group-sm">
+                                    @if(bugReport.getSolved() == 0) {
+                                        <span>
+                                            <a class="btn waves-effect waves-light blue darken-2 modal-trigger" title="Delete" href="#warningModal2">
+                                                Solved?</a>
+
+                                                <!-- Inactive Warning Modal Structure -->
+                                            <div id="warningModal2" class="modal">
+                                                <div class="modal-content" style="text-align: left">
+                                                    <h5 style="color: red">Warning</h5>
+                                                    <p style="font-weight: bold">
+                                                        Do you really want to mark this bug report as solved: @bugReport.getTitle ?
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                                        Cancel</a>
+                                                    <a href='@routes.BugReportController.markAsSolved(bugReport.getId, userId)'
+                                                    class="modal-close waves-effect waves-green btn-flat">
+                                                        Confirm</a>
+                                                </div>
+                                            </div>
+                                        </span>
+                                    }
+                                    <span>
+                                        <a class="btn waves-effect waves-light red modal-trigger" title="Delete" style="margin-top: 5px;" href="#warningModal">
+                                            Delete</a>
+
+                                            <!-- Inactive Warning Modal Structure -->
+                                        <div id="warningModal" class="modal">
+                                            <div class="modal-content" style="text-align: left">
+                                                <h5 style="color: red">Warning</h5>
+                                                <p style="font-weight: bold">
+                                                    Do you really want to delete this bug report: @bugReport.getTitle ?
+                                                    Please note that after deletion, this  bug report <span style="color: red">
+                                                    CANNOT</span> be recovered.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                                    Cancel</a>
+                                                <a href='@routes.BugReportController.bugReportDelete(bugReport.getId)'
+                                                class="modal-close waves-effect waves-green btn-flat">
+                                                    Confirm</a>
+                                            </div>
+                                        </div>
+                                    </span>
+                                </div>
+                            } else {
+                                <div>-</div>
+                            }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+
+                @if(bugReports.size != 0) {
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="pagination center-align">
+                                @if(pageNum == 1) {
+                                    <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                        first_page</i></li>
+                                    <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                        chevron_left</i></li>
+                                } else {
+                                    <li class="waves-effect"><a href="@routes.BugReportController.bugReportList(1, sort)"><i class="material-icons">
+                                        first_page</i></a></li>
+                                    </li>
+                                    <li class="waves-effect"><a href="@routes.BugReportController.bugReportList(pageNum - 1, sort)"><i class="material-icons">
+                                        chevron_left</i></a></li>
+                                }
+                                @if(beginIndexForPagination > 1) {
+                                    <li class="waves-effect disabled" style="cursor: default;
+                                        font-size: 20px;
+                                        font-weight: bold">...</li>
+                                }
+                                @for(i <- (beginIndexForPagination + 0) to (endIndexForPagination + 0)) {
+                                    <li @if(pageNum == i) {
+                                        class="active"}><a href="@routes.BugReportController.bugReportList(i, sort)">@i</a></li>
+                                }
+                                @if(endIndexForPagination < ((total - 1) / pageLimit + 1)) {
+                                    <li class="waves-effect disabled" style="cursor: default;
+                                        font-size: 20px;
+                                        font-weight: bold">...</li>
+                                }
+                                @if((offset + count) >= total) {
+                                    <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                        chevron_right</i></li>
+                                    <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                        last_page</i></li>
+                                } else {
+                                    <li class="waves-effect"><a href="@routes.BugReportController.bugReportList(pageNum + 1, sort)"><i class="material-icons">
+                                        chevron_right</i></a></li>
+                                    <li class="waves-effect"><a href="@routes.BugReportController.bugReportList((total - 1) / pageLimit + 1, sort)"><i class="material-icons">
+                                        last_page</i></a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+    </div>
+}

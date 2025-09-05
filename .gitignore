@@ -1,0 +1,11 @@
+.idea/
+**/target/
+
+tools/**/*
+**application.conf
+**/logs/
+**application.log
+*.log
+
+**/sbt-dist
+.DS_Store

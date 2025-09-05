@@ -1,0 +1,540 @@
+@import helper._
+@import models._
+@import models.Project
+@import models.Challenge
+
+@scripts = {
+    <style>
+        tr {
+            border-bottom: none;
+        }
+        td {
+            text-align: center;
+        }
+        .ql-editor strong{
+            font-weight:bold;
+        }
+        #editor {
+            height: 375px;
+        }
+    </style>
+
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/budgetValidation.js")'></script>
+    <script type="text/javascript">
+            count = 0;
+            var quill;
+            $(document).ready(function () {
+                /**
+                 * This portion defines all the (non)required fields that need validation on max lengths and special
+                 * characters, as well as URL validity.
+                 */
+                validateField("memberName", "memberNameMsg", "varChar255", true);
+                validateField("email", "emailMsg", "varChar255", true);
+                validateField("title", "titleMsg", "varChar500", true);
+                validateField("location", "locationMsg", "varChar3", true);
+                validateField("goals", "goalsMsg", "varChar1000", true);
+                validateField("tech", "techMsg", "varChar500", false);
+                validateNoneRequiredUrl('github', 'githubMsg', 'varChar500');
+                validateNoneRequiredUrl('team_page', 'team_pageMsg', 'varChar500');
+                validateNoneRequiredUrl('video', 'videoMsg', 'varChar500');
+                validateNoneRequiredFloat('budget','budgetMsg', 'FLOAT20');
+                /****************************** End of Validation Portion **********************************************/
+
+                $("#addPanel").hide();
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+                });
+
+
+                //preview the updated image
+                $("#addmember").click(function changepic() {
+                    if (document.getElementById("memberName").value.trim().length==0){
+                        document.getElementById("memberName").classList.add("invalid");
+                    }
+                    if (document.getElementById("email").value.trim().length==0){
+                        document.getElementById("email").classList.add("invalid");
+                    }
+                    // document.getElementById("email").value.trim().length()==0;
+                    var isName = document.getElementById("memberName").classList.contains("invalid") ? false : true;
+                    var isEmail = document.getElementById("email").classList.contains("invalid") ? false : true;
+
+                    if(!isName || !isEmail) return;
+                    if (document.getElementById("photo").value == "") {
+                        var url = "../../../../assets/images/person.jpg";
+                        showPreview(url);
+                        return;
+                    }
+                    var reads = new FileReader();
+                    f = document.getElementById("photo").files[0];
+                    reads.readAsDataURL(f);
+                    reads.onload = function (e) {
+                        showPreview(this.result);
+
+                    };
+                });
+            });
+
+            function checkValidChallengeTitle() {
+                var title = document.getElementById("title").value;
+                var obj = {
+                    title: title
+                };
+
+                $.ajax({
+                    url: "/user/isEmailExisted",
+                    url: "/project/isProjectNameExisted",
+                    data: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        console.log(data);
+                        var response = data;
+                        if ("error" in response) {
+                            document.getElementById("titleMsg").innerHTML = "Replicated project name, please change another name!"
+                        } else {
+                            document.getElementById("titleMsg").innerHTML = ""
+                        }
+                    }
+                })
+
+            }
+
+            function deleteMember(obj) {
+                var tr  = $(obj).parent().parent();
+                tr.remove();
+            }
+
+            function showPreview(url) {
+                var appendItem = "<tr><td><img src=\"" + url + "\" height='35px' style=\"width:35px;border-radius:50%;\"</td>" +
+                        "<td>" + $("#memberName").val() + "<input type=\"text\" name='member" + count + "' id='member" + count + "' value=\""+ $("#memberName").val() +"\" style=\"display: none;\"></td>" +
+                        "<td>" + $("#email").val() + "<input type=\"text\" name='email" + count + "' id='email" + count + "' value=\""+ $("#email").val() +"\" style=\"display: none;\"></td>" +
+                        "<td><a href='javascript:void(0)' onclick='deleteMember(this)'><i style='color:red;' class=\"material-icons\">delete<\i><a></td><td id='clone"+count+"'></td></tr>";
+                $("#previewTable").append(appendItem);
+                var td = $("#clone" + count);
+                var obj = $("#photo").clone();
+                obj.attr("id", "photo" + count);
+                obj.attr("name", "photo" + count);
+                td.append(obj);
+                td.attr("style","display:none;");
+                count++;
+                $("#count").val(count);
+                $("#memberName").val("");
+                $("#email").val("");
+                $("#showpath").val("");
+                $("#photo").val("");
+            }
+
+            function cancelAdd(){
+                $("#warningModal2").modal('close');
+            }
+
+            function addMember(){
+                var email = document.getElementById("email").value.trim();
+                var obj = {
+                    email: email
+                };
+                $.ajax({
+                    url: "/user/isEmailExisted",
+                    data: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        var username = data.error.substring(data.error.indexOf('user:')+5, data.error.length);
+                        var input = document.getElementById("memberName");
+                        input.value = username;
+                        if (document.getElementById("photo").value == "") {
+                            var url = "../../../assets/images/person.jpg";
+                            showPreview(url);
+                            return;
+                        }
+                        var reads = new FileReader();
+                        f = document.getElementById("photo").files[0];
+                        reads.readAsDataURL(f);
+                        reads.onload = function (e) {
+                            showPreview(this.result);
+                        };
+
+                    }
+                })
+                cancelAdd();
+            }
+
+            $("#showPanel").click(function () {
+                $("#warningModal2").modal('close');
+            })
+
+            function prepareFormForSubmission() //display current HTML
+            {
+                if(document.getElementById("titleMsg").innerText.length != 0)
+                    return false;
+                var ajaxflag = true;
+                var parentChallengeId = $("#parentChallengeId").val();
+                $.ajax({
+                    url: "/challenge/checkChallengeProject/" + parentChallengeId,
+                    async: false,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "GET",
+                    success: function (data) {
+                        var response = data;
+                        console.log(data);
+                        if('badFormat' in response) {
+                            console.log(response['badFormat']);
+                            $("#parentChallengeIdMsg").text(response['badFormat']);
+                            ajaxflag = false;
+                        } else{
+                            if('notExisted' in response){
+                                $("#parentChallengeIdMsg").text(response['notExisted']);
+                                ajaxflag = false;
+                            }else{
+
+                            }
+
+                        }
+                    }
+                });
+                if(!ajaxflag){
+                    return false;
+                }
+
+
+                // if (document.getElementById("agreement").checked == false) {
+                //     document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can register a project!";
+                //     $("#warningModal").modal();
+                //     $("#warningModal").modal('open');
+                //     return false;
+                // }
+
+                return true;
+            }
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function clearPDF(inputId, textId) {
+                console.log("clearFile called for", inputId, textId);
+                var fileInput = document.getElementById(inputId);
+                if(fileInput) {
+                    fileInput.value = "";
+                } else {
+                    console.error("Cannot find element with id", inputId);
+                }
+                var textInput = document.getElementById(textId);
+                if(textInput) {
+                    textInput.value = "";
+                    $('#' + textId).trigger('change');
+                } else {
+                    console.error("Cannot find element with id", textId);
+                }
+            }
+    </script>
+}
+
+@main("Register Challenge", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("../../public/javascripts/plugins/quill.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Register a Challenge</h4>
+                    <form class="form-signin" id="challengeForm" onsubmit="return prepareFormForSubmission()" method="post" action="@routes.ChallengeController.challengeRegisterPOST()" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="challengeTitle" id="challengeTitle" class="validate" required onchange="checkValidChallengeTitle()">
+                                <label for="challengeTitle">Title*</label>
+                                <span id="challengeTitleMsg" class="helper-text" data-error="" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" class="validate" required>
+                                <label for="shortDescription">
+                                    Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px; word-wtap: break-word; margin-top: 10px;"  name="longDescription" id="longDescription" class="validate" required></textarea>
+                                <label for="longDescription">
+                                    Long Description* </label>
+                                <span id="longDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="location" id="location" class="validate" required>
+                                <label for="location">
+                                    Location* </label>
+                                <span id="locationMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="requiredExpertise" id="requiredExpertise" class="validate" required>
+                                <label for="requiredExpertise">
+                                    Required Expertise* </label>
+                                <span id="requiredExpertiseMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredExpertise" id="preferredExpertise" class="validate" required>
+                                <label for="preferredExpertise">
+                                    Preferred Expertise* </label>
+                                <span id="preferredExpertiseMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredTime" id="preferredTime" class="validate" required>
+                                <label for="preferredTime">
+                                    Preferred Time* </label>
+                                <span id="preferredTimeMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        Budget Range
+                        <div class="row">
+                            <div class="input-field col s12 m5">
+                                @*<input type="password" name="password" id="password" class="validate" required>*@
+                                <input type="number" name="minBudget" id="minBudget" class="validate">
+                                <label for="minBudget">Min Budget*</label>
+                                <span id="minBudgetMsg" class="helper-text" style="color: red;"></span>
+                                @*<form action="/action_page.php">*@
+                                @*Password: <input type="password" name="pw" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">*@
+                                @*<input type="submit">*@
+                                @*</form>*@
+                            </div>
+                            <div class="input-field col s12 m2">_</div>
+
+                            <div class="input-field col s12 m5">
+                                @*<input type="password" name="repassword" id="repassword" class="validate" oninput="checkPwd()" required>*@
+                                <input type="number" name="maxBudget" id="maxBudget" class="validate">
+                                <label for="maxBudget">Max Budget*</label>
+                                <span id="maxBudgetMsg" class="helper-text" style="color: red;"></span>
+                            </div>
+                        </div>
+
+
+                       @* <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="budget" id="budget" class="validate" required>
+                                <label for="budget">
+                                    Budget* </label>
+                                <span id="budgetMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>*@
+
+
+@*                        <div class="row">*@
+@*                            <div class="col s12">*@
+@*                                <p style="color: #000;">*@
+@*                                    Team Members: <a id="showPanel" class="close" href="javascript:void(0)" style="float: right;*@
+@*                                        color: #000;"><i id="btnName" class="material-icons">*@
+@*                                    add</i>*@
+@*                                </a><a id="buttonText" style="float: right;">Add Members</a></p>*@
+@*                            </div>*@
+@*                            <div id="addPanel" style="display: inline-block;">*@
+@*                                <div class="col s1"><input type="text" name="count" id="count" value="0" style="display: none;"> </div>*@
+@*                                <div class="col s10">*@
+@*                                    <div class="input-field col s12">*@
+@*                                        <input*@
+@*                                        type="text" name="memberName" id="memberName" class="validate" >*@
+@*                                        <label for="memberName">Member Name</label>*@
+@*                                        <span id="memberNameMsg" class="helper-text" data-error=""></span>*@
+@*                                    </div>*@
+@*                                    <div class="input-field col s12">*@
+@*                                        <input type="email" name="email" id="email" class="validate">*@
+@*                                        <label for="email">Email</label>*@
+@*                                        <span id="emailMsg" class="helper-text" data-error=""></span>*@
+@*                                    </div>*@
+@*                                    <div class="file-field input-field col s12" >*@
+@*                                        <div class="btn waves-effect waves-light blue darken-2" >*@
+@*                                            <span >Upload Member Photo</span>*@
+@*                                            <input type="file" accept=".jpeg,.png,.jpg" id="photo" name="photo">*@
+@*                                        </div>*@
+@*                                        <div class="file-path-wrapper">*@
+@*                                            <input id="showpath" class="file-path validate" type="text">*@
+@*                                        </div>*@
+@*                                    </div>*@
+@*                                    <div class="center input-field col s12">*@
+@*                                        <a id="addmember" class="btn waves-effect waves-light blue darken-2">*@
+@*                                            Add Member</a>*@
+@*                                    </div>*@
+@*                                </div>*@
+@*                            </div>*@
+@*                            <div class="col s12">*@
+@*                                <Table class="highlight">*@
+@*                                    <tbody id="previewTable"></tbody>*@
+@*                                </Table>*@
+@*                            </div>*@
+@*                        </div>*@
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="tech" id="tech" class="validate" required>
+                                <label for="tech">
+                                    Technologies Used* </label>
+                                <span id="techMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        @*
+                        <div class="row">
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Upload Challenge Picture</span>
+                                    <input type="file" accept=".jpeg,.png,.jpg" id=challengeImage" name="challengeImage">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        *@
+
+
+                        <div class="row">
+                            <div class="file-field input-field col s12">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                        <span>Upload Challenge PDF</span>
+                                        <input type="file" accept=".pdf" id="challengePdf" name="challengePdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                        <input class="file-path validate" type="text" placeholder="Upload challenge PDF" id="filePathChallengePdf" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('challengePdf','filePathChallengePdf')" style="margin-left: 10px;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                                        @*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="video" id="video" class="validate">*@
+@*                                <label for="video">*@
+@*                                    Video URL </label>*@
+@*                                <span id="videoMsg" class="helper-text" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="github" id="github" class="validate">*@
+@*                                <label for="github">*@
+@*                                    Github URL </label>*@
+@*                                <span id="githubMsg" class="helper-text" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="team_page" id="team_page" class="validate">*@
+@*                                <label for="team_page">*@
+@*                                    Organization Page URL </label>*@
+@*                                <span id="team_pageMsg" class="helper-text" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="parentChallengeId" id="parentChallengeId" class="validate">*@
+@*                                <label for="parentChallengeId">*@
+@*                                    Parent Challenge Id</label>*@
+@*                                <span id="parentChallengeIdMsg" class="helper-text" style="color:red" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+
+                        @*<div class="row">*@
+                            @*<label>*@
+                                @*<input id="agreement" type="checkbox" />*@
+                                @*<span>*@
+                                    @*I acknowledge that I have read the <a href="https://www.nasa.gov/about/highlights/HP_Privacy.html" target="_blank">*@
+                                    @*NASA Web Privacy Policy </a>*@
+                                    @*and <a href="https://nex.nasa.gov/nex/terms/" target="_blank">NEX Policy</a>*@
+                                    @*, and do hereby accept the Terms and Conditions contained in these documents.</span>*@
+                            @*</label>*@
+                        @*</div>*@
+
+                        <div id="warningModal" class="modal">
+                            <div class="modal-content">
+                                <h5 class="center" style="color: red">Warning!</h5>
+                                <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                            </div>
+                        </div>
+
+                        <div id="warningModal2" class="modal">
+                            <div class="modal-content">
+                                <h6 class="center" style="font-weight: bold" id="warningMessage2"></h6>
+                                <div class="actions row center">
+                                    <div class="input-field col s12">
+                                        <div class="btn waves-effect waves-light blue darken-2" >
+                                            <span id="addMember" onclick="addMember()">Yes</span>
+                                        </div>
+                                        <div class="btn waves-effect waves-light red darken-2" >
+                                            <span id="cancelAdd" onclick="cancelAdd()">No</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="challengeRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

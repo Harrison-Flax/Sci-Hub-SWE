@@ -1,0 +1,328 @@
+@(organization: Organization, organizationForm: play.data.Form[models.Organization], regPattern: String )
+@import helper._
+
+@scripts = {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            // var isEmailEmpty = true;
+            // var isEmailInvalid = true;
+            var isEmailAlreadyRegistered = true;
+            // var isPasswordNotMatched = true;
+            // var isPasswordNotSecure = false;
+            // var isSQ1hasNoContent = false;
+            // var isSQ2hasNoContent = false;
+            // var isFirstNameEmpty = true;
+            // var isLastNameEmpty = true;
+            // var passwordNotSecureError = "Password must contain at least one special character, one uppercase, and lowercase letter, and at least 8 or more characters <br/>";
+            // var passwordsDoNotMatchError = "Your password and confirmation password do not match. <br/>";
+            // var urlAlreadyRegisteredError = "Your url address is already registered.<br/>";
+            // var urlEmptyError = "Field 'Email' must be filled in.<br/>";
+            // var organizationNameEmptyError = "Field 'First Name' must be filled in.<br/>";
+            // var focusesEmptyError = "Field 'Last Name' must be filled in.<br/>";
+            // var urlInvalidError = "Your url address must be valid.<br/>";
+
+            var errorMessages = {
+                organizationName: "Organization Name is required.",
+                // state: "Please enter a valid state (e.g., two-letter code).",
+                state: "State is required.",
+                city: "City name is required.",
+                // zipCode: "Please enter a valid Zipcode (5 digits).",
+                zipCode: "Please enter a valid Zipcode (digits only).",
+                streetAddress1: "Street Address 1 is required.",
+                // streetAddress2: "Street Address 2 is required.",
+                streetAddress2: "Please enter a valid street address.",
+                shortDescription: "Short Description is required.",
+                longDescription: "Long Description is required.",
+                contactPersonName: "Contact Person Name is required and should contain only letters.",
+                contactPersonEmail: "Please enter a valid email address.",
+                // contactPersonPhone: "Please enter a valid phone number (10 digits).",
+                contactPersonPhone: "Please enter a valid phone number (digits only).",
+                fields: "Fields are required.",
+                focuses: "Focuses are required.",
+                // organizationHistory: "Organization History must be within allowed characters.",
+                numberOfEmployees: "Please enter a valid number of employees.",
+                url: "Please enter a valid URL."
+            };
+
+            var patterns = {
+                // state: /^[A-Za-z]{2}$/,
+                // zipCode: /^\d{5}$/,
+                zipCode: /^\d+$/,
+                contactPersonName: /^[A-Za-z\s]+$/,
+                contactPersonEmail: /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/,
+                // contactPersonPhone: /^\d{10}$/,
+                contactPersonPhone: /^\d+$/,
+                numberOfEmployees: /^\d+$/,
+                url: /^(https?:\/\/)?([\w\-])+\.{1}([a-zA-Z]{2,63})([\/\w\.-]*)*\/?$/
+            };
+
+            function validateField(fieldId, pattern, errorMsg) {
+                var field = document.getElementById(fieldId);
+                var errorSpan = document.getElementById(fieldId + "Msg");
+                var value = field.value.trim();
+
+                if (field.hasAttribute('required') && value === "") {
+                    errorSpan.innerText = "This field is required.";
+                    errorSpan.classList.add("red-text");
+                    field.classList.add("invalid");
+                    return false;
+                } else if (pattern && value !== "" && !pattern.test(value)) {
+                    errorSpan.innerText = errorMsg;
+                    errorSpan.classList.add("red-text");
+                    field.classList.add("invalid");
+                    return false;
+                } else {
+                    errorSpan.innerText = "";
+                    errorSpan.classList.remove("red-text");
+                    field.classList.remove("invalid");
+                    return true;
+                }
+            }
+
+            function validateForm() {
+                var isValid = true;
+
+                // Validate Required Fields with Patterns
+                isValid &= validateField("organizationName", null, errorMessages.organizationName);
+                // isValid &= validateField("state", patterns.state, errorMessages.state);
+                isValid &= validateField("state", null, errorMessages.state);
+                isValid &= validateField("city", null, errorMessages.city);
+                isValid &= validateField("zipCode", patterns.zipCode, errorMessages.zipCode);
+                isValid &= validateField("streetAddress1", null, errorMessages.streetAddress1);
+                isValid &= validateField("streetAddress2", null, errorMessages.streetAddress2);
+                isValid &= validateField("shortDescription", null, errorMessages.shortDescription);
+                isValid &= validateField("longDescription", null, errorMessages.longDescription);
+                isValid &= validateField("contactPersonName", patterns.contactPersonName, errorMessages.contactPersonName);
+                isValid &= validateField("contactPersonEmail", patterns.contactPersonEmail, errorMessages.contactPersonEmail);
+                isValid &= validateField("contactPersonPhone", patterns.contactPersonPhone, errorMessages.contactPersonPhone);
+                isValid &= validateField("fields", null, errorMessages.fields);
+                isValid &= validateField("focuses", null, errorMessages.focuses);
+                isValid &= validateField("numberOfEmployees", patterns.numberOfEmployees, errorMessages.numberOfEmployees);
+                isValid &= validateField("url", patterns.url, errorMessages.url);
+                /*
+                if (isEmailAlreadyRegistered) {
+                    document.getElementById("warningMessage").innerText = "Your email address is already registered.";
+                    $("#warningModal").modal('open');
+                    isValid = false;
+                }
+
+                 */
+
+                return !!isValid;
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var fieldsToValidate = [
+                    {id: "organizationName", pattern: null, errorMsg: errorMessages.organizationName},
+                    {id: "state", pattern: patterns.state, errorMsg: errorMessages.state},
+                    {id: "city", pattern: null, errorMsg: errorMessages.city},
+                    {id: "zipCode", pattern: patterns.zipCode, errorMsg: errorMessages.zipCode},
+                    {id: "streetAddress1", pattern: null, errorMsg: errorMessages.streetAddress1},
+                    {id: "streetAddress2", pattern: null, errorMsg: errorMessages.streetAddress2},
+                    {id: "shortDescription", pattern: null, errorMsg: errorMessages.shortDescription},
+                    {id: "longDescription", pattern: null, errorMsg: errorMessages.longDescription},
+                    {id: "contactPersonName", pattern: patterns.contactPersonName, errorMsg: errorMessages.contactPersonName},
+                    {id: "contactPersonEmail", pattern: patterns.contactPersonEmail, errorMsg: errorMessages.contactPersonEmail},
+                    {id: "contactPersonPhone", pattern: patterns.contactPersonPhone, errorMsg: errorMessages.contactPersonPhone},
+                    {id: "fields", pattern: null, errorMsg: errorMessages.fields},
+                    {id: "focuses", pattern: null, errorMsg: errorMessages.focuses},
+                    {id: "numberOfEmployees", pattern: patterns.numberOfEmployees, errorMsg: errorMessages.numberOfEmployees},
+                    {id: "url", pattern: patterns.url, errorMsg: errorMessages.url}
+                ];
+
+                fieldsToValidate.forEach(function(field) {
+                    var input = document.getElementById(field.id);
+                    input.addEventListener("blur", function() {
+                        validateField(field.id, field.pattern, field.errorMsg);
+                    });
+                    input.addEventListener("input", function() {
+                        validateField(field.id, field.pattern, field.errorMsg);
+                    });
+                });
+            });
+            /*
+            function checkFormValid() {
+                if( isEmailAlreadyRegistered){
+                    document.getElementById("warningMessage").innerText = "Your url address is already registered.";
+                    $("#warningModal").modal();
+                    $("#warningModal").modal('open');
+                    return false;
+                }
+                return true;
+            }
+
+             */
+    </script>
+}
+
+@main("Organization Edit Page", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12 l10 offset-l1">
+                <div class="card-panel z-depth-0">
+                    <h4 class="form-signin-heading center">Edit Organization Details</h4>
+                    <form class="form-signin" onsubmit="return checkFormValid();" enctype="multipart/form-data" method="post" action="@routes.OrganizationController.organizationEditPOST(organization.getId)">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="organizationName" id="organizationName" class="validate" value="@organization.getOrganizationName" required>
+                                <label for="organizationName">Organization Name*</label>
+                                <span id="organizationNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- State, City, Zipcode -->
+                        <div class="row">
+                            <div class="input-field col s12 m4">
+                                <input type="text" name="state" id="state" class="validate" value="@organization.getState" required>
+                                <label for="state">State*</label>
+                                <span id="stateMsg" class="helper-text" data-error=""></span>
+                            </div>
+
+                            <div class="input-field col s12 m4">
+                                <input type="text" name="city" id="city" class="validate" value="@organization.getCity" required>
+                                <label for="city">City*</label>
+                                <span id="cityMsg" class="helper-text" data-error=""></span>
+                            </div>
+
+                            <div class="input-field col s12 m4">
+                                <input type="text" name="zipCode" id="zipCode" class="validate" value="@organization.getZipCode" required>
+                                <label for="zipCode">Zipcode*</label>
+                                <span id="zipCodeMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Street Address 1 -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="streetAddress1" id="streetAddress1" class="validate" value="@organization.getStreetAddress1" required>
+                                <label for="streetAddress1">Street Address 1*</label>
+                                <span id="streetAddress1Msg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Street Address 2 -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="streetAddress2" id="streetAddress2" class="validate" value="@organization.getStreetAddress2">
+                                <label for="streetAddress2">Street Address 2</label>
+                                <span id="streetAddress2Msg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Short Description -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="shortDescription" id="shortDescription" class="validate" value="@organization.getShortDescription" required>
+                                <label for="shortDescription">Short Description*</label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Long Description -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="longDescription" id="longDescription" class="validate" value="@organization.getLongDescription" required>
+                                <label for="longDescription">Long Description*</label>
+                                <span id="longDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Contact Info -->
+                        <h5>Contact Info:</h5>
+                        <div class="row">
+                            <div class="input-field col s12 m4">
+                                <input type="text" name="contactPersonName" id="contactPersonName" class="validate" value="@organization.getContactPersonName" required>
+                                <label for="contactPersonName">Contact Person Name*</label>
+                                <span id="contactPersonNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+
+                            <div class="input-field col s12 m4">
+                                <input type="email" name="contactPersonEmail" id="contactPersonEmail" class="validate" value="@organization.getContactPersonEmail" required>
+                                <label for="contactPersonEmail">Contact Person Email*</label>
+                                <span id="contactPersonEmailMsg" class="helper-text" data-error=""></span>
+                            </div>
+
+                            <div class="input-field col s12 m4">
+                                <input type="tel" name="contactPersonPhone" id="contactPersonPhone" class="validate" value="@organization.getContactPersonPhone" required>
+                                <label for="contactPersonPhone">Contact Person Phone*</label>
+                                <span id="contactPersonPhoneMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Fields -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="fields" id="fields" class="validate" value="@organization.getFields" required>
+                                <label for="fields">Fields*</label>
+                                <span id="fieldsMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Focuses -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="focuses" id="focuses" class="validate" value="@organization.getFocuses" required>
+                                <label for="focuses">Focuses*</label>
+                                <span id="focusesMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Organization History -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="organizationHistory" id="organizationHistory" class="validate" value="@organization.getOrganizationHistory">
+                                <label for="organizationHistory">Organization History</label>
+                                <span id="organizationHistoryMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- Number of Employees -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="number" name="numberOfEmployees" id="numberOfEmployees" class="validate" value="@organization.getNumberOfEmployees" min="1">
+                                <label for="numberOfEmployees">Number of Employees</label>
+                                <span id="numberOfEmployeesMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                            <!-- URL -->
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="url" name="URL" id="url" class="validate" value="@organization.getURL">
+                                <label for="url">URL</label>
+                                <span id="urlMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="center actions row">
+                            <div class="input-field col s12">
+                                <button type="submit" class="btn waves-effect waves-light blue darken-2" id="create">
+                                    Update</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">Cancel</a>
+                                <div class="helper-text red-text" id="submitErrorMsg"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="warningModal" class="modal">
+        <div class="modal-content">
+            <h4>Warning</h4>
+            <p id="warningMessage"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close btn waves-effect waves-green">OK</a>
+        </div>
+    </div>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize Materialize Modal
+                var elems = document.querySelectorAll('.modal');
+                var instances = M.Modal.init(elems);
+            });
+    </script>
+}

@@ -1,0 +1,49 @@
+@scripts = {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+}
+@main("My Space (Sponsor)", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="card-panel">
+                <div class="row center">
+                    <h4 class="center form-signin-heading" align="center">
+                        My Space
+                    </h4>
+                </div>
+                <div class="row center">
+                    <div class="col s6 m3">
+                        <a href="@routes.ChallengeController.challengeListPostedByUser(1)">
+                            <i class="material-icons large">assignment</i>
+                            <p>Challenge Applications</p></a>
+                    </div>
+                    <div class="col s6 m3">
+                        <a href="@routes.JobController.jobListPostedByUser(1)">
+                            <i class="material-icons large">work</i>
+                            <p>Posted Jobs</p>
+                        </a>
+                    </div>
+                    <div class="col s6 m3">
+                        <a href="@routes.TAJobController.tajobListPostedByUser(1)">
+                            <i class="material-icons large">school</i>
+                            <p>Posted TA Jobs</p>
+                        </a>
+                    </div>
+                    <div class="col s6 m3">
+                        <a href="@routes.RAJobController.rajobListPostedByUser(1)">
+                            <i class="material-icons large">live_help</i>
+                            <p>Posted RA Jobs</p>
+                        </a>
+                    </div>
+                    <div class="col s6 m3">
+                        <a href="@routes.UserController.userRegisterPage()">
+                            <i class="material-icons large">person_add</i>
+                            <p>Register Researcher</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

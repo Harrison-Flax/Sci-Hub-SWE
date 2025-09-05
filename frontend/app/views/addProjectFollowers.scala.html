@@ -1,0 +1,191 @@
+@(project: Project, followers: List[User], creator:User)
+@import helper._
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+    var deleteId;
+    function deleteOneFollower() {
+        var events = "New versions published;News published;";
+        $.ajax({
+            url: "/project/deleteOneFollower/" + deleteId + "/" + @project.getId +"/" + events,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            async: false,
+            type: "GET"
+        }).done(function (data) {
+            $("#" + deleteId).hide();
+        });
+    }
+
+    function addOneFollower(){
+        $("#emailMsg").text("")
+        var firstName = $("#firstName").val();
+        var lastName = $("#lastName").val();
+        var email = $("#email").val();
+        if(email == ""){
+            $("#emailMsg").text("Email is required field!")
+            return;
+        }
+        var obj = {
+            firstName:firstName,
+            lastName:lastName,
+            email:email
+        }
+
+        var events = "New versions published;News published;";
+        $.ajax({
+            url: "/project/addOneFollower/" + '@project.getId' +"/" + events,
+            data: JSON.stringify(obj),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            async: false,
+            type: "POST"
+        }).done(function (data) {
+            console.log(data);
+            var response = data;
+            if ("error" in response) {
+                $("#emailMsg").text(response["error"]);
+            } else {
+
+                var followerId = response["user"]["id"];
+                var follwerEmail = response["user"]["email"];
+                var followerName = response["user"]["userName"];
+
+                var newFollower = "<tr id='" + followerId+ "'>"
+                    +"<td>" + followerName + "</td>"
+                    +"<td>" + follwerEmail + "</td>"
+                    +"<td><a href='javascript:void(0)' onclick='deleteMember(this)'><i style='color: red;' class=\"material-icons\">delete</i></a></td>\n</tr>"
+                $("#previewTable").append(newFollower);
+
+            }
+        });
+    }
+
+    function deleteMember(obj) {
+        deleteId  = $(obj).parent().parent().attr("id");
+
+        $("#warningModal").modal();
+        $("#warningModal").modal('open');
+    }
+
+
+    </script>
+}
+
+@main("Project Edit", scripts) {
+
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Add Followers For @project.getTitle</h4>
+
+
+
+
+                    <div id="warningModal" class="modal">
+                        <div class="modal-content">
+                            <h5 style="color: red">Warning!</h5>
+                            <p style="font-weight: bold">Do you really want delete this follower?
+                                Please note that after this change, this user <span style="color: red">
+                                MAY NOT</span> see this project again.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="cancel-change-creator" class="modal-close waves-effect waves-green btn-flat">
+                                Cancel</a>
+                            <a id="confirm-change-creator" onclick="deleteOneFollower()"
+                            class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                        </div>
+                    </div>
+
+
+                        <div class="row">
+
+
+                                <div class="col s10 offset-s1">
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="firstName" id="firstName" class="validate">
+                                        <label for="firstName">First Name</label>
+                                        <span id="firstNameMsg" class="helper-text" data-error=""></span>
+                                    </div>
+                                    <div class="input-field col s12">
+                                        <input
+                                        type="text" name="lastName" id="lastName" class="validate">
+                                        <label for="lastName">Last Name</label>
+                                        <span id="lastNameMsg" class="helper-text" data-error=""></span>
+                                    </div>
+                                    <div class="input-field col s12">
+                                        <input type="email" name="email" id="email" class="validate">
+                                        <label for="email">Email</label>
+                                        <span id="emailMsg" class="helper-text" style="color: red" data-error=""></span>
+                                    </div>
+
+                                    <div class="center input-field col s12">
+                                        <button id="addFollower" onclick="addOneFollower()" class="btn waves-effect waves-light blue darken-2">
+                                            Add Follower</button>
+
+                                    </div>
+
+                                </div>
+
+                            <div class="col s12">
+                                <Table class="highlight">
+                                    <tbody id="previewTable">
+                                    @if(followers!=null) {
+                                        @for(follower <- followers) {
+                                            <tr id="@follower.getId">
+
+                                                <td>@follower.getUserName</td>
+                                                <td>@if(follower.getEmail() == "" || follower.getEmail() == null) {
+                                                    -
+                                                } else {
+                                                    @follower.getEmail()
+                                                }</td>
+                                                <td><a href='javascript:void(0)' onclick='deleteMember(this)'><i style='color: red;' class="material-icons">delete</i></a></td>
+                                            </tr>
+                                        }
+                                    }
+                                    </tbody>
+                                </Table>
+                            </div>
+                        </div>
+
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <a href="@routes.ProjectController.projectDetail(project.getId)" class="btn waves-effect waves-light blue darken-2">
+                                    Project Detail</a>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

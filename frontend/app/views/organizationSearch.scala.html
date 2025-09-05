@@ -1,0 +1,82 @@
+@(organizationForm: play.data.Form[Organization])
+@import helper._
+
+@scripts = {
+
+    <script type="text/javascript">
+            $(document).ready(function(){
+
+                $( "#preview" ).click(function() {
+                    var target = $("#show")[0];
+                    console.log(target);
+                    if(target.style.display=="none"){
+                        target.style.display="block";
+                        $( "#preview" ).text("Hide");
+                        var organizationName = $("#organizationName").val();
+                        // var affiliation = $("#affiliation").val();
+                        var email = $("#email").val();
+                        var mailingAdd = $("#mailingAdd").val();
+                        var phoneNum = $("$phoneNum").val();
+                        // var researchFields = $("#researchFields").val();
+
+                        if(organizationName != "" && organizationName != null) {
+                            $("#content").append(" Organization Name = " + organizationName);
+                        }
+                        // if(affiliation != "" && affiliation != null) {
+                        //     $("#content").append(" Affiliation = " + affiliation);
+                        // }
+                        if(email != "" && email != null) {
+                            $("#content").append(" Email = " + email);
+                        }
+                        if(mailingAdd != "" && mailingAdd != null) {
+                            $("#mailingAdd").append(" Mailing Address = " + mailingAdd);
+                        }
+                        if(phoneNum != "" && phoneNum != null) {
+                            $("#phoneNum").append(" Phone Number = " + phoneNum);
+                        }
+                        // if(researchFields != "" && researchFields != null){
+                        //     $("#content").append(" Research Area = " + researchFields);
+                        // }
+
+                    }else {
+                        $("#content").val('');
+
+                        target.style.display="none";
+                        $("#preview" ).text("Preview");
+                    }
+                });
+            });
+
+    </script>
+}
+
+
+@main("Search Organization", scripts){
+    @helper.form(routes.OrganizationController.searchPOST(1, "id")) {
+        <div class="container">
+            <div class="row">
+                <div class="col s12 m10 offset-m1" id="search-form">
+                    <div class="card-panel center">
+                        <form class="form-signin">
+                            <h4 class="center">Search Organization</h4>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input
+                                    type="text" name="name" id="organizationName" class="validate"
+                                    >
+                                    <label for="organizationName">Organization Name</label>
+                                </div>
+                            </div>
+                            <div class="center">
+                                @*<button id="preview" type="button" class="btn waves-effect waves-light blue darken-2">Preview</button>*@
+                                <button class="btn waves-effect waves-light blue darken-2" type="submit" value="Search"> Submit </button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

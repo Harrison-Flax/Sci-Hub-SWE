@@ -1,0 +1,285 @@
+@import helper._
+@import models._
+@import models.Technology
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            count = 0;
+            var quill;
+            $(document).ready(function () {
+                /**
+                 * This portion defines all the (non)required fields that need validation on max lengths and special
+                 * characters, as well as URL validity.
+                 */
+                validateField("memberName", "memberNameMsg", "varChar255", true);
+                validateField("email", "emailMsg", "varChar255", true);
+                validateField("title", "titleMsg", "varChar500", true);
+                validateField("location", "locationMsg", "varChar200", true);
+                validateField("goals", "goalsMsg", "varChar1000", true);
+                validateField("tech", "techMsg", "varChar500", false);
+                validateNoneRequiredUrl('github', 'githubMsg', 'varChar500');
+                validateNoneRequiredUrl('team_page', 'team_pageMsg', 'varChar500');
+                validateNoneRequiredUrl('video', 'videoMsg', 'varChar500');
+                /****************************** End of Validation Portion **********************************************/
+
+                $("#addPanel").hide();
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+                });
+
+
+
+            });
+
+            function checkValidTechnologyTitle() {
+                var title = document.getElementById("title").value;
+                var obj = {
+                    title: title
+                };
+
+                $.ajax({
+                    url: "/user/isEmailExisted",
+                    url: "/project/isProjectNameExisted",
+                    data: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        console.log(data);
+                        var response = data;
+                        if ("error" in response) {
+                            document.getElementById("titleMsg").innerHTML = "Replicated technology name, please change another name!"
+                        } else {
+                            document.getElementById("titleMsg").innerHTML = ""
+                        }
+                    }
+                })
+
+            }
+
+
+            function cancelAdd(){
+                $("#warningModal2").modal('close');
+            }
+
+
+
+            $("#showPanel").click(function () {
+                $("#warningModal2").modal('close');
+            })
+
+            function prepareFormForSubmission() //display current HTML
+            {
+                if(document.getElementById("titleMsg").innerText.length != 0)
+                    return false;
+                var ajaxflag = true;
+                $.ajax({
+                    type: "GET",
+                    success: function (data) {
+                        var response = data;
+                        console.log(data);
+                        if('badFormat' in response) {
+                            console.log(response['badFormat']);
+                            ajaxflag = false;
+                        } else{
+                            if('notExisted' in response){
+                                ajaxflag = false;
+                            }else{
+
+                            }
+
+                        }
+                    }
+                });
+                if(!ajaxflag){
+                    return false;
+                }
+
+
+                // if (document.getElementById("agreement").checked == false) {
+                //     document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can register a project!";
+                //     $("#warningModal").modal();
+                //     $("#warningModal").modal('open');
+                //     return false;
+                // }
+
+                return true;
+            }
+    </script>
+}
+
+@main("Register Technology", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Register a Technology</h4>
+                    <form class="form-signin" enctype="multipart/form-data" id="technologyForm" onsubmit="return prepareFormForSubmission()" method="post" action="@routes.TechnologyController.technologyRegisterPOST()">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="technologyTitle" id="technologyTitle" class="validate" required onchange="checkValidTechnologyTitle()">
+                                <label for="technologyTitle">Title*</label>
+                                <span id="titleMsg" class="helper-text" data-error="" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="goals" id="goals" class="validate" required>
+                                <label for="goals">
+                                    Goals* </label>
+                                <span id="goalsMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" class="validate" required>
+                                <label for="shortDescription">
+                                    Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="longDescription" id="longDescription" class="validate" required>
+                                <label for="longDescription">
+                                    Long Description* </label>
+                                <span id="longDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="keywords" id="keywords" class="validate" required>
+                                <label for="keywords">
+                                    Keywords* </label>
+                                <span id="keywordsMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="fields" id="fields" class="validate">
+                                <label for="fields">
+                                    Fields </label>
+                                <span id="fieldsMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Upload Representative Paper PDF</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="representativePaperURL" id="representativePaperURL" class="validate">
+                                <label for="representativePaperURL">
+                                    Representative Paper URL </label>
+                                <span id="representativePaperURLMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="teamMembers" id="teamMembers" class="validate">
+                                <label for="teamMembers">
+                                    Team Members </label>
+                                <span id="teamMembersMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="organization" id="organization" class="validate">
+                                <label for="organization">
+                                    Organization Name </label>
+                                <span id="organizationMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+
+                        @*<div class="row">*@
+                        @*<label>*@
+                        @*<input id="agreement" type="checkbox" />*@
+                        @*<span>*@
+                        @*I acknowledge that I have read the <a href="https://www.nasa.gov/about/highlights/HP_Privacy.html" target="_blank">*@
+                        @*NASA Web Privacy Policy </a>*@
+                        @*and <a href="https://nex.nasa.gov/nex/terms/" target="_blank">NEX Policy</a>*@
+                        @*, and do hereby accept the Terms and Conditions contained in these documents.</span>*@
+                        @*</label>*@
+                        @*</div>*@
+
+                        <div id="warningModal" class="modal">
+                            <div class="modal-content">
+                                <h5 class="center" style="color: red">Warning!</h5>
+                                <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                            </div>
+                        </div>
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="technologyRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

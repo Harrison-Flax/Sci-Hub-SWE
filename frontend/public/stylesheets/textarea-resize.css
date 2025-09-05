@@ -1,0 +1,21 @@
+/* Strongest override to bypass Materialize interference */
+textarea#shortDescription,
+textarea#longDescription {
+    all: unset; /* clears all inherited styles */
+    display: block;
+    width: 100% !important;
+    min-height: 150px !important;
+    max-height: 600px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical !important;
+    overflow: auto !important;
+    box-sizing: border-box;
+    background-color: white;
+    text-align: justify;
+    white-space: pre-wrap; /* Preserves paragraph line breaks */
+    line-height: 1.6;
+}
+

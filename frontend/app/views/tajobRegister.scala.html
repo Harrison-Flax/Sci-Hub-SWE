@@ -1,0 +1,619 @@
+@import helper._
+@import models._
+@import models.TAJob
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            count = 0;
+            var quill;
+            $(document).ready(function () {
+                $("#addPanel").hide();
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "ttansform:rotate(-45deg);ttansition:ttansform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "ttansform:rotate(0deg);ttansition:ttansform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+                });
+
+
+
+            });
+
+            function checkValidJobTitle() {
+                var title = document.getElementById("title").value;
+                var obj = {
+                    title: title
+                };
+
+                $.ajax({
+                    url: "/job/isJobNameExisted",
+                    data: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        console.log(data);
+                        var response = data;
+                        if ("error" in response) {
+                            document.getElementById("titleMsg").innerHTML = "Replicated job name, please change another name!"
+                        } else {
+                            document.getElementById("titleMsg").innerHTML = ""
+                        }
+                    }
+                })
+
+            }
+
+
+            function cancelAdd(){
+                $("#warningModal2").modal('close');
+            }
+
+            function hiddenOrNot(taJobCourseType) {
+                // divHiddentaJobCourseSelection1
+                var hiddenDiv = "divHidden" + taJobCourseType;
+
+
+                if (hiddenDiv == "divHiddentaJobCourseSelection1"){
+                    var div = document.getElementById(hiddenDiv);
+                    if(div.hidden == true) {
+                        div.hidden = false;
+                    }
+                }else{
+                    hiddenDiv = "divHiddentaJobCourseSelection1";
+                    var div = document.getElementById(hiddenDiv);
+                    div.hidden = true;
+
+                    for (var i = 0; i < document.getElementsByName("taCoursesSelection").length; i++) {
+                        var div = document.getElementsByName("taCoursesSelection")[i];
+                        div.checked = false;
+                    }
+                }
+            }
+
+            function getMultipleCheckBox() {
+                var taCoursesSelectionHiddenList = [];
+                var arr = document.getElementsByName("taCoursesSelection");
+
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].checked){
+                        taCoursesSelectionHiddenList.push(arr[i].value);
+                    }
+                }
+
+                if (taCoursesSelectionHiddenList.length == 0)
+                    taCoursesSelectionHiddenList = [
+                        "CS 1340 Introduction to Computing Concepts Python",
+                        "CS 1341 Principles of Computer Science Java",
+                        "CS 1342 Programming Concepts C++",
+                        "CS 2353 Discrete Math",
+                        "CS 2240 Assembly Language ARM",
+                        "CS 2341 Data Structures",
+                        "CS 3330 Database Concepts",
+                        "CS 3339 Information Assurance and Security",
+                        "CS 3342 Programming Language",
+                        "CS 3345 Graphical User Interface Design and Implementation",
+                        "CS 3353 Fundamentals of Algorithms",
+                        "CS 4344 Computer Networks and Distributed Systems",
+                        "CS 4345 Software Engineering Principles",
+                        "CS 4351/4352 Senior Design",
+                        "CS 4381 Digital Computer Design",
+                        "CS 5/7314 Software Testing and Quality Assurance",
+                        "CS 5/7315 Software Project Planning and Management",
+                        "CS 5/7316 Software Requirements",
+                        "CS 5/7317 Leadership for Architecting Software Systems",
+                        "CS 5/7319 Software Architecture and Design",
+                        "CS 5/7320 Artificial Intelligence",
+                        "CS 5/7323 Mobile Applications for Sensing and Learning",
+                        "CS 5/7331 Data Mining",
+                        "CS 5/7339 Computer System Security",
+                        "CS 5/7343 Operating Systems and System Software",
+                        "CS 5/7345 Advanced Application Programming",
+                        "CS 5/7350 Algorithm Engineering",
+                        "CS 5/7383 Computer Graphics",
+                        "CS 8313 Object Oriented Analysis and Design"
+                    ];
+
+                for(var i = 0; i <taCoursesSelectionHiddenList.length; i++){
+                    document.getElementById("taCoursesSelectionHidden").value = document.getElementById("taCoursesSelectionHidden").value + taCoursesSelectionHiddenList[i] + "; "
+                }
+                document.getElementById("taCoursesSelectionHidden").value = document.getElementById("taCoursesSelectionHidden").value.trim();
+
+            }
+
+
+
+            $("#showPanel").click(function () {
+                $("#warningModal2").modal('close');
+            })
+
+            function prepareFormForSubmission() //display current HTML
+            {
+                getMultipleCheckBox();
+                if(document.getElementById("titleMsg").innerText.length != 0)
+                    return false;
+                var ajaxflag = true;
+                $.ajax({
+                    type: "GET",
+                    success: function (data) {
+                        var response = data;
+                        console.log(data);
+                        if('badFormat' in response) {
+                            console.log(response['badFormat']);
+                            ajaxflag = false;
+                        } else{
+                            if('notExisted' in response){
+                                ajaxflag = false;
+                            }else{
+
+                            }
+
+                        }
+                    }
+                });
+                if(!ajaxflag){
+                    return false;
+                }
+
+
+                // if (document.getElementById("agreement").checked == false) {
+                //     document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can register a project!";
+                //     $("#warningModal").modal();
+                //     $("#warningModal").modal('open');
+                //     return false;
+                // }
+
+                return true;
+            }
+    </script>
+}
+
+@main("Post TA Job", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Post TA Job</h4>
+                    <form class="form-signin" enctype="multipart/form-data" id="jobForm" onsubmit="return prepareFormForSubmission()" method="post" action="@routes.TAJobController.tajobRegisterPOST()">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="title" id="title" class="validate" required onchange="checkValidJobTitle()">
+                                <label for="title">Title* </label>
+                                <span id="titleMsg" class="helper-text" data-success="✓" data-error="Please input a title" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="goals" id="goals" class="validate" required>
+                                <label for="goals">Goals* </label>
+                                <span id="goalsMsg" class="helper-text" data-success="✓" data-error="Please input goals" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="organization" id="organization" class="validate" required>
+                                <label for="organization">
+                                    Department/Lab Name* </label>
+                                <span id="organizationMsg" class="helper-text" data-success="✓" data-error="Please input the department/lab name" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="location" id="location" class="validate" required>
+                                <label for="location">
+                                    Location* </label>
+                                <span id="locationMsg" class="helper-text" data-success="✓" data-error="Please input the location" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" class="validate" required onchange="validateRegex(this.id, /.{0,100}/)">
+                                <label for="shortDescription">Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-success="✓" data-error="The short description must be under 100 characters" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wtap: break-word; margin-top: 10px;" id="longDescription" placeholder="" name="longDescription" required onchange="validateRegex(this.id, /.{0,600}/)"></textarea>
+                                <label for="longDescription">Long Description*</label>
+                                <span id="longDescriptionMsg" class="helper-text" data-success="✓" data-error="The long description must be under 600 characters" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="requiredExpertise" id="keywords" class="validate" required>
+                                <label for="requiredExpertise">
+                                    Required Expertise* </label>
+                                <span id="requiredExpertiseMsg" class="helper-text" data-success="✓" data-error="Please enter some required expertise"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredExpertise" id="keywords" class="validate" required>
+                                <label for="preferredExpertise">
+                                    Preferred Expertise* </label>
+                                <span id="preferredExpertise" class="helper-text" data-success="✓" data-error="Please enter some preferred expertise"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="fields" id="fields" class="validate" required>
+                                <label for="fields">
+                                    Fields* </label>
+                                <span id="fieldsMsg" class="helper-text" data-success="✓" data-error="Please enter some fields of work"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="number" name="workTime" id="workTime" min="0" max="20" value="0" class="validate" required>
+                                <label for="fields">
+                                    TA Hours/Week* </label>
+                                <span id="workTimeMsg" class="helper-text" data-success="✓" data-error="Please input a positive number and less than or equal to 20 hours"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>TA Type</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taTypes" id="taType1" value="1">
+                                        <span>Grading, TA Office House, Recitation/Lab</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="taTypes" id="taType2" value="2">
+                                        <span>Grading Only</span>
+                                    </label>
+                                </div>
+
+                            </fieldset>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>For which semester are you Posting?</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taJobSemesterTypes" id="taJobSemesterTypes1" value="1">
+                                        <span>Fall</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taJobSemesterTypes" id="taJobSemesterTypes2" value="2">
+                                        <span>Spring</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taJobSemesterTypes" id="taJobSemesterTypes3" value="3">
+                                        <span>Summer</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>Teaching Assistant for Specific Courses</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taJobCourseSelections" id="taJobCourseSelection1" value="1" onchange='hiddenOrNot("taJobCourseSelection1")'>
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taJobCourseSelections" id="taJobCourseSelection2" value="2" onchange='hiddenOrNot("taJobCourseSelection2")'>
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="row" hidden="true" name="divHiddentaJobCourseSelection1" id="divHiddentaJobCourseSelection1">
+                            <h5>Courses listed below are all CS courses that need Teaching Assistants</h5>
+                            <fieldset>
+                                <legend>Which Courses do you want to have a TA?</legend>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection1" value="CS 1340 Introduction to Computing Concepts Python">
+                                        <span>CS 1340 Introduction to Computing Concepts Python</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection2" value="CS 1341 Principles of Computer Science Java">
+                                        <span>CS 1341 Principles of Computer Science Java</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection3" value="CS 1342 Programming Concepts C++">
+                                        <span>CS 1342 Programming Concepts C++</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection4" value="CS 2353 Discrete Math">
+                                        <span>CS 2353 Discrete Math</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection5" value="CS 2240 Assembly Language ARM">
+                                        <span>CS 2240 Assembly Language ARM</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection6" value="CS 2341 Data Structures">
+                                        <span>CS 2341 Data Structures</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection7" value="CS 3330 Database Concepts">
+                                        <span>CS 3330 Database Concepts</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection8" value="CS 3339 Information Assurance and Security">
+                                        <span>CS 3339 Information Assurance and Security</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection9" value="CS 3342 Programming Language">
+                                        <span>CS 3342 Programming Language</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection10" value="CS 3345 Graphical User Interface Design and Implementation">
+                                        <span>CS 3345 Graphical User Interface Design and Implementation</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection11" value="CS 3353 Fundamentals of Algorithms">
+                                        <span>CS 3353 Fundamentals of Algorithms</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection12" value="CS 4344 Computer Networks and Distributed Systems">
+                                        <span>CS 4344 Computer Networks and Distributed Systems</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection13" value="CS 4345 Software Engineering Principles">
+                                        <span>CS 4345 Software Engineering Principles</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection14" value="CS 4351/4352 Senior Design">
+                                        <span>CS 4351/4352 Senior Design</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection15" value="CS 4381 Digital Computer Design">
+                                        <span>CS 4381 Digital Computer Design</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection16" value="CS 5/7314 Software Testing and Quality Assurance">
+                                        <span>CS 5/7314 Software Testing and Quality Assurance</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection17" value="CS 5/7315 Software Project Planning and Management">
+                                        <span>CS 5/7315 Software Project Planning and Management</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection18" value="CS 5/7316 Software Requirements">
+                                        <span>CS 5/7316 Software Requirements</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection19" value="CS 5/7317 Leadership for Architecting Software Systems">
+                                        <span>CS 5/7317 Leadership for Architecting Software Systems</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection20" value="CS 5/7319 Software Architecture and Design">
+                                        <span>CS 5/7319 Software Architecture and Design</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection21" value="CS 5/7320 Artificial Intelligence">
+                                        <span>CS 5/7320 Artificial Intelligence</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection22" value="CS 5/7323 Mobile Applications for Sensing and Learning">
+                                        <span>CS 5/7323 Mobile Applications for Sensing and Learning</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection23" value="CS 5/7331 Data Mining">
+                                        <span>CS 5/7331 Data Mining</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection24" value="CS 5/7339 Computer System Security">
+                                        <span>CS 5/7339 Computer System Security</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection25" value="CS 5/7343 Operating Systems and System Software">
+                                        <span>CS 5/7343 Operating Systems and System Software</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection26" value="CS 5/7345 Advanced Application Programming">
+                                        <span>CS 5/7345 Advanced Application Programming</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection27" value="CS 5/7350 Algorithm Engineering">
+                                        <span>CS 5/7350 Algorithm Engineering</span>
+                                    </label>
+                                </div>
+
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection28" value="CS 5/7383 Computer Graphics">
+                                        <span>CS 5/7383 Computer Graphics</span>
+                                    </label>
+                                </div>
+
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="taCoursesSelection" id="taCoursesSelection29" value="CS 8313 Object Oriented Analysis and Design">
+                                        <span>CS 8313 Object Oriented Analysis and Design</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="row" hidden="true">
+                            <div class="input-field col s12">
+                                <input type="text" name="taCoursesSelectionHidden" id="taCoursesSelectionHidden" >
+                            </div>
+                        </div>
+@*                        Salary Range**@
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12 m5">*@
+@*                                *@@*<input type="password" name="password" id="password" class="validate" required>*@
+@*                                <input type="text" name="minSalary" id="minSalary" class="validate" required>*@
+@*                                <label for="minSalary">Min Salary*</label>*@
+@*                                <span id="minSalaryMsg" class="helper-text" data-error=""></span>*@
+@*                                *@@*<form action="/action_page.php">*@
+@*                                *@@*Password: <input type="password" name="pw" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">*@
+@*                                *@@*<input type="submit">*@
+@*                                *@@*</form>*@
+@*                            </div>*@
+@*                            <div class="input-field col s12 m2">_</div>*@
+
+@*                            <div class="input-field col s12 m5">*@
+@*                                *@@*<input type="password" name="repassword" id="repassword" class="validate" oninput="checkPwd()" required>*@
+@*                                <input type="text" name="maxSalary" id="maxSalary" class="validate" required>*@
+@*                                <label for="maxSalary">Max Salary*</label>*@
+@*                                <span id="maxSalaryMsg" class="helper-text" data-error="" style="color: red"></span>*@
+@*                            </div>*@
+@*                        </div>*@
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="url" id="url" class="validate" onchange="validateRegex(this.id, 'URL')">
+                                <label for="url">
+                                    TA Job URL </label>
+                                <span id="urlMsg" class="helper-text" data-success="✓" data-error="Please input a valid URL"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Upload TA Job PDF</span>
+                                    <input type="file" accept=".pdf" id="pdf" name="pdf">
+                                </div>
+                                <div class="file-path-wtapper">
+                                    <input class="file-path validate" type="text">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="warningModal" class="modal">
+                            <div class="modal-content">
+                                <h5 class="center" style="color: red">Warning!</h5>
+                                <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                            </div>
+                        </div>
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="jobRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

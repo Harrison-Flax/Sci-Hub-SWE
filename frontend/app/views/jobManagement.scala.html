@@ -1,0 +1,167 @@
+@(jobs: List[com.fasterxml.jackson.databind.node.ObjectNode], pageNum: Integer, sortCriteria: String, totalCount: Integer, totalPages: Integer)
+
+@import helper._
+@import models._
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('.tooltipped').tooltip();
+            });
+    </script>
+}
+
+@main("Job Managemant - Admin Dashboard", scripts) {
+    <div class="container">
+        <div class="card-panel">
+            <div class="row">
+                <div class="col s12">
+                    <h4 class="center">Job Management</h4>
+                </div>
+            </div>
+
+            @if(jobs.size() > 0) {
+                <div class="row">
+                    <div class="col s6">
+                        <h6 class="left"> @totalCount jobs，Page @pageNum </h6>
+                    </div>
+                    <div class="col s6" style="padding-top: -5px; margin-top: -2px">
+                        <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown-sort' style="text-transform: none; font-weight: bold; color: black;">
+                            Sort: &nbsp; <font color="#3a5dc3">
+                            @if(sortCriteria.equals("id")) {
+                                jobID
+                            } else if(sortCriteria.equals("title")) {
+                        title
+                        } else if(sortCriteria.equals("publishDate")) {
+                        publishDate
+                        } else if(sortCriteria.equals("status")) {
+                        status
+                        } else {
+                        jobID
+                        }
+                        </font> <i class="material-icons right">expand_more</i>
+                        </a>
+
+                        <ul id='dropdown-sort' class='dropdown-content'>
+                            <li><a href="@routes.AdminController.jobManagement(1, "id")" class="grey-text text-darken-4">
+                                <i class="material-icons">tag</i>ID</a></li>
+                            <li><a href="@routes.AdminController.jobManagement(1, "title")" class="grey-text text-darken-4">
+                                <i class="material-icons">work</i>title</a></li>
+                            <li><a href="@routes.AdminController.jobManagement(1, "publishDate")" class="grey-text text-darken-4">
+                                <i class="material-icons">schedule</i>publish Date</a></li>
+                            <li><a href="@routes.AdminController.jobManagement(1, "status")" class="grey-text text-darken-4">
+                                <i class="material-icons">info</i>status</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <table class="centered responsive-table striped">
+                    <thead>
+                        <tr class="list-header">
+                            <th>jobID</th>
+                            <th>job Type</th>
+                            <th>job Title</th>
+                            <th>organization</th>
+                            <th>location</th>
+                            <th>publish date</th>
+                            <th>status</th>
+                            <th>applier amount</th>
+                            <th>publisher</th>
+                            <th>action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(job <- jobs) {
+                        <tr>
+                            <td>@job.get("id").asText()</td>
+                            <td>
+                            @if(job.get("type").asText() == "Job") {
+                                <span class="chip blue white-text">job</span>
+                            } else {
+                                <span class="chip green white-text">RA job</span>
+                            }
+                            </td>
+                            <td>
+                                <a href="@routes.AdminController.jobDetail(job.get("type").asText(), job.get("id").asLong())">
+                                @job.get("title").asText()
+                                </a>
+                            </td>
+                            <td>@job.get("organization").asText()</td>
+                            <td>@job.get("location").asText()</td>
+                            <td>@job.get("publishDate").asText()</td>
+                            <td>
+                                @if(job.get("status").asText() == "open") {
+                                    <span class="chip green white-text">open</span>
+                                } else if(job.get("status").asText() == "closed") {
+                            <span class="chip red white-text">closed</span>
+                                } else {
+                            <span class="chip grey white-text">@job.get("status").asText()</span>
+                                }
+                            </td>
+                            <td>@job.get("numberOfApplicants").asInt()</td>
+                            <td>@job.get("publisher").asText()</td>
+                            <td>
+                                <a href="@routes.AdminController.jobDetail(job.get("type").asText(), job.get("id").asLong())"
+                                class="btn-small blue tooltipped" data-position="top" data-tooltip="check detail">
+                                    <i class="material-icons">visibility</i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+
+                    <!-- Pagination -->
+                @if(totalPages > 1) {
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="pagination center-align">
+                                @if(pageNum == 1) {
+                                    <li class="waves-effect disabled">
+                                        <i class="material-icons">chevron_left</i>
+                                    </li>
+                                } else {
+                                    <li class="waves-effect">
+                                        <a href="@routes.AdminController.jobManagement(pageNum - 1, sortCriteria)">
+                                            <i class="material-icons">chevron_left</i>
+                                        </a>
+                                    </li>
+                                }
+
+                                @for(i <- 1 to totalPages) {
+                                    @if(i == pageNum) {
+                                        <li class="active">
+                                            <a href="@routes.AdminController.jobManagement(i, sortCriteria)">@i</a>
+                                        </li>
+                                    } else {
+                                        <li class="waves-effect">
+                                            <a href="@routes.AdminController.jobManagement(i, sortCriteria)">@i</a>
+                                        </li>
+                                    }
+                                }
+
+                                @if(pageNum == totalPages) {
+                                    <li class="waves-effect disabled">
+                                        <i class="material-icons">chevron_right</i>
+                                    </li>
+                                } else {
+                                    <li class="waves-effect">
+                                        <a href="@routes.AdminController.jobManagement(pageNum + 1, sortCriteria)">
+                                            <i class="material-icons">chevron_right</i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            } else {
+                <div class="row">
+                    <div class="col s12 center">
+                        <h5>no job data</h5>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

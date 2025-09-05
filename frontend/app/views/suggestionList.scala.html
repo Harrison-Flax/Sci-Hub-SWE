@@ -1,0 +1,234 @@
+@(suggestionList: List[Suggestion], userEmail: String, userId: Long, pageNum: Long, offset: Integer,
+        total: Integer,
+        count: Integer, pageLimit: Integer, beginIndexForPagination: Integer, endIndexForPagination: Integer, sort:String)
+
+@import helper._
+@scripts = {
+    <script type="text/javascript">
+    </script>
+}
+
+@main("Suggestion List", scripts) {
+    <div class="container">
+    @if(suggestionList == null || suggestionList.size() == 0) {
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h5 class="center">No Suggestions Have Been Registered Yet :)</h5>
+                </div>
+            </div>
+        </div>
+    } else {
+       <div class="card-panel">
+            @if(suggestionList.size() < 1) {
+                <h5 class="center">No suggestions has been registered for SMU-Lyle-Sci-Hub Appstore yet.</h5>
+            } else {
+                <div class="row card-panel z-depth-0 project-zone-panel">
+                    <div class="col s12" style="margin-top: -10px;
+                        margin-bottom: -10px;">
+                        <h6 class="center tooltipped" data-position="bottom" data-tooltip="This list shows all suggestions." >
+                            Suggestions Registered at SMU-Lyle-Sci-Hub
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6">
+                        <h6 class="left">Showing results: @{
+                            offset + 1
+                        } to @{
+                            offset + count
+                        } of @total</h6>
+                    </div>
+
+                    <div class="col s6" style="padding-top: -5px;
+                        margin-top: -2px">
+                        <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown11' style="text-transform: none;
+                            font-weight: bold;
+                            color: black;
+                            font-family: AmazonEmberBold, Helvetica Neue Bold, Helvetica Neue, Helvetica, Arial, sans-serif;
+                        !important; ">
+                            Sort By &nbsp; <font color="#3a5dc3">
+                            @if(sort.equals("date_created") || sort.equals("publish_time_stamp")) {
+                                Date Created
+                            }else if(sort.equals("title")){
+                        Title
+                        }else {
+                        Reporter Name
+                        }</font><i class="material-icons right">expand_more</i></a>
+
+                            <!-- Dropdown Structure -->
+                        <ul id='dropdown11' class='dropdown-content'>
+
+                            <li><a href="@routes.SuggestionController.suggestionList(1, "date_created")" class="grey-text text-darken-4"><i class="material-icons">
+                                event</i>Date Created</a></li>
+                            <li><a href="@routes.SuggestionController.suggestionList(1, "title")" class="grey-text text-darken-4"><i class="material-icons">
+                                sort_by_alpha</i>Title </a></li>
+                            <li><a href="@routes.SuggestionController.suggestionList(1, "reporter_name")" class="grey-text text-darken-4"><i class="material-icons">
+                                star_rate</i>Reporter Name </a></li>
+
+                        </ul>
+                    </div>
+                </div>
+                @*need to check whether suggestionList length is more than 0, if it is not we will not show the table*@
+                <table class="striped centered responsive-table" id ="postsTable">
+                    <thead>
+                        <tr class="info">
+                            <th>Id</th>
+                            <th style = "cursor: pointer;">Title</th>
+                            <th style = "cursor: pointer;">Reporter Name</th>
+                            <th style = "cursor: pointer;">Reporter Organization</th>
+                            <th style = "cursor: pointer;">Short Description</th>
+                            <th style = "cursor: pointer;">Report Time</th>
+                            <th style = "cursor: pointer;">Realize Time</th>
+                            @if(session.get("level") == "admin") {
+                                <th style = "vertical-align: center;">Operation</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    @for(suggestion <- suggestionList) {
+                        <tr>
+                            <td>@suggestion.getId()</td>
+                            @if(session.get("level") == "admin" || session.get("level") == "developer" || suggestion.getSuggestionReporter.getEmail().equals(userEmail)) {
+                                <td style="word-wrap: break-word;"><a href = "@routes.SuggestionController.suggestionDetail(suggestion.getId())">@suggestion.getTitle()</a></td>
+                            } else {
+                                <td style="word-wrap: break-word;">@suggestion.getTitle()</td>
+                            }
+                            <td style="word-wrap: break-word;">
+                            @suggestion.getSuggestionReporter.getUserName()
+                            </td>
+                            <td style="word-wrap: break-word;">
+                            @if(suggestion.getSuggestionReporter.getOrganization != "") {
+                                @suggestion.getSuggestionReporter.getOrganization()
+                            } else {
+                                -
+                            }
+                            </td>
+                            <td style="word-wrap: break-word;">
+                            @if(suggestion.getDescription != "") {
+                                <div class="tooltip"> @suggestion.getTruncDescription()
+                                    <span class="tooltiptext"> @suggestion.getDescription()</span>
+                                </div>
+                            } else {
+                                -
+                            }
+                            </td>
+                            <td>
+                            @suggestion.getCreateTime()
+                            </td>
+                            <td>
+                            @if(suggestion.getSolveTime != null && suggestion.getSolveTime != "") {
+                                @suggestion.getSolveTime()
+                            } else {
+                                -
+                            }
+                            </td>
+
+                            <td>
+                            @if(suggestion.getSuggestionReporter.getEmail().equals(userEmail)) {
+                                <div class="input-group input-group-sm">
+                                    @if(suggestion.getSolved() == 0) {
+                                        <span>
+                                            <a class="btn waves-effect waves-light blue darken-2 modal-trigger" title="Delete" href="#warningModal2">Solved?</a>
+
+                                                <!-- Inactive Warning Modal Structure -->
+                                            <div id="warningModal2" class="modal">
+                                                <div class="modal-content" style="text-align: left">
+                                                    <h5 style="color: red">Warning</h5>
+                                                    <p style="font-weight: bold">
+                                                        Do you really want to mark this suggestion as solved: @suggestion.getTitle ?
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                                        Cancel</a>
+                                                    <a href='@routes.SuggestionController.markAsSolved(suggestion.getId, userId)'
+                                                    class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                                                </div>
+                                            </div>
+                                        </span>
+                                    }
+                                    <span>
+                                        <a class="btn waves-effect waves-light red modal-trigger" title="Delete" style="margin-top: 5px;" href="#warningModal">Delete</a>
+
+                                            <!-- Inactive Warning Modal Structure -->
+                                        <div id="warningModal" class="modal">
+                                            <div class="modal-content" style="text-align: left">
+                                                <h5 style="color: red">Warning</h5>
+                                                <p style="font-weight: bold">
+                                                    Do you really want to delete this suggestion: @suggestion.getTitle ?
+                                                    Please note that after deletion, this  suggestion <span style="color: red">
+                                                    CANNOT</span> be recovered.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                                    Cancel</a>
+                                                <a href='@routes.SuggestionController.suggestionDelete(suggestion.getId)'
+                                                class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                                            </div>
+                                        </div>
+                                    </span>
+                                </div>
+                            } else {
+                                -
+                            }
+                            </td>
+                                <!-- @if(session.get("level") == "admin") { -->
+                                <!--
+                            } -->
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+            @if(suggestionList.size != 0) {
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="pagination center-align">
+                            @if(pageNum == 1) {
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    first_page</i></li>
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    chevron_left</i></li>
+                            } else {
+                                <li class="waves-effect"><a href="@routes.SuggestionController.suggestionList(1, sort)"><i class="material-icons">
+                                    first_page</i></a></li>
+                                </li>
+                                <li class="waves-effect"><a href="@routes.SuggestionController.suggestionList(pageNum - 1, sort)"><i class="material-icons">
+                                    chevron_left</i></a></li>
+                            }
+                            @if(beginIndexForPagination > 1) {
+                                <li class="waves-effect disabled" style="cursor: default;
+                                    font-size: 20px;
+                                    font-weight: bold">...</li>
+                            }
+                            @for(i <- (beginIndexForPagination + 0) to (endIndexForPagination + 0)) {
+                                <li @if(pageNum == i) {
+                                    class="active"}><a href="@routes.SuggestionController.suggestionList(i, sort)">@i</a></li>
+                            }
+                            @if(endIndexForPagination < ((total - 1) / pageLimit + 1)) {
+                                <li class="waves-effect disabled" style="cursor: default;
+                                    font-size: 20px;
+                                    font-weight: bold">...</li>
+                            }
+                            @if((offset + count) >= total) {
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    chevron_right</i></li>
+                                <li class="waves-effect disabled" style="color: #c3bfbf;"><i class="material-icons">
+                                    last_page</i></li>
+                            } else {
+                                <li class="waves-effect"><a href="@routes.SuggestionController.suggestionList(pageNum + 1, sort)"><i class="material-icons">
+                                    chevron_right</i></a></li>
+                                <li class="waves-effect"><a href="@routes.SuggestionController.suggestionList((total - 1) / pageLimit + 1, sort)"><i class="material-icons">
+                                    last_page</i></a></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    </div>
+
+}

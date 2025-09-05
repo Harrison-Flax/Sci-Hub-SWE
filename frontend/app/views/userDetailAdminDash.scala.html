@@ -1,0 +1,252 @@
+@(userDetail: com.fasterxml.jackson.databind.JsonNode)
+
+@import helper._
+@import models._
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('.tooltipped').tooltip();
+            });
+    </script>
+}
+
+@main("User Detail - Admin Dashboard", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <nav class="breadcrumb-nav">
+                    <div class="nav-wrapper">
+                        <div class="col s12">
+                            <a href="@routes.AdminController.dashboard()" class="breadcrumb">Admin Dashboard</a>
+                            <a href="@routes.AdminController.userManagement(1, "id")" class="breadcrumb">User Admin</a>
+                            <a href="#" class="breadcrumb">User Detail</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="card-panel">
+            <div class="row">
+                <div class="col s12">
+                    <h4 class="center">User Detail</h4>
+                </div>
+            </div>
+
+                <!-- General Information -->
+            <div class="row">
+                <div class="col s12">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">General Information</span>
+                            <div class="row">
+                                <div class="col s12">
+                                    <table class="striped">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>userID:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("id").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>user name:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("userName").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>firstName:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("firstName").asText() @userDetail.get("generalInfo").get("lastName").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>middleInitial:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("middleInitial").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>email:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("email").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>phoneNumber:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("phoneNumber").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>organization:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("organization").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>mailingAddress:</strong></td>
+                                                <td>@userDetail.get("generalInfo").get("mailingAddress").asText()</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>home page:</strong></td>
+                                                <td>
+                                                @if(userDetail.get("generalInfo").get("homepage").asText().nonEmpty) {
+                                                    <a href="@userDetail.get("generalInfo").get("homepage").asText()" target="_blank">
+                                                    @userDetail.get("generalInfo").get("homepage").asText()
+                                                    </a>
+                                                } else {
+                                                    -
+                                                }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>user level:</strong></td>
+                                                <td>
+                                                @if(userDetail.get("generalInfo").get("level").asText() == "admin") {
+                                                    <span class="chip red white-text">admin</span>
+                                                } else {
+                                                    <span class="chip grey white-text">normal user</span>
+                                                }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>isActive:</strong></td>
+                                                <td>
+                                                @if(userDetail.get("generalInfo").get("isActive").asText() == "True") {
+                                                    <span class="chip green white-text">Active</span>
+                                                } else {
+                                                    <span class="chip red white-text">not Active</span>
+                                                }
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Specific Information -->
+            <div class="row">
+                <div class="col s12">
+                        <!-- studentInfo -->
+                    @if(userDetail.has("studentInfo")) {
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Student Information</span>
+                                <div class="row">
+                                    <div class="col s12">
+                                        <table class="striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>id:</strong></td>
+                                                    <td>@userDetail.get("studentInfo").get("idNumber").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>student year:</strong></td>
+                                                    <td>@userDetail.get("studentInfo").get("studentYear").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>student type:</strong></td>
+                                                    <td>@userDetail.get("studentInfo").get("studentType").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>major:</strong></td>
+                                                    <td>@userDetail.get("studentInfo").get("major").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Enroll Date:</strong></td>
+                                                    <td>@userDetail.get("studentInfo").get("firstEnrollDate").asText()</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                        <!-- researcherInfo -->
+                    @if(userDetail.has("researcherInfo")) {
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Researcher Information</span>
+                                <div class="row">
+                                    <div class="col s12">
+                                        <table class="striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>highest degree:</strong></td>
+                                                    <td>@userDetail.get("researcherInfo").get("highestDegree").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>ORCID:</strong></td>
+                                                    <td>
+                                                    @if(userDetail.get("researcherInfo").get("orcid").asText().nonEmpty) {
+                                                        <a href="https://orcid.org/@userDetail.get("researcherInfo").get("orcid").asText()" target="_blank">
+                                                        @userDetail.get("researcherInfo").get("orcid").asText()
+                                                        </a>
+                                                    } else {
+                                                        -
+                                                    }
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>research fields:</strong></td>
+                                                    <td>@userDetail.get("researcherInfo").get("researchFields").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>school:</strong></td>
+                                                    <td>@userDetail.get("researcherInfo").get("school").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>department:</strong></td>
+                                                    <td>@userDetail.get("researcherInfo").get("department").asText()</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                        <!-- sponsorInfo -->
+                    @if(userDetail.has("sponsorInfo")) {
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Sponsor Information</span>
+                                <div class="row">
+                                    <div class="col s12">
+                                        <table class="striped">
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>expertises:</strong></td>
+                                                    <td>@userDetail.get("sponsorInfo").get("expertises").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>categories:</strong></td>
+                                                    <td>@userDetail.get("sponsorInfo").get("categories").asText()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>detail:</strong></td>
+                                                    <td>@userDetail.get("sponsorInfo").get("detail").asText()</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+                <!-- back button -->
+            <div class="row">
+                <div class="col s12 center">
+                    <a href='@routes.AuthorController.userEditPageAdmin(
+                        userDetail.get("generalInfo").get("id").asLong())'
+                    class="btn waves-effect waves-light blue darken-2">
+                        Edit Profile
+                    </a>
+                    <a href="@routes.AdminController.userManagement(1, "id")" class="btn blue">
+                        <i class="material-icons left">arrow_back</i>
+                        back to user management
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

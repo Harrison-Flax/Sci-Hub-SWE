@@ -1,0 +1,209 @@
+{
+    "2001": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 5,
+        "Computer Vision": 0,
+        "Data Mining": 1,
+        "Machine Learning": 0,
+        "Natural Language Processing": 3,
+        "Software Engineering": 1
+    },
+    "2003": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 1,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 0,
+        "Natural Language Processing": 1,
+        "Software Engineering": 0
+    },
+    "2004": {
+        "Artificial Intelligence": 3,
+        "Cloud Computing": 0,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 0,
+        "Natural Language Processing": 3,
+        "Software Engineering": 2
+    },
+    "2005": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 0,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 1,
+        "Natural Language Processing": 2,
+        "Software Engineering": 1
+    },
+    "2006": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 1,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 0,
+        "Natural Language Processing": 2,
+        "Software Engineering": 1
+    },
+    "2007": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 1,
+        "Computer Vision": 2,
+        "Data Mining": 0,
+        "Machine Learning": 1,
+        "Natural Language Processing": 0,
+        "Software Engineering": 0
+    },
+    "2008": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 0,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 2,
+        "Natural Language Processing": 1,
+        "Software Engineering": 1
+    },
+    "2009": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 6,
+        "Computer Vision": 1,
+        "Data Mining": 2,
+        "Machine Learning": 1,
+        "Natural Language Processing": 1,
+        "Software Engineering": 0
+    },
+    "2010": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 5,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 1,
+        "Natural Language Processing": 1,
+        "Software Engineering": 0
+    },
+    "2011": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 5,
+        "Computer Vision": 0,
+        "Data Mining": 1,
+        "Machine Learning": 1,
+        "Natural Language Processing": 1,
+        "Software Engineering": 0
+    },
+    "2012": {
+        "Artificial Intelligence": 3,
+        "Cloud Computing": 7,
+        "Computer Vision": 0,
+        "Data Mining": 1,
+        "Machine Learning": 2,
+        "Natural Language Processing": 10,
+        "Software Engineering": 1
+    },
+    "2013": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 5,
+        "Computer Vision": 0,
+        "Data Mining": 4,
+        "Machine Learning": 0,
+        "Natural Language Processing": 1,
+        "Software Engineering": 0
+    },
+    "2014": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 4,
+        "Computer Vision": 0,
+        "Data Mining": 1,
+        "Machine Learning": 0,
+        "Natural Language Processing": 0,
+        "Software Engineering": 0
+    },
+    "2015": {
+        "Artificial Intelligence": 3,
+        "Cloud Computing": 2,
+        "Computer Vision": 0,
+        "Data Mining": 3,
+        "Machine Learning": 0,
+        "Natural Language Processing": 1,
+        "Software Engineering": 1
+    },
+    "2016": {
+        "Artificial Intelligence": 2,
+        "Cloud Computing": 3,
+        "Computer Vision": 0,
+        "Data Mining": 1,
+        "Machine Learning": 1,
+        "Natural Language Processing": 0,
+        "Software Engineering": 0
+    },
+    "2017": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 4,
+        "Computer Vision": 0,
+        "Data Mining": 5,
+        "Machine Learning": 0,
+        "Natural Language Processing": 0,
+        "Software Engineering": 1
+    },
+    "2018": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 4,
+        "Computer Vision": 0,
+        "Data Mining": 2,
+        "Machine Learning": 0,
+        "Natural Language Processing": 2,
+        "Software Engineering": 1
+    },
+    "2019": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 1,
+        "Computer Vision": 0,
+        "Data Mining": 2,
+        "Machine Learning": 2,
+        "Natural Language Processing": 1,
+        "Software Engineering": 0
+    },
+    "2020": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 2,
+        "Computer Vision": 0,
+        "Data Mining": 0,
+        "Machine Learning": 1,
+        "Natural Language Processing": 0,
+        "Software Engineering": 1
+    },
+    "2021": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 0,
+        "Computer Vision": 0,
+        "Data Mining": 2,
+        "Machine Learning": 0,
+        "Natural Language Processing": 0,
+        "Software Engineering": 0
+    },
+    "2022": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 2,
+        "Computer Vision": 0,
+        "Data Mining": 2,
+        "Machine Learning": 3,
+        "Natural Language Processing": 0,
+        "Software Engineering": 0
+    },
+    "2023": {
+        "Artificial Intelligence": 1,
+        "Cloud Computing": 3,
+        "Computer Vision": 0,
+        "Data Mining": 6,
+        "Machine Learning": 3,
+        "Natural Language Processing": 1,
+        "Software Engineering": 3
+    },
+    "2024": {
+        "Artificial Intelligence": 0,
+        "Cloud Computing": 5,
+        "Computer Vision": 0,
+        "Data Mining": 2,
+        "Machine Learning": 6,
+        "Natural Language Processing": 0,
+        "Software Engineering": 2
+    }
+}

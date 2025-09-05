@@ -1,0 +1,909 @@
+@import org.apache.commons.lang3.StringUtils
+@(tajobApplication: TAJobApplication)
+
+@import helper._
+<script type="text/javascript">
+    function performClick(elemId) {
+        var elem = document.getElementById(elemId);
+        if(elem && document.createEvent) {
+            var evt = document.createEvent("MouseEvents");
+            evt.initEvent("click", true, false);
+            elem.dispatchEvent(evt);
+        }
+    }
+    function browseFolder(path){
+        try{
+            var Message = "\u8bf7";
+            var Shell = new ActiveXObject("Shell.Application");
+            var Folder = Shell.BrowseForFolder(0, Message, 64, 17);
+            if(Folder != null){
+                Folder = Folder.items();
+                Folder = Folder.item();
+                Folder = Folder.Path;
+                if (Folder.charAt(Folder.length -1) != "\\"){
+                    Folder = Folder + "\\";
+                }
+                document.getElementById(path).value = Folder;
+                return Folder;
+            }
+        }catch (e){
+            alert(e.message);
+        }
+    }
+
+    function download(src) {
+        var $a = document.createElement('a');
+        $a.setAttribute("href", src);
+        $a.setAttribute("download", "");
+        var evObj = document.createEvent('MouseEvents');
+        evObj.initMouseEvent( 'click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null);
+        $a.dispatchEvent(evObj);
+    };
+
+
+</script>
+
+@main("tajobApplication Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">TA Job Application Detail Page</h4>
+
+                    <div class="row">
+@*                        <div class="col s4">*@
+@*                            <div class="center">*@
+@*                                <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;*@
+@*                                    border-style: solid;*@
+@*                                    border-radius: 50%;*@
+@*                                    height: auto;*@
+@*                                    width: 70%;">*@
+@*                            </div>*@
+@*                        </div>*@
+                        <div class="col s12">
+                            <table class="striped responsive-table" >
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">TA Job Name</th>
+                                        <td style="word-wrap: break-word;">@tajobApplication.getAppliedTAJob.getTitle</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Apply Date</th>
+                                        @if(tajobApplication.getApplyDate!="null" && tajobApplication.getApplyDate != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getApplyDate</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Name</th>
+                                        @if(tajobApplication.getApplicant!="null" && tajobApplication.getApplicant != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getApplicant.getUserName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Email</th>
+                                        @if(tajobApplication.getApplicant!="null" && tajobApplication.getApplicant != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getApplicant.getEmail</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Phone Number</th>
+                                        @if(tajobApplication.getApplicant!="null" && tajobApplication.getApplicant != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getApplicant.getPhoneNumber</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant SMU ID</th>
+                                        @if(tajobApplication.getSmuID!="null" && tajobApplication.getSmuID != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getSmuID</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    @*<tr>
+                                        <th style="max-width: 50px">Applying Semester</th>
+                                        @if(tajobApplication.getTaSemesterTypes!="null" && tajobApplication.getTaSemesterTypes != "") {
+                                            @if(tajobApplication.getTaSemesterTypes == 1){
+                                                <td style="word-wrap: break-word;">Fall</td>
+                                            }
+                                            @if(tajobApplication.getTaSemesterTypes == 2){
+                                                <td style="word-wrap: break-word;">Spring</td>
+                                            }
+                                            @if(tajobApplication.getTaSemesterTypes == 3){
+                                                <td style="word-wrap: break-word;">Summer</td>
+                                            }
+
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>*@
+
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Student Type</th>
+                                        @if(tajobApplication.getTaStudentTypes!="null" && tajobApplication.getTaStudentTypes != "") {
+                                            @if(tajobApplication.getTaStudentTypes == 1){
+                                                <td style="word-wrap: break-word;">New Student</td>
+                                            }
+                                            @if(tajobApplication.getTaStudentTypes == 2){
+                                                <td style="word-wrap: break-word;">Continuing Student</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">New student completed application for admission</th>
+                                        @if(tajobApplication.getTaStudentAdmissionTypes!="null" && tajobApplication.getTaStudentAdmissionTypes != "") {
+                                            @if(tajobApplication.getTaStudentAdmissionTypes == 1){
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getTaStudentAdmissionTypes == 2){
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <td style="word-wrap: break-word;">G.R.E. Score: </td>
+                                    <tr>
+                                        <th style="max-width: 50px">G.R.E. V.</th>
+                                        @if(tajobApplication.getGreV!="null" && tajobApplication.getGreV != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGreV</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">G.R.E. Q.</th>
+                                        @if(tajobApplication.getGreQ!="null" && tajobApplication.getGreQ != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGreQ</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">G.R.E. A.</th>
+                                        @if(tajobApplication.getGreA!="null" && tajobApplication.getGreA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGreA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">G.R.E. Date</th>
+
+                                        @if(tajobApplication.getGreDate!="null" && tajobApplication.getGreDate != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGreDate</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Undergraduate GPA</th>
+
+                                        @if(tajobApplication.getUndergraduateGPA!="null" && tajobApplication.getUndergraduateGPA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getUndergraduateGPA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Undergraduate School</th>
+
+                                        @if(tajobApplication.getUndergraduateSchool!="null" && tajobApplication.getUndergraduateSchool != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getUndergraduateSchool</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Graduate GPA</th>
+
+                                        @if(tajobApplication.getGraduateGPA!="null" && tajobApplication.getGraduateGPA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGraduateGPA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Graduate School</th>
+
+                                        @if(tajobApplication.getGraduateSchool!="null" && tajobApplication.getGraduateSchool != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGraduateSchool</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Class Rank</th>
+
+                                        @if(tajobApplication.getClassRankNoGPA!="null" && tajobApplication.getClassRankNoGPA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getClassRankNoGPA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Score Percentage in Final Year of Graduation</th>
+
+                                        @if(tajobApplication.getScorePercentageNoGPA!="null" && tajobApplication.getScorePercentageNoGPA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getScorePercentageNoGPA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Grade in Final Year of Graduation</th>
+
+                                        @if(tajobApplication.getGradeNoGPA!="null" && tajobApplication.getGradeNoGPA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getGradeNoGPA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Others Info</th>
+
+                                        @if(tajobApplication.getOtherInfoNoGPA!="null" && tajobApplication.getOtherInfoNoGPA != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getOtherInfoNoGPA</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Enrolled Degree Program</th>
+                                        @if(tajobApplication.getEnrolledDegree!="null" && tajobApplication.getEnrolledDegree != "") {
+                                            @if(tajobApplication.getEnrolledDegree == 1){
+                                                <td style="word-wrap: break-word;">MS Computer Science</td>
+                                            }
+                                            @if(tajobApplication.getEnrolledDegree == 2){
+                                                <td style="word-wrap: break-word;">MS Security Engineering/Cyber Security</td>
+                                            }
+                                            @if(tajobApplication.getEnrolledDegree == 3){
+                                                <td style="word-wrap: break-word;">MS Software Engineering</td>
+                                            }
+                                            @if(tajobApplication.getEnrolledDegree == 4){
+                                                <td style="word-wrap: break-word;">D.Eng. Software Engineering</td>
+                                            }
+                                            @if(tajobApplication.getEnrolledDegree == 5){
+                                                <td style="word-wrap: break-word;">Ph.D. Computer Science</td>
+                                            }
+                                            @if(tajobApplication.getEnrolledDegree == 6){
+                                                <td style="word-wrap: break-word;">Other</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Plan to Ph.D. CS Program</th>
+                                        @if(tajobApplication.getEnrolledPhdDegree!="null" && tajobApplication.getEnrolledPhdDegree != "") {
+                                            @if(tajobApplication.getEnrolledPhdDegree == 1){
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getEnrolledPhdDegree == 2){
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <th>Areas of Research Interest in order of Preference</th>
+                                    <tr>
+                                        <th style="max-width: 50px">1</th>
+
+                                        @if(tajobApplication.getAreasResearchInterest1!="null" && tajobApplication.getAreasResearchInterest1 != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getAreasResearchInterest1</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">2</th>
+
+                                        @if(tajobApplication.getAreasResearchInterest2!="null" && tajobApplication.getAreasResearchInterest2 != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getAreasResearchInterest2</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">3</th>
+
+                                        @if(tajobApplication.getAreasResearchInterest3!="null" && tajobApplication.getAreasResearchInterest3 != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getAreasResearchInterest3</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">4</th>
+
+                                        @if(tajobApplication.getAreasResearchInterest4!="null" && tajobApplication.getAreasResearchInterest4 != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getAreasResearchInterest4</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Have Research Assistant Experience</th>
+                                        @if(tajobApplication.getRaSMU!="null" && tajobApplication.getRaSMU != "") {
+                                            @if(tajobApplication.getRaSMU == 1){
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getRaSMU == 2){
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">RAship Time</th>
+                                        @if(tajobApplication.getRaSMUTime!="null" && tajobApplication.getRaSMUTime != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getRaSMUTime</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">RA Advisor Name</th>
+                                        @if(tajobApplication.getRaSMUAdvisorName!="null" && tajobApplication.getRaSMUAdvisorName != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getRaSMUAdvisorName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">RA Advisor Email</th>
+                                        @if(tajobApplication.getRaSMUAdvisorEmail!="null" && tajobApplication.getRaSMUAdvisorEmail != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getRaSMUAdvisorEmail</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Have Teaching Assistant Experience</th>
+                                        @if(tajobApplication.getTaSMU!="null" && tajobApplication.getTaSMU != "") {
+                                            @if(tajobApplication.getTaSMU == 1){
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getTaSMU == 2){
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">TAship Time</th>
+                                        @if(tajobApplication.getTaSMUTime!="null" && tajobApplication.getTaSMUTime != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaSMUTime</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">TA Supervisor Name</th>
+                                        @if(tajobApplication.getTaSMUAdvisorName!="null" && tajobApplication.getTaSMUAdvisorName != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaSMUAdvisorName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">TA Supervisor Email</th>
+                                        @if(tajobApplication.getTaSMUAdvisorEmail!="null" && tajobApplication.getTaSMUAdvisorEmail != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaSMUAdvisorEmail</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <th>Programming Language</th>
+                                    <tr>
+                                        <th style="max-width: 50px">C++</th>
+                                        @if(tajobApplication.getProgrammingLanguageCpp!="null" && tajobApplication.getProgrammingLanguageCpp != "") {
+                                            @if(tajobApplication.getProgrammingLanguageCpp == 1){
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageCpp == 2){
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageCpp == 3){
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageCpp == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Java</th>
+                                        @if(tajobApplication.getProgrammingLanguageJava!="null" && tajobApplication.getProgrammingLanguageJava != "") {
+                                            @if(tajobApplication.getProgrammingLanguageJava == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageJava == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageJava == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageJava == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Python</th>
+                                        @if(tajobApplication.getProgrammingLanguagePython!="null" && tajobApplication.getProgrammingLanguagePython != "") {
+                                            @if(tajobApplication.getProgrammingLanguagePython == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguagePython == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguagePython == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguagePython == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">R</th>
+                                        @if(tajobApplication.getProgrammingLanguageR!="null" && tajobApplication.getProgrammingLanguageR != "") {
+                                            @if(tajobApplication.getProgrammingLanguageR == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageR == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageR == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageR == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">SQL</th>
+                                        @if(tajobApplication.getProgrammingLanguageSQL !="null" && tajobApplication.getProgrammingLanguageSQL != "") {
+                                            @if(tajobApplication.getProgrammingLanguageSQL == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageSQL == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageSQL == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageSQL == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Javascript</th>
+                                        @if(tajobApplication.getProgrammingLanguageJavascript !="null" && tajobApplication.getProgrammingLanguageJavascript != "") {
+                                            @if(tajobApplication.getProgrammingLanguageJavascript == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageJavascript == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageJavascript == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageJavascript == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Verilog</th>
+                                        @if(tajobApplication.getProgrammingLanguageVerilog!="null" && tajobApplication.getProgrammingLanguageVerilog != "") {
+                                            @if(tajobApplication.getProgrammingLanguageVerilog == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageVerilog == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageVerilog == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageVerilog == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Assembler</th>
+                                        @if(tajobApplication.getProgrammingLanguageAssembler!="null" && tajobApplication.getProgrammingLanguageAssembler != "") {
+                                            @if(tajobApplication.getProgrammingLanguageAssembler == 1) {
+                                                <td style="word-wrap: break-word;">Expert</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageAssembler == 2) {
+                                                <td style="word-wrap: break-word;">Knowledgeable</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageAssembler == 3) {
+                                                <td style="word-wrap: break-word;">Familiar</td>
+                                            }
+                                            @if(tajobApplication.getProgrammingLanguageAssembler == 4) {
+                                                <td style="word-wrap: break-word;">Not Familiar</td>
+                                            }
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Assembler: List Type</th>
+
+                                        @if(tajobApplication.getProgrammingLanguageAssemblerType!="null" && tajobApplication.getProgrammingLanguageAssemblerType != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getProgrammingLanguageAssemblerType</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Computer Systems: List Type</th>
+
+                                        @if(tajobApplication.getComputerSystemsType!="null" && tajobApplication.getComputerSystemsType != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getComputerSystemsType</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Courses TA Preferred</th>
+
+                                        @if(tajobApplication.getTaCoursesPreferenceHidden!="null" && tajobApplication.getTaCoursesPreferenceHidden != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaCoursesPreferenceHidden</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Courses TA Not Preferred</th>
+
+                                        @if(tajobApplication.getTaCoursesNotPreferenceHidden!="null" && tajobApplication.getTaCoursesNotPreferenceHidden != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaCoursesNotPreferenceHidden</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <th>Previous Teaching Experience</th>
+                                    <tr>
+                                        <th style="max-width: 50px">1. Course Title</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp1Title!="null" && tajobApplication.getPreviousTeachingExp1Title != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp1Title</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">1. Course Place</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp1Where!="null" && tajobApplication.getPreviousTeachingExp1Where != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp1Where</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">1. Course Date</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp1Date!="null" && tajobApplication.getPreviousTeachingExp1Date != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp1Date</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">2. Course Title</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp2Title!="null" && tajobApplication.getPreviousTeachingExp2Title != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp2Title</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">2. Course Place</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp2Where!="null" && tajobApplication.getPreviousTeachingExp2Where != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp2Where</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">2. Course Date</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp2Date!="null" && tajobApplication.getPreviousTeachingExp2Date != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp2Date</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">3. Course Title</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp3Title!="null" && tajobApplication.getPreviousTeachingExp3Title != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp3Title</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">3. Course Place</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp3Where!="null" && tajobApplication.getPreviousTeachingExp3Where != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp3Where</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">3. Course Date</th>
+
+                                        @if(tajobApplication.getPreviousTeachingExp3Date!="null" && tajobApplication.getPreviousTeachingExp3Date != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getPreviousTeachingExp3Date</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">US Citizen/Permanent Resident</th>
+                                        @if(tajobApplication.getTaUSCitizen!="null" && tajobApplication.getTaUSCitizen != "") {
+                                            @if(tajobApplication.getTaUSCitizen == 1) {
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getTaUSCitizen == 2) {
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">English as Native Language</th>
+                                        @if(tajobApplication.getTaNativeLanguage!="null" && tajobApplication.getTaNativeLanguage != "") {
+                                            @if(tajobApplication.getTaNativeLanguage == 1) {
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getTaNativeLanguage == 2) {
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">English Proficiency Test</th>
+                                        @if(tajobApplication.getTaEnglishProficiencyTest!="null" && tajobApplication.getTaEnglishProficiencyTest != "") {
+                                            @if(tajobApplication.getTaEnglishProficiencyTest == 1) {
+                                                <td style="word-wrap: break-word;">Yes</td>
+                                            }
+                                            @if(tajobApplication.getTaEnglishProficiencyTest == 2) {
+                                                <td style="word-wrap: break-word;">No</td>
+                                            }
+
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">English Proficiency Name</th>
+
+                                        @if(tajobApplication.getTaEnglishProficiencyTestName!="null" && tajobApplication.getTaEnglishProficiencyTestName != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaEnglishProficiencyTestName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">English Proficiency Score</th>
+
+                                        @if(tajobApplication.getTaEnglishProficiencyTestScore!="null" && tajobApplication.getTaEnglishProficiencyTestScore != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaEnglishProficiencyTestScore</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">English Proficiency Date</th>
+
+                                        @if(tajobApplication.getTaEnglishProficiencyTestDate!="null" && tajobApplication.getTaEnglishProficiencyTestDate != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getTaEnglishProficiencyTestDate</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Cover Letter</th>
+
+                                        @if(tajobApplication.getApplyCoverLetter!="null" && tajobApplication.getApplyCoverLetter != "") {
+                                            <td style="word-wrap: break-word;">@tajobApplication.getApplyCoverLetter</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+                                    </tr>
+                                    @*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Cover Letter</th>*@
+@*                                        @if(tajobApplication.getApplyCoverLetter!="null" && tajobApplication.getApplyCoverLetter != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getApplyCoverLetter</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+
+@*                                    <tr>*@
+
+@*                                        <th style="max-width: 50px">Referee1 Name</th>*@
+@*                                        @if(tajobApplication.getReferee1Title!="null" && tajobApplication.getReferee1Title!= "" && tajobApplication.getReferee1FirstName!="null" && tajobApplication.getReferee1FirstName != "" && tajobApplication.getReferee1LastName!="null" && tajobApplication.getReferee1LastName != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee1Title. @tajobApplication.getReferee1FirstName @tajobApplication.getReferee1LastName</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Email: </th>*@
+@*                                        @if(tajobApplication.getReferee1Email!="null" && tajobApplication.getReferee1Email != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee1Email</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Phone: </th>*@
+@*                                        @if(tajobApplication.getReferee1Phone!="null" && tajobApplication.getReferee1Phone != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee1Phone</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+
+
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Referee2 Name</th>*@
+@*                                        @if(tajobApplication.getReferee2Title!="null" && tajobApplication.getReferee2Title!= "" && tajobApplication.getReferee2FirstName!="null" && tajobApplication.getReferee2FirstName != "" && tajobApplication.getReferee2LastName!="null" && tajobApplication.getReferee2LastName != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee2Title. @tajobApplication.getReferee2FirstName @tajobApplication.getReferee2LastName</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+@*                                    <tr>*@
+@*                                        <th style="max-width: 25px">Email: </th>*@
+@*                                        @if(tajobApplication.getReferee2Email!="null" && tajobApplication.getReferee2Email != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee2Email</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+
+
+@*                                    </tr>*@
+@*                                    <tr>*@
+@*                                        <th style="max-width: 25px">Phone: </th>*@
+@*                                        @if(tajobApplication.getReferee2Phone!="null" && tajobApplication.getReferee2Phone != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee2Phone</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+
+
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Referee3 Name</th>*@
+@*                                        @if(tajobApplication.getReferee3Title!="null" && tajobApplication.getReferee3Title!= "" && tajobApplication.getReferee3FirstName!="null" && tajobApplication.getReferee3FirstName != "" && tajobApplication.getReferee3LastName!="null" && tajobApplication.getReferee3LastName != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee3Title. @tajobApplication.getReferee3FirstName @tajobApplication.getReferee3LastName</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Email: </th>*@
+@*                                        @if(tajobApplication.getReferee3Email!="null" && tajobApplication.getReferee3Email != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee3Email</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+
+
+@*                                    </tr>*@
+@*                                    <tr>*@
+@*                                        <th style="max-width: 50px">Phone: </th>*@
+@*                                        @if(tajobApplication.getReferee3Phone!="null" && tajobApplication.getReferee3Phone != "") {*@
+@*                                            <td style="word-wrap: break-word;">@tajobApplication.getReferee3Phone</td>*@
+@*                                        } else {*@
+@*                                            <td>-</td>*@
+@*                                        }*@
+@*                                    </tr>*@
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+                        <form class="form-signin" enctype="multipart/form-data" id="editTechnologyForm" method="post" onsubmit="return getHTML()" action="@routes.TAJobController.tajobStatueChange(tajobApplication.getAppliedTAJob.getId, "pending")">
+                            <button type="submit" id="technologyRegister" class="btn waves-effect waves-light blue darken-2">
+                                Offer</button>
+                            <a href="@routes.JobController.jobApplicationsList("tajob", tajobApplication.getAppliedTAJob.getId(), 1, "")" class="btn waves-effect waves-light red darken-2">
+                                Reject</a>
+
+                            <a href="@routes.JobController.jobApplicationsList("tajob", tajobApplication.getAppliedTAJob.getId(), 1, "")" class="btn waves-effect waves-light green darken-2">
+                                Cancel</a>
+                        </form>
+                    </div>
+                    <div class="row center">
+                        <form class="form-signin" enctype="multipart/form-data" id="tajobApplicationExport" method="post" action="@routes.TAJobController.saveTAJobPdf(tajobApplication.getId)">
+                            <button type="submit" id="tajobApplicationExportButton" class="btn waves-effect waves-light blue darken-2">
+                                Export PDF</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

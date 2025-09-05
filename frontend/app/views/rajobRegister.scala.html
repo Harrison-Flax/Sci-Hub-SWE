@@ -1,0 +1,424 @@
+@import helper._
+@import models._
+@import models.RAJob
+@import com.fasterxml.jackson.databind.JsonNode
+@(userTypes: String, userId: String, userEmail: String, professors: JsonNode)
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            count = 0;
+            var quill;
+            $(document).ready(function () {
+                $("#addPanel").hide();
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+                });
+
+
+
+            });
+
+            function checkValidJobTitle() {
+                var title = document.getElementById("title").value;
+                var obj = {
+                    title: title
+                };
+
+                $.ajax({
+                    url: "/job/isJobNameExisted",
+                    data: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        console.log(data);
+                        var response = data;
+                        if ("error" in response) {
+                            document.getElementById("titleMsg").innerHTML = "Replicated job name, please change another name!"
+                        } else {
+                            document.getElementById("titleMsg").innerHTML = ""
+                        }
+                    }
+                })
+
+            }
+
+
+            function cancelAdd(){
+                $("#warningModal2").modal('close');
+            }
+
+
+
+            $("#showPanel").click(function () {
+                $("#warningModal2").modal('close');
+            })
+
+            function prepareFormForSubmission() //display current HTML
+            {
+                if(document.getElementById("titleMsg").innerText.length != 0)
+                    return false;
+                var ajaxflag = true;
+                $.ajax({
+                    type: "GET",
+                    success: function (data) {
+                        var response = data;
+                        console.log(data);
+                        if('badFormat' in response) {
+                            console.log(response['badFormat']);
+                            ajaxflag = false;
+                        } else{
+                            if('notExisted' in response){
+                                ajaxflag = false;
+                            }else{
+
+                            }
+
+                        }
+                    }
+                });
+                if(!ajaxflag){
+                    return false;
+                }
+
+
+                // if (document.getElementById("agreement").checked == false) {
+                //     document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can register a project!";
+                //     $("#warningModal").modal();
+                //     $("#warningModal").modal('open');
+                //     return false;
+                // }
+
+                return true;
+            }
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function clearPDF(inputId, textId) {
+                console.log("clearFile called for", inputId, textId);
+                var fileInput = document.getElementById(inputId);
+                if(fileInput) {
+                    fileInput.value = "";
+                } else {
+                    console.error("Cannot find element with id", inputId);
+                }
+                var textInput = document.getElementById(textId);
+                if(textInput) {
+                    textInput.value = "";
+                    $('#' + textId).trigger('change');
+                } else {
+                    console.error("Cannot find element with id", textId);
+                }
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                var elems = document.querySelectorAll('.modal');
+                M.Modal.init(elems);
+
+                fetch('@routes.Assets.at("data/cc_contacts.json")')
+                        .then(response => response.json())
+                        .then(data => {
+                            const ccList = document.getElementById("ccList");
+                            data.forEach(contact => {
+                                const li = document.createElement("li");
+                                li.innerHTML = `
+                    <label>
+                        <input type="checkbox" name="ccSelected" value="${contact.email}" />
+                        <span>${contact.firstname} ${contact.lastname} (${contact.email})</span>
+                    </label>
+                `;
+                                ccList.appendChild(li);
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Failed to load CC contacts:", error);
+                        });
+
+                $('#jobForm').on('submit', function() {
+                    $(this).find('input[type=hidden][name="ccSelected"]').remove();
+                    $('#ccList input[name="ccSelected"]:checked').each(function() {
+                        $('<input>')
+                                .attr('type', 'hidden')
+                                .attr('name', 'ccSelected')
+                                .val(this.value)
+                                .appendTo('#jobForm');
+                    });
+                });
+            });
+    </script>
+}
+
+@main("Post RA Job", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Post RA Job</h4>
+                    <form class="form-signin" enctype="multipart/form-data" id="jobForm" onsubmit="return prepareFormForSubmission()" method="post" action="@routes.RAJobController.rajobRegisterPOST()">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="title" id="title" class="validate" required onchange="checkValidJobTitle()">
+                                <label for="title">Title* </label>
+                                <span id="titleMsg" class="helper-text" data-success="✓" data-error="Please input a title"></span>
+                            </div>
+                        </div>
+                        @if(userTypes == "0") {
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input list="profList" id="profInput" class="validate" required>
+                                    <datalist id="profList">
+                                    @for(prof <- professors.elements()) {
+                                        <option
+                                        data-id="@prof.get("id").asText()"
+                                        data-email="@prof.get("email").asText()"
+                                        value="@prof.get("userName").asText()">
+                                        </option>
+                                    }
+                                    </datalist>
+                                    <label for="profInput">Rajob Publisher*</label>
+                                </div>
+                            </div>
+                            <input type="hidden" name="rajobPublisher.id"    id="rajobPublisherId"    />
+                            <input type="hidden" name="rajobPublisher.email" id="rajobPublisherEmail" />
+
+                            <script>
+                                    document.addEventListener('DOMContentLoaded', function(){
+                                        M.updateTextFields();
+
+                                        var inp = document.getElementById('profInput');
+                                        var lbl = document.querySelector('label[for="profInput"]');
+                                        inp.addEventListener('input', function() {
+                                            var val = this.value, opts = document.getElementById('profList').options;
+                                            for (var i = 0; i < opts.length; i++) {
+                                                if (opts[i].value === val) {
+                                                    document.getElementById('rajobPublisherId').value    = opts[i].dataset.id;
+                                                    document.getElementById('rajobPublisherEmail').value = opts[i].dataset.email;
+                                                    break;
+                                                }
+                                            }
+                                            if (this.value) lbl.classList.add('active');
+                                            else           lbl.classList.remove('active');
+                                        });
+                                    });
+                            </script>
+                        } else {
+                            <input type="hidden" name="rajobPublisher.id"    value="@userId"    />
+                            <input type="hidden" name="rajobPublisher.email" value="@userEmail" />
+                        }
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="goals" id="goals"  class="validate" required>
+                                <label for="goals">
+                                    Goals* </label>
+                                <span id="goalsMsg" class="helper-text" data-success="✓" data-error="Please input goals"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="organization" id="organization" class="validate" required>
+                                <label for="organization">
+                                    Department/Lab Name* </label>
+                                <span id="organizationMsg" class="helper-text" data-success="✓" data-error="Please input the department/lab name"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="location" id="location" class="validate" required>
+                                <label for="location">
+                                    Location* </label>
+                                <span id="locationMsg" class="helper-text" data-success="✓" data-error="Please input the location" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" class="validate" required onchange="validateRegex(this.id, /.{0,100}/)">
+                                <label for="shortDescription">
+                                    Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wtap: break-word; margin-top: 10px;" id="longDescription" placeholder="" name="longDescription" onchange="validateRegex(this.id, /.{0,100}/)"></textarea>
+                                <label for="longDescription">Long Description</label>
+                                <span id="longDescriptionMsg" class="helper-text" data-success="✓" data-error="The long description must be under 600 characters" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="requiredExpertise" id="requiredExpertise" class="validate" required>
+                                <label for="requiredExpertise">
+                                    Required Expertise* </label>
+                                <span id="requiredExpertiseMsg" class="helper-text" data-success="✓" data-error="Please enter some required expertise"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredExpertise" id="preferredExpertise" class="validate" required>
+                                <label for="preferredExpertise">
+                                    Preferred Expertise* </label>
+                                <span id="preferredExpertise" class="helper-text" data-success="✓" data-error="Please enter some preferred expertise"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="fields" id="fields" class="validate" required>
+                                <label for="fields">
+                                    Fields* </label>
+                                <span id="fieldsMsg" class="helper-text" data-success="✓" data-error="Please enter some fields of work"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>TA Type</legend>
+                                <div class="col s12 m12">
+                                    <label>
+                                        <input type="radio" name="raTypes" id="raType1" value="1" checked>
+                                        <span>Hourly RA (Graduate Students: $20/Hour; Undergraduate Student: $15/Hour)</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m12">
+                                    <label>
+                                        <input type="radio" name="raTypes" id="raType2" value="2">
+                                        <span>Full-time RA (Tuition waiver + $2500/Month)</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        @*                        Salary Range**@
+                        @*                        <div class="row">*@
+                        @*                            <div class="input-field col s12 m5">*@
+                        @*                                <input type="text" name="minSalary" id="minSalary" value="@rajob.getMinSalary" class="validate" required>*@
+                        @*                                <label for="minSalary">Min Salary*</label>*@
+                        @*                                <span id="minSalaryMsg" class="helper-text" data-error=""></span>*@
+                        @*                            </div>*@
+                        @*                            <div class="input-field col s12 m2">_</div>*@
+
+                        @*                            <div class="input-field col s12 m5">*@
+                        @*                                <input type="text" name="maxSalary" id="maxSalary" value="@rajob.getMaxSalary" class="validate" required>*@
+                        @*                                <label for="maxSalary">Max Salary*</label>*@
+                        @*                                <span id="maxSalaryMsg" class="helper-text" data-error="" style="color: red"></span>*@
+                        @*                            </div>*@
+                        @*                        </div>*@
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="url" id="url" class="validate" onchange="validateRegex(this.id, 'URL')">
+                                <label for="url">
+                                    RA Job URL </label>
+                                <span id="urlMsg" class="helper-text" data-success="✓" data-error="Please input a valid URL"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="file-field input-field col s12">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                        <span>Upload RA Job PDF</span>
+                                        <input type="file" accept=".pdf" id="rajobPdf" name="rajobPdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                        <input class="file-path validate" type="text" placeholder="Upload RA job PDF" id="filePathRaJobPdf" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('rajobPdf','filePathRaJobPdf')" style="margin-left: 10px;">
+                                    Cancel
+                                    </button>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+@*                    <div class="row center">*@
+@*                        <a class="waves-effect waves-light btn modal-trigger blue darken-2" href="#ccModal">Select CC Recipients</a>*@
+@*                    </div>*@
+
+                    <div id="ccModal" class="modal">
+                        <div class="modal-content">
+                            <h5>Select Contacts to CC</h5>
+                            <div id="ccForm">
+                                <div class="input-field">
+                                    <ul id="ccList"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="modal-close waves-effect waves-green btn-flat">Done</button>
+                    </div>
+                    </div>
+                        <div id="warningModal" class="modal">
+                            <div class="modal-content">
+                                <h5 class="center" style="color: red">Warning!</h5>
+                                <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                            </div>
+                        </div>
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="jobRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

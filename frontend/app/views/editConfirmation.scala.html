@@ -1,0 +1,194 @@
+@(id: Long, entryId: Long, editType: String)
+
+@* This confirmation page is a post-edit page for API, docker, notebook, dataset, news, API study case, docker study case, and notebook study case *@
+
+@main("Edit Successfully") {
+    <div class="container">
+        <div class="center">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4>Congratulations! </h4>
+
+                    @if(editType=="Notebook"){
+                        <h5>Your notebook (ID: @id) has been successfully updated.</h5>
+                    }@if(editType=="Project"){
+                        <h5>Your project (ID: @id) has been successfully updated.</h5>
+                    }@if(editType=="Challenge"){
+                        <h5>Your Challenge (ID: @id) has been successfully Applied.</h5>
+                    }@if(editType=="BidChallenge"){
+                        <h5>Your Bid Challenge (ID: @id) has been successfully Applied.</h5>
+                    }@if(editType=="Job"){
+                        <h5>Your Job (ID: @id) has been successfully Applied.</h5>
+                    }@if(editType=="Rajob"){
+                        <h5>Your RA Job (ID: @id) has been successfully Applied.</h5>
+                    }@if(editType=="Tajob"){
+                        <h5>Your TA Job (ID: @id) has been successfully Applied.</h5>
+                    }@if(editType=="TajobOffer"){
+                        <h5>Your TA Job Application (ID: @id) has been successfully offered.</h5>
+                    }@if(editType=="RajobOffer"){
+                        <h5>Your RA Job Application (ID: @id) has been successfully offered.</h5>
+                    }@if(editType=="JobOffer"){
+                        <h5>Your Job Application (ID: @id) has been successfully offered.</h5>
+                    }@if(editType=="ChallengeOffer"){
+                        <h5>Your Challenge Application (ID: @id) has been successfully offered.</h5>
+                    }@if(editType=="SendOffer"){
+                    <h5>The offer email for Applicant (ID: @id) has been successfully sent.</h5>
+                    }
+
+                    <br>
+                    <br>
+                    <span id="show"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+            var t = 5;
+            var timer = setInterval(refer, 1000);
+            function refer() {
+                if (t <= 0) {
+                    clearInterval(timer);
+                    if('@editType' =="Project"){
+                        location='@routes.ProjectController.projectDetail(id)';
+                    }else if('@editType' == "Challenge"){
+                        location='@routes.ChallengeController.challengeDetail(id)';
+                    }else if('@editType' == "BidChallenge"){
+                        location='@routes.ChallengeController.challengeDetail(id)';
+                    }else if('@editType' == "Job"){
+                        location='@routes.JobController.jobDetail(id)';
+                    }else if('@editType' == "Tajob"){
+                        location='@routes.TAJobController.tajobDetail(id)';
+                    }else if('@editType' == "Rajob"){
+                        location='@routes.RAJobController.rajobDetail(id)';
+                    }else if('@editType' == "ChallengeOffer"){
+                        location='@routes.UserController.mySpacePage()';
+                    }else if('@editType' == "JobOffer"){
+                        location='@routes.UserController.mySpacePage()';
+                    }else if('@editType' == "TajobOffer"){
+                        location='@routes.UserController.mySpacePage()';
+                    }else if('@editType' == "RajobOffer"){
+                        location='@routes.UserController.mySpacePage()';
+                    }else if('@editType' == "SendOffer"){
+                        location='@routes.UserController.mySpacePage()';
+                    }
+                    return;
+                }
+
+                if ('@editType' == "Project") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the Project detail page in " + t + " seconds";
+                } else if ('@editType' == "Challenge") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the Challenge detail page in " + t + " seconds";
+                } else if ('@editType' == "BidChallenge") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the Challenge detail page in " + t + " seconds";
+                } else if ('@editType' == "Job") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the job detail page in " + t + " seconds";
+                } else if ('@editType' == "Tajob") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the TA job detail page in " + t + " seconds";
+                } else if ('@editType' == "Rajob") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the RA job detail page in " + t + " seconds";
+                } else if ('@editType' == "JobOffer") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the user My Space page in " + t + " seconds";
+                } else if ('@editType' == "RajobOffer") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the user My Space page in " + t + " seconds";
+                } else if ('@editType' == "ChallengeOffer") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the user My Space page in " + t + " seconds";
+                } else if ('@editType' == "TajobOffer") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the user My Space page in " + t + " seconds";
+                } else if ('@editType' == "SendOffer") {
+                    document.getElementById('show').innerHTML =
+                            "The page will be redirected to the user My Space page in " + t + " seconds";
+                }
+                t--;
+            }
+    </script>
+
+}
+@*    <script type="text/javascript">*@
+
+@*            var t=5; // set the time of re-direction to be 5 seconds*@
+@*           *@
+@*            setInterval("refer()",1000); // 1s start up*@
+@*            function refer(){*@
+@*                if(t==0){*@
+@*                    if('@editType' =="Project"){*@
+@*                        location='@routes.ProjectController.projectDetail(id)';*@
+@*                    }else if('@editType' =="Challenge"){*@
+@*                        location='@routes.ChallengeController.challengeDetail(id)';*@
+@*                    else if('@editType' =="BidChallenge"){*@
+@*                            location='@routes.ChallengeController.challengeDetail(id)';*@
+@*                    }else if('@editType' =="Job"){*@
+@*                        location='@routes.JobController.jobDetail(id)';*@
+@*                    }else if('@editType' =="Tajob"){*@
+@*                        location='@routes.TAJobController.tajobDetail(id)';*@
+@*                    }else if('@editType' =="Rajob"){*@
+@*                        location='@routes.RAJobController.rajobDetail(id)';*@
+@*                    }else if('@editType' =="ChallengeOffer"){*@
+@*                        location='@routes.UserController.mySpacePage()';*@
+@*                    }else if('@editType' =="JobOffer"){*@
+@*                        location='@routes.UserController.mySpacePage()';*@
+@*                    }else if('@editType' =="TajobOffer"){*@
+@*                        location='@routes.UserController.mySpacePage()';*@
+@*                    }else if('@editType' =="RajobOffer"){*@
+@*                        location='@routes.UserController.mySpacePage()';*@
+@*                    }else if('@editType' =="SendOffer"){*@
+@*                        location='@routes.UserController.mySpacePage()';*@
+@*                    }*@
+@*                }*@
+
+@*                if('@editType' == "Project"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the project detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }else if('@editType' =="Challenge"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the challenge detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                else if('@editType' =="Job"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the job detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                else if('@editType' =="Rajob"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the RA job detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                else if('@editType' =="Tajob"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the TA job detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+
+@*                else if('@editType' =="JobOffer"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the user My Space page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                else if('@editType' =="RajobOffer"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the user My Space page in "*@
+@*                            +""+t+" seconds";*@
+@*                }else if('@editType' =="BidChallenge"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the challenge detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                }else if('@editType' =="ChallengeOffer"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the challenge detail page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                else if('@editType' =="SendOffer"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the user My Space page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                else if('@editType' =="TajobOffer"){*@
+@*                    document.getElementById('show').innerHTML="The page will be redirected to the user My Space page in "*@
+@*                            +""+t+" seconds";*@
+@*                }*@
+@*                t--;*@
+@*            }*@
+@*    </script>*@
+

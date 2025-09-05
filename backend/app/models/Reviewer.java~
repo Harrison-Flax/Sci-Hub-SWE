@@ -1,0 +1,123 @@
+package models;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.JsonNode;
+import controllers.ProjectController;
+import io.ebean.Finder;
+import io.ebean.Model;
+import io.ebean.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import play.Logger;
+import services.ProjectService;
+
+import javax.persistence.*;
+
+@Entity
+@Getter
+@Setter
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = User.class)
+@ToString
+public class Reviewer extends Model {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    private String reviewerName;
+
+    @JsonIgnore
+    private String password;
+
+    private String firstName;
+    private String lastName;
+    private String middleInitial;
+    private String affiliation;
+    private String title;
+    private String email;
+    private String mailingAddress;
+    private String phoneNumber;
+    private String faxNumber;
+    private String researchFields;
+    private String highestDegree;
+    private String level; // user level, e.g., admin, normal
+
+    private String homepage;
+    private String avatar;
+
+    private double rating;
+    private long ratingCount;
+    private double recommendRating;
+    private long recommendRatingCount;
+
+    
+    private String createTime;
+
+    
+    private String isActive;
+
+    /****************** Constructors **********************************************************************************/
+
+    public Reviewer() {
+    }
+
+    public Reviewer(long id) {
+        this.id = id;
+    }
+
+    public Reviewer(String reviewerName, String email) {
+        this.reviewerName = reviewerName;
+        this.email = email;
+
+        String firstName = reviewerName.split(" ")[0];
+        String lastName = "";
+        if (reviewerName.trim().length() > firstName.trim().length())
+            lastName = reviewerName.split(" ")[1];
+        else
+            lastName = firstName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+
+        this.level = "normal";
+        this.isActive = "True";
+    }
+
+    public Reviewer(String reviewerName, String email,
+                    String phoneNumber) {
+        super();
+        this.reviewerName = reviewerName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    /****************** End of Constructors ***************************************************************************/
+
+
+    public static Finder<Long, Reviewer> find =
+            new Finder<Long, Reviewer>(Reviewer.class);
+
+
+    /****************** Utility functions *****************************************************************************/
+    /**
+     * Combine first name + middle initial + last name to get full name for reviewer.
+     * @param firstName
+     * @param middleInitial
+     * @param lastName
+     * @return
+     */
+    public static String createReviewerName(String firstName, String middleInitial, String lastName) {
+        StringBuffer reviewerName = new StringBuffer();
+        reviewerName.append(firstName);
+        reviewerName.append(" ");
+        if (!middleInitial.equals("")) {
+            reviewerName.append(middleInitial);
+            reviewerName.append(" ");
+        }
+        reviewerName.append(lastName);
+        return reviewerName.toString();
+    }
+    /****************** End of Utility functions **********************************************************************/
+
+
+}

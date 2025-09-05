@@ -1,0 +1,53 @@
+@scripts = {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+
+}
+@main("Register Paper", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Load paper from DBLP
+                    </h4>
+                </div>
+            </div>
+            <div class="container h-100">
+                <div class="row h-100 justify-content-center align-items-center">
+                    <div class="col-sm-5">
+                        <form class="form-signin" enctype="multipart/form-data" id="paperLoadForm"  method="post" action="@routes.PaperController.processDBPLFile()">
+
+                        <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Upload DBLP XML File</span>
+                                    <input type="file" accept=".xml" class="form-control" id="data" name="data"></input>
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input id="showpath" class="file-path validate" type="text">
+                                </div>
+                            </div>
+                            <div class="file-field input-field col s12" >
+                                <div class="btn waves-effect waves-light blue darken-2" >
+                                    <span >Upload DBLP Data Definition File</span>
+                                    <input type="file" accept=".dtd" class="form-control" id="schema" name="schema"></input>
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input id="showpath" class="file-path validate" type="text">
+                                </div>
+                            </div>
+                            <div class="file-field input-field col s12" >
+                                <button type="submit" class="btn btn-default" id="btnSubmit">Upload</button>
+                            </div>
+                        <div id="listFiles">
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

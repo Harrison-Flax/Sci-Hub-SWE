@@ -1,0 +1,119 @@
+@(bugReport: BugReport)
+@import helper._
+
+
+
+@main("Update Datasets") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">@bugReport.getTitle</h4>
+                    <div class="row">
+                        <div class="col s12">
+                            <form class="form-signin" id="update" enctype="multipart/form-data" method="post" action="@routes.BugReportController.bugReportEditPOST(bugReport.getId)">
+                                <div class="row">
+                                    <div class="col s12">
+
+                                        <div class="col s12">
+                                            <table class="striped responsive-table">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <td>@bugReport.getReporter.getUserName</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Email</th>
+                                                        <td>@bugReport.getReporter.getEmail</td>
+                                                    </tr>
+                                                    @if(bugReport.getReporter.getOrganization != null && bugReport.getReporter.getOrganization != "") {
+                                                        <tr>
+                                                            <th>Organization</th>
+                                                            <td>@bugReport.getReporter.getOrganization</td>
+                                                        </tr>
+                                                    }
+                                                    <tr>
+                                                        <th>createdTime</th>
+                                                        <td>@bugReport.getCreateTime</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>solvedTime</th>
+                                                        @if(bugReport.getSolveTime == ""){
+                                                            <td>Not Solved Yet</td>
+                                                        }else {
+                                                            <td>@bugReport.getSolveTime</td>
+                                                        }
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col s12">
+                                        <h6 class="col s6" align="left">Editable</h6>
+
+                                        <input type="hidden" name="id" value="@bugReport.getId()">
+
+
+                                        <input type="hidden" name="email" value="@bugReport.getReporter.getEmail()">
+                                        <input type="hidden" name="name" value="@bugReport.getReporter.getUserName()">
+                                        <input type="hidden" name="organization" value="@bugReport.getReporter.getOrganization()">
+
+
+
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input
+                                                type="text" name="title" id="title" class="validate"
+                                                value="@bugReport.getTitle" required="true">
+                                                <label for="title" class="tootltipLabel">
+                                                    title* <i class=" tiny material-icons tooltipped" data-position="bottom">
+                                                    help</i></label>
+                                                <span id="titleMsg" class="helper-text" data-error=""></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input
+                                                type="text" name="description" id="description" class="validate"
+                                                value="@bugReport.getDescription" required="true">
+                                                <label for="description" class="tootltipLabel">
+                                                    description* <i class=" tiny material-icons tooltipped" data-position="bottom">
+                                                    help</i></label>
+                                                <span id="descriptionMsg" class="helper-text" data-error=""></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input type="text" class="validate" id="longDescription" value="@bugReport.getLongDescription" name="longDescription" >
+                                                <label for="longDescription">Long Description</label>
+                                                <span id="shortDescriptionMsg" class="helper-text" data-error=""></span>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="solved" value="@bugReport.getSolved()">
+                                        <input type="hidden" name="createdTime" value="@bugReport.getCreateTime()">
+                                        <input type="hidden" name="createdTime" value="@bugReport.getSolveTime()">
+
+                                        <div class="row center">
+                                            <button type="submit" id="updateNotebook" class="center btn waves-effect waves-light blue darken-2">
+                                                Update</button>
+                                            @**** Then return to the Dataset Detail page *******@
+                                            <a class=" center btn waves-effect waves-light blue darken-2" href="@routes.BugReportController.bugReportList(1)">
+                                                Back</a>
+                                            <div class="helper-text red-text" id="submitErrorMsg"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

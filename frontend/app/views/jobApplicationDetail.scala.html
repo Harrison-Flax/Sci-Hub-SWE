@@ -1,0 +1,241 @@
+@import org.apache.commons.lang3.StringUtils
+@(jobApplication: JobApplication, userId: String, tableName: String, resumeFileType: String, coverLetterFileType: String, transcriptFileType: String, degreeCertificateFileType: String, tableRecorderId: String, backendPort: String, resume: Boolean, coverLetter: Boolean, transcript: Boolean, degreeCertificate: Boolean)
+
+@import helper._
+
+@main("JobApplication Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">Job Application Detail Page</h4>
+
+                    <div class="row">
+@*                        <div class="col s4">*@
+@*                            <div class="center">*@
+@*                                <img class="circle" id="showImg" src="@routes.Assets.at("images/smu.jpeg")" width="360" height="360" style="border-width: 1px;*@
+@*                                    border-style: solid;*@
+@*                                    border-radius: 50%;*@
+@*                                    height: auto;*@
+@*                                    width: 70%;">*@
+@*                            </div>*@
+@*                        </div>*@
+                        <div class="col s12">
+                            <table class="striped responsive-table">
+                                <tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Job Name</th>
+                                        <td style="word-wrap: break-word;">@jobApplication.getAppliedJob.getTitle</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Name</th>
+                                        @if(jobApplication.getApplicant!="null" && jobApplication.getApplicant != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getApplicant.getUserName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Apply Headline</th>
+                                        @if(jobApplication.getApplyHeadline!="null" && jobApplication.getApplyHeadline != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getApplyHeadline</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Cover Letter</th>
+                                        @if(jobApplication.getApplyCoverLetter!="null" && jobApplication.getApplyCoverLetter != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getApplyCoverLetter</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+
+                                        <th style="max-width: 50px">Referee1 Name</th>
+                                        @if(jobApplication.getReferee1Title!="null" && jobApplication.getReferee1Title!= "" && jobApplication.getReferee1FirstName!="null" && jobApplication.getReferee1FirstName != "" && jobApplication.getReferee1LastName!="null" && jobApplication.getReferee1LastName != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee1Title. @jobApplication.getReferee1FirstName @jobApplication.getReferee1LastName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Email: </th>
+                                        @if(jobApplication.getReferee1Email!="null" && jobApplication.getReferee1Email != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee1Email</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Phone: </th>
+                                        @if(jobApplication.getReferee1Phone!="null" && jobApplication.getReferee1Phone != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee1Phone</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+
+                                    <tr>
+                                        <th style="max-width: 50px">Referee2 Name</th>
+                                        @if(jobApplication.getReferee2Title!="null" && jobApplication.getReferee2Title!= "" && jobApplication.getReferee2FirstName!="null" && jobApplication.getReferee2FirstName != "" && jobApplication.getReferee2LastName!="null" && jobApplication.getReferee2LastName != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee2Title. @jobApplication.getReferee2FirstName @jobApplication.getReferee2LastName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 25px">Email: </th>
+                                        @if(jobApplication.getReferee2Email!="null" && jobApplication.getReferee2Email != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee2Email</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 25px">Phone: </th>
+                                        @if(jobApplication.getReferee2Phone!="null" && jobApplication.getReferee2Phone != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee2Phone</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+
+                                    <tr>
+                                        <th style="max-width: 50px">Referee3 Name</th>
+                                        @if(jobApplication.getReferee3Title!="null" && jobApplication.getReferee3Title!= "" && jobApplication.getReferee3FirstName!="null" && jobApplication.getReferee3FirstName != "" && jobApplication.getReferee3LastName!="null" && jobApplication.getReferee3LastName != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee3Title. @jobApplication.getReferee3FirstName @jobApplication.getReferee3LastName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Email: </th>
+                                        @if(jobApplication.getReferee3Email!="null" && jobApplication.getReferee3Email != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee3Email</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+
+
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Phone: </th>
+                                        @if(jobApplication.getReferee3Phone!="null" && jobApplication.getReferee3Phone != "") {
+                                            <td style="word-wrap: break-word;">@jobApplication.getReferee3Phone</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                @if(resume) {
+                                    <tr>
+                                        <th style="max-width: 50px">Resume Document</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, resumeFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Resume Document
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if(coverLetter) {
+                                    <tr>
+                                        <th style="max-width: 50px">Cover Letter Document</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, coverLetterFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Cover Letter Document
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if(transcript) {
+                                    <tr>
+                                        <th style="max-width: 50px">Transcript File</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, transcriptFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Transcript File
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if(degreeCertificate) {
+                                    <tr>
+                                        <th style="max-width: 50px">Degree Certificate</th>
+                                        <td style="word-wrap: break-word;">
+                                            <a href="javascript:void(0);"
+                                            data-url="@routes.FileController.getFile(tableName, degreeCertificateFileType, tableRecorderId)"
+                                            class="blue-text text-darken-3"
+                                            onclick="openAndCheckNewTabUrl(this)">
+                                                Download Degree Certificate
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row center">
+
+                        <form class="form-signin" enctype="multipart/form-data" id="editTechnologyForm" method="post" onsubmit="return getHTML()" action="@routes.JobController.jobStatueChange(jobApplication.getAppliedJob.getId, "pending")">
+                            @if(userId.toLong == jobApplication.getJobPublisher.getId()) {
+                                <button type="submit" id="technologyRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Offer</button>
+                            }
+@*                            <a href="@routes.JobController.jobApplicationsList("job", jobApplication.getAppliedJob.getId, 1, "id")" class="btn waves-effect waves-light red darken-2">*@
+@*                                Reject</a>*@
+                            @if(userId.toLong == jobApplication.getJobPublisher.getId()) {
+                            <a href="@routes.JobController.jobApplicationsList("job", jobApplication.getAppliedJob.getId, 1, "id")" class="btn waves-effect waves-light green darken-2">
+                                Cancel</a>
+                            }
+                            @if(userId.toLong != jobApplication.getJobPublisher.getId()) {
+                                <a href="@routes.JobController.jobListAppliedByUser(1)" class="btn waves-effect waves-light blue darken-2">
+                                    Back to Applied Job List</a>
+                            }
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+            function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+                fetch(url, { method: 'HEAD' }).then(response => {
+                    if (response.ok) {
+                        const newTab = window.open(url, '_blank');
+                        if (!newTab) {
+                            alert("Please allow pop-ups in your browser to view this file.");
+                        }
+                    } else {
+                        alert("The user did not upload this file");
+                    }
+                })
+                        .catch(error => {
+                            console.error("Error checking the URL:", error);
+                            alert("Failed to check the file. Please try again later.");
+                        });
+            }
+    </script>
+
+}

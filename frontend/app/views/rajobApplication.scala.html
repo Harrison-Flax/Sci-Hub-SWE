@@ -1,0 +1,622 @@
+@(rajob: RAJob,userTypes: String)
+@import helper._
+@import models._
+@import models.Project
+@import models.RAJob
+
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <script type="text/javascript">
+            count = 0;
+            delc = 0;
+            var originCreator;
+            var quill;
+            function checkCreator() {
+                $("#warningModal").modal("open");
+                $("#JobCreatorMsg").text("");
+            }
+            $(document).ready(function () {
+                originCreator = '@rajob.getRajobPublisher.getId';
+                $("#cancel-change-creator").click(function () {
+                    $("#JobCreator").val(originCreator);
+                })
+                $("#confirm-change-creator").click(function () {
+                    originCreator = $("#JobCreator").val();
+                })
+
+                quill = new Quill('#editor', {
+                    modules: {
+                        toolbar: [
+                            [{ 'font': [] }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                            ['blockquote'],
+
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+                            [{ 'direction': 'rtl' }],                         // text directio
+                            [{ 'align': [] }],
+                            ['link', 'image']
+                        ]
+                    },
+                    placeholder: 'Enter editor description...',
+                    theme: 'snow'
+                });
+
+                var limit = JobDescriptionMaxLength;
+                quill.on('text-change', function (delta, old, source) {
+                    if (quill.getLength() > limit+1) {
+                        document.getElementById("longDescriptionMsg").innerHTML = "Field should be no longer than "+ limit +" characters";
+                    }else{
+                        document.getElementById("longDescriptionMsg").innerHTML = "";
+                    }
+                });
+
+                // quill.clipboard.dangerouslyPasteHTML(entityToString());
+                //  $("#description").val();
+                $("#addPanel").hide();
+                $("#previewPanel").hide();
+                if($("#showImg").attr("src") == "") {
+                    $("#JobPreview").hide();
+                }
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+
+                });
+
+
+                //preview the updated image
+                $("#addmember").click(function changepic() {
+                    if (document.getElementById("memberName").value.trim().length==0){
+                        document.getElementById("memberName").classList.add("invalid");
+                    }
+                    if (document.getElementById("email").value.trim().length==0){
+                        document.getElementById("email").classList.add("invalid");
+                    }
+                    // document.getElementById("email").value.trim().length()==0;
+                    var isName = document.getElementById("memberName").classList.contains("invalid") ? false : true;
+                    var isEmail = document.getElementById("email").classList.contains("invalid") ? false : true;
+
+                    if(!isName || !isEmail) return;
+                    if (document.getElementById("photo").value == "") {
+                        var url = "../../../../assets/images/person.jpg";
+                        showPreview(url);
+                        return;
+                    }
+                    var reads = new FileReader();
+                    f = document.getElementById("photo").files[0];
+                    reads.readAsDataURL(f);
+                    reads.onload = function (e) {
+                        showPreview(this.result);
+
+                    };
+                });
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            });
+
+            function entityToString(){
+                var div=document.createElement('div');
+                @if(rajob.getShortDescription!=null){
+                div.innerHTML = "@rajob.getShortDescription";
+                }
+                var res=div.innerText||div.textContent;
+                return res;
+            }
+
+            function getHTML() //display current HTML
+            {
+                if(document.getElementById("descriptionMsg").innerText.length != 0)
+                    return false;
+                console.log(Number.isInteger('fjidsao'));
+                //console.log("isnan:" + isNaN($("#JobCreator").text());
+                var cid = $("#JobCreator").val()
+                console.log("cid" + $("#JobCreator").val());
+                console.log("typeof" + typeof($("#JobCreator").val()));
+
+                if(isNaN(cid)){
+                    //document.getElementById(urlMsgId).setAttribute('data-error', msg);
+                    console.log("cidddMSg:" + $("#JobCreatorMsg").text())
+                    $("#JobCreatorMsg").text("Please specify correct id format");
+
+                    return false;
+                }
+                exist = false;
+                $.ajax({
+                    url: "/user/allUserIds",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    async: false,
+                    type: "GET"
+                }).done(function (data) {
+                    console.log("data:" + data)
+                    console.log("id:" + cid)
+                    for(i in data){
+                        console.log(Number(data[i]) + "," + Number(cid))
+                        if(Number(data[i]) == Number(cid)){
+                            exist = true;
+                            console.log("loop:" + exist);
+                        }
+                    }
+
+                });
+                console.log("out" + exist)
+                if(!exist){
+                    $("#JobCreatorMsg").text("This user does not exist!");
+                    return false;
+                }
+                @*$("#editor").find("img").each(function () {*@
+                @*    if($(this).attr("width") == null) {*@
+                @*        // If this is a new image*@
+                @*        var img = this;*@
+                @*        var dataurl = $(this).attr("src");*@
+                @*        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],*@
+                @*                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);*@
+                @*        while (n--) {*@
+                @*            u8arr[n] = bstr.charCodeAt(n);*@
+                @*        }*@
+                @*        var f = new File([u8arr], "file", {type: mime});*@
+                @*        var fd = new FormData();*@
+                @*        fd.append('file', f);*@
+                @*        countImagesInDescription ++;*@
+                @*        $.ajax({*@
+                @*            url: "/job/uploadDescriptionImg/@job.getId/" + (countImagesInDescription-1) ,*@
+                @*            data: fd,*@
+                @*            contentType: false,*@
+                @*            dataType: "text",*@
+                @*            processData: false,*@
+                @*            async: false,*@
+                @*            type: "POST",*@
+                @*            success: function (data) {*@
+                @*                console.log(data);*@
+                @*                $(img).attr("src", data);*@
+                @*                $(img).attr("width", "50%");*@
+                @*            },*@
+                @*            error: function (msg) {*@
+                @*                console.log("123123123");*@
+                @*            }*@
+                @*        });*@
+                @*    }*@
+                @*});*@
+
+                var ajaxflag = true;
+                var parentProjectId = $("#parentProjectId").val();
+                if(parentProjectId !== "0") {
+                    $.ajax({
+                        url: "/job/checkParentProject/" + parentProjectId,
+                        async: false,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        type: "GET",
+                        success: function (data) {
+                            var response = data;
+                            console.log(data);
+                            if ('badFormat' in response) {
+                                console.log(response['badFormat']);
+                                $("#parentProjectIdMsg").text(response['badFormat']);
+                                ajaxflag = false;
+                            } else {
+                                if ('notExisted' in response) {
+                                    $("#parentProjectIdMsg").text(response['notExisted']);
+                                    ajaxflag = false;
+                                } else {
+
+                                }
+
+                            }
+                        }
+                    });
+                }
+                if(!ajaxflag){
+                    return false;
+                }
+
+                var html = quill.root.innerHTML;
+                $("#description").val(html);
+                $("#countImagesInDescription").val(countImagesInDescription);
+
+                return true;
+            }
+
+            function showProPreview(obj) {
+                if($("#showImg").attr("src") == "") {
+                    $("#deleteBtn").hide();
+                }
+                else {
+                    $("#deleteBtn").show();
+                    //$('#previewMsg').text("");
+                }
+                var panel = document.getElementById("previewPanel");
+                if (panel.style.display == "none") {
+                    $(obj).text("Close Preview");
+                }
+                else {
+                    $(obj).text("Preview Or Delete Picture");
+                }
+                $("#previewPanel").slideToggle();
+
+            }
+
+            function deleteMember(obj) {
+                var tr  = $(obj).parent().parent();
+                if(tr.attr("id") != null) {
+                    tr.append("<td style='display: none;' > <input name ='delete" + delc + "' value='" + tr.attr("id") + "'></td>")
+                    //tr.attr("name", "delete" + delc);
+                    delc++;
+                    $("#delc").val(delc);
+                    tr.hide();
+                }
+                else tr.remove();
+            }
+            function showPreview(url) {
+                if($("#memberName").val() == ""){
+                    $("#msg").text("Member Name cannot be null.");
+                    document.getElementById("addmember").disabled = true;
+                    return;
+                }
+                $("#msg").text("");
+                document.getElementById("addmember").disabled = false;
+                var appendItem = "<tr><td><img src=\"" + url + "\" height='35px' style=\"width:35px;border-radius:50%;\"</td>" +
+                        "<td>" + $("#memberName").val() + "<input type=\"text\" name='member" + count + "' id='member" + count + "' value=\""+ $("#memberName").val() +"\" style=\"display: none;\"></td>" +
+                        "<td>" + $("#email").val() + "<input type=\"text\" name='email" + count + "' id='email" + count + "' value=\""+ $("#email").val() +"\" style=\"display: none;\"></td>" +
+                        "<td><a href='javascript:void(0)' onclick='deleteMember(this)'><i style='color:red;' class=\"material-icons\">delete</i></a></td><td id='clone"+count+"'></td></tr>";
+                $("#previewTable").append(appendItem);
+                var td = $("#clone" + count);
+                var obj = $("#photo").clone();
+                obj.attr("id", "photo" + count);
+                obj.attr("name", "photo" + count);
+                td.append(obj);
+                td.attr("style","display:none;");
+                count++;
+                $("#count").val(count);
+                $("#memberName").val("");
+                $("#email").val("");
+                $("#showpath").val("");
+                $("#photo").val("");
+            }
+
+            //preview the updated image
+            function changProjectPic() {
+                if(document.getElementById("picture").value == "") return;
+                var reads = new FileReader();
+                f = document.getElementById("picture").files[0];
+                reads.readAsDataURL(f);
+                reads.onload = function(e) {
+                    document.getElementById('showImg').src = this.result;
+                    $('#record').val("update");
+                    $('#previewMsg').text("This is the preview image. You need to click \"UPDATE\" button below if you want to save the changes.");
+                    $("#deleteBtn").show();
+                    $("#projectPreview").show();
+                };
+            }
+
+            function deleteImg() {
+                document.getElementById('showImg').src = "";
+                $('#record').val("delete");
+                $("#deleteBtn").hide();
+                $("#projectPreview").hide();
+                showProPreview("#projectPreview");
+                $('#previewMsg').text("The image is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function clearPDF(inputId, textId) {
+                console.log("clearFile called for", inputId, textId);
+                var fileInput = document.getElementById(inputId);
+                if(fileInput) {
+                    fileInput.value = "";
+                } else {
+                    console.error("Cannot find element with id", inputId);
+                }
+                var textInput = document.getElementById(textId);
+                if(textInput) {
+                    textInput.value = "";
+                    $('#' + textId).trigger('change');
+                } else {
+                    console.error("Cannot find element with id", textId);
+                }
+            }
+
+
+    </script>
+}
+
+@main("Job Apply", scripts) {
+
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        RA Job Application Page</h4>
+                    <div id="warningModal" class="modal">
+                        <div class="modal-content">
+                            <h5 style="color: red">Warning!</h5>
+                            <p style="font-weight: bold">Do you really want to change the creator of this job?
+                                Please note that after this change, You <span style="color: red">
+                                MAY NOT</span> edit this job again.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="cancel-change-creator" class="modal-close waves-effect waves-green btn-flat">
+                                Cancel</a>
+                            <a id="confirm-change-creator"
+                            class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                        </div>
+                    </div>
+                    <form class="form-signin" enctype="multipart/form-data" id="editProjectForm" method="post" onsubmit="return getHTML()" action="@routes.RAJobController.rajobApplyPOST(rajob.getId)">
+                        <div id="hiddenDiv" style="display: none;">
+                            <input name="isActive" id="isActive" class="validate" value="@rajob.getIsActive">
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <label>RA Job Title: @rajob.getTitle </label>
+                                <span id="JobTitleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="applyHeadline" id="applyHeadline" class="validate" required>
+                                <label for="applyHeadline">
+                                    Apply Headline* </label>
+                                <span id="applyHeadlineMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wtap: break-word; margin-top: 10px;" id="applyCoverLetter" placeholder="" name="applyCoverLetter" required></textarea>
+                                <label for="applyCoverLetter">Cover Letter*</label>
+                                <span id="applyCoverLetterMsg" class="helper-text" data-error="" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+
+                        Referees1 Info:
+                        <div class="row">
+                            <div class="input-field col s12 m2">
+                                <input type="text" name="referee1Title" id="referee1Title" class="validate">
+                                <label for="referee1Title">
+                                    Title </label>
+                                <span id="referee1TitleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                            <div class="input-field col s12 m5">
+                                <input type="text" name="referee1FirstName" id="referee1FirstName" class="validate">
+                                <label for="referee1FirstName">
+                                    First name </label>
+                                <span id="referee1FirstNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                            <div class="input-field col s12 m5">
+                                <input type="text" name="referee1LastName" id="referee1LastName" class="validate">
+                                <label for="referee1LastName">
+                                    Last name </label>
+                                <span id="referee1LastNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="referee1Email" id="referee1Email" class="validate" onchange="validateRegex(this.id, 'EMAIL')">
+                                <label for="referee1Email">
+                                    Email </label>
+                                <span id="referee1EmailMsg" class="helper-text" data-success="✓" data-error="Please input a valid email"></span>
+                            </div>
+
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="referee1Phone" id="referee1Phone" class="validate" onchange="validateRegex(this.id, 'PHONE')">
+                                <label for="referee1Phone">
+                                    Phone </label>
+                                <span id="referee1PhoneMsg" class="helper-text" data-success="✓" data-error="Please input a valid phone number"></span>
+                            </div>
+                        </div>
+
+                        Referees2 Info:
+                        <div class="row">
+                            <div class="input-field col s12 m2">
+                                <input type="text" name="referee2Title" id="referee2Title">
+                                <label for="referee2Title">
+                                    Title </label>
+                                <span id="referee2TitleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                            <div class="input-field col s12 m5">
+                                <input type="text" name="referee2FirstName" id="referee2FirstName" >
+                                <label for="referee2FirstName">
+                                    First name </label>
+                                <span id="referee2FirstNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                            <div class="input-field col s12 m5">
+                                <input type="text" name="referee2LastName" id="referee2LastName">
+                                <label for="referee2LastName">
+                                    Last name </label>
+                                <span id="referee2LastNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="referee2Email" id="referee2Email" class="validate" onchange="validateRegex(this.id, 'EMAIL')">
+                                <label for="referee2Email">
+                                    Email </label>
+                                <span id="referee2EmailMsg" class="helper-text" data-success="✓" data-error="Please input a valid email"></span>
+                            </div>
+
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="referee2Phone" id="referee2Phone" class="validate" onchange="validateRegex(this.id, 'PHONE')">
+                                <label for="referee2Phone">
+                                    Phone </label>
+                                <span id="referee2PhoneMsg" class="helper-text" data-success="✓" data-error="Please input a valid phone number"></span>
+                            </div>
+                        </div>
+
+                        Referees3 Info:
+                        <div class="row">
+                            <div class="input-field col s12 m2">
+                                <input type="text" name="referee3Title" id="referee3Title">
+                                <label for="referee3Title">
+                                    Title </label>
+                                <span id="referee3TitleMsg" class="helper-text" data-error=""></span>
+                            </div>
+                            <div class="input-field col s12 m5">
+                                <input type="text" name="referee3FirstName" id="referee3FirstName" >
+                                <label for="referee3FirstName">
+                                    First name </label>
+                                <span id="referee3FirstNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                            <div class="input-field col s12 m5">
+                                <input type="text" name="referee3LastName" id="referee3LastName">
+                                <label for="referee3LastName">
+                                    Last name </label>
+                                <span id="referee3LastNameMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="referee3Email" id="referee3Email" class="validate" onchange="validateRegex(this.id, 'EMAIL')">
+                                <label for="referee3Email">
+                                    Email </label>
+                                <span id="referee3EmailMsg" class="helper-text" data-success="✓" data-error="Please input a valid email"></span>
+                            </div>
+
+                            <div class="input-field col s12 m6">
+                                <input type="text" name="referee3Phone" id="referee3Phone" class="validate" onchange="validateRegex(this.id, 'PHONE')">
+                                <label for="referee3Phone">
+                                    Phone </label>
+                                <span id="referee3PhoneMsg" class="helper-text" data-success="✓" data-error="Please input a valid phone number"></span>
+                            </div>
+                        </div>
+
+
+                        Personal Document Upload
+                        <div class="row">
+
+                            <div class="file-field input-field col s12">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                        <span>Resume</span>
+                                        <input type="file" accept=".pdf" id="resumePdf" name="resumePdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                        <input class="file-path validate" type="text" placeholder="Upload resume PDF" id="filePathResume" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('resumePdf', 'filePathResume')" style="margin-left: 10px;">
+                                    Cancel
+                                    </button>
+                                    </div>
+                                    <div id="resumePreviewMsg" style="color:blue"></div>
+                                    <input id="resumePdfRecord" name="resumePdfRecord" style="display: none;"/>
+                                    </div>
+
+                                    <div class="file-field input-field col s12">
+                                    <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                    <span>Cover Letter</span>
+                                    <input type="file" accept=".pdf" id="coverLetterPdf" name="coverLetterPdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                    <input class="file-path validate" type="text" placeholder="Upload cover letter PDF" id="filePathCoverLetter" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('coverLetterPdf', 'filePathCoverLetter')" style="margin-left: 10px;">
+                                    Cancel
+                                    </button>
+                                    </div>
+                                    <div id="coverLetterPreviewMsg" style="color:blue"></div>
+                                    <input id="coverLetterPdfRecord" name="coverLetterPdfRecord" style="display: none;"/>
+                                    </div>
+
+                                    <div class="file-field input-field col s12">
+                                    <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                    <span>Transcript File</span>
+                                    <input type="file" accept=".pdf" id="transcriptFile" name="transcriptFile">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                    <input class="file-path validate" type="text" placeholder="Upload transcript PDF" id="filePathTranscript" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('transcriptFile', 'filePathTranscript')" style="margin-left: 10px;">
+                                    Cancel
+                                    </button>
+                                    </div>
+                                    <div id="transcriptPreviewMsg" style="color:blue"></div>
+                                    <input id="transcriptFileRecord" name="transcriptFileRecord" style="display: none;"/>
+                                    </div>
+
+                                    <div class="file-field input-field col s12">
+                                    <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                    <span>Degree Certificate</span>
+                                    <input type="file" accept=".pdf" id="degreeCertificatePdf" name="degreeCertificatePdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                    <input class="file-path validate" type="text" placeholder="Upload degree certificate PDF" id="filePathDegreeCertificate" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('degreeCertificatePdf', 'filePathDegreeCertificate')" style="margin-left: 10px;">
+                                    Cancel
+                                    </button>
+                                    </div>
+                                    <div id="degreeCertificatePreviewMsg" style="color:blue"></div>
+                                    <input id="degreeCertificatePdfRecord" name="degreeCertificatePdfRecord" style="display: none;"/>
+                                    </div>
+
+                                    </div>
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="JobApplication" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.RAJobController.rajobDetail(rajob.getId)" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

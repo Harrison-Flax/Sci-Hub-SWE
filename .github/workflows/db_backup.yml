@@ -1,0 +1,70 @@
+name: Daily RDS Backup to Github CSHub Repo
+
+on:
+  # Allows manual runs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dump_and_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Install MySQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Dump the RDS schema "cshub"
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          mkdir -p db_backup
+          mysqldump \
+            --host="${{ secrets.RDS_HOST }}" \
+            --port=3306 \
+            --user="${{ secrets.DB_USERNAME }}" \
+            --password="${{ secrets.DB_PASSWORD }}" \
+            "${{ secrets.DB_NAME }}" > "db_backup/${TIMESTAMP}.sql"
+
+      - name: Delete old backups (7+ days)
+        run: |
+          if [ -d db_backup ]; then
+            echo "Files to be removed:"
+            current=$(date +%s)
+            for file in db_backup/*.sql; do
+              [ -e "$file" ] || continue
+              base=$(basename "$file" .sql)
+              file_date="${base%-*}"
+              file_time="${base#*-}" 
+              
+              formatted_timestamp="${file_date:0:4}-${file_date:4:2}-${file_date:6:2} ${file_time:0:2}:${file_time:2:2}:${file_time:4:2}"
+    
+              # Convert the formatted timestamp to Unix epoch time.
+              file_timestamp=$(date -d "$formatted_timestamp" +%s 2>/dev/null) || continue
+              age_days=$(( (current - file_timestamp) / 86400 ))
+              
+              if [ "$age_days" -ge 7 ]; then
+                echo "Removing old backup: $file ($age_days days old)"
+                rm "$file"
+              fi
+            done
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git add db_backup
+          git commit -m "Daily backup + cleanup on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push

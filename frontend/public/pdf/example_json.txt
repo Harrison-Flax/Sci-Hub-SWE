@@ -1,0 +1,15 @@
+{
+   "name":"good",
+   "description":"D1",
+   "call_url":"http://fire-query-api.etcupbvgxr.us-west-1.elasticbeanstalk.com/query?date=2017338&ulx=-140&uly=40&lrx=-120&lry=20",
+   "frontend_url":"http://fire-query-api.etcupbvgxr.us-west-1.elasticbeanstalk.com/query?date=2017338&ulx=-140&uly=40&lrx=-120&lry=20",
+   "name_location":"",
+   "name_ulx":"ulx",
+   "name_uly":"uly",
+   "name_lrx":"lrx",
+   "name_lry":"lry",
+   "name_deviceX":"deviceX",
+   "name_deviceY":"deviceY",
+   "name_date1":"date1",
+   "name_date2":"date2"
+}

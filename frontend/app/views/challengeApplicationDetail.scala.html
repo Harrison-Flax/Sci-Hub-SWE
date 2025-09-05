@@ -1,0 +1,139 @@
+@import org.apache.commons.lang3.StringUtils
+@(challengeApplication: ChallengeApplication,
+        userTypes: String,
+        tableName: String,
+        resumeFileType: String,
+        coverFileType: String,
+        tableRecorderId: String,
+        backendPort: String,
+        resume: Boolean,
+        coverLetter: Boolean)
+
+@import helper._
+
+@main("ChallengeApplication Profile") {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">Challenge Application Detail Page</h4>
+
+                    <div class="row">
+                        <div class="col s12">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">Challenge Name</th>
+                                        <td style="word-wrap: break-word;">
+                                        @challengeApplication.getAppliedChallenge.getChallengeTitle
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Applicant Name</th>
+                                        @if(challengeApplication.getApplicant != null && StringUtils.isNotBlank(challengeApplication.getApplicant.getUserName)) {
+                                            <td style="word-wrap: break-word;">@challengeApplication.getApplicant.getUserName</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Apply Headline</th>
+                                        @if(StringUtils.isNotBlank(challengeApplication.getApplyHeadline)) {
+                                            <td style="word-wrap: break-word;">@challengeApplication.getApplyHeadline</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+
+                                    <tr>
+                                        <th style="max-width: 50px">Cover Letter</th>
+                                        @if(StringUtils.isNotBlank(challengeApplication.getApplyCoverLetter)) {
+                                            <td style="word-wrap: break-word;">@challengeApplication.getApplyCoverLetter</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    @if(resume) {
+                                        <tr>
+                                            <th style="max-width: 50px">Resume PDF</th>
+                                            <td style="word-wrap: break-word;">
+                                                <a href="javascript:void(0);"
+                                                data-url="@routes.FileController.getFile(tableName, resumeFileType, tableRecorderId)"
+                                                class="blue-text text-darken-3"
+                                                onclick="openAndCheckNewTabUrl(this)">
+                                                    Download Resume
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if(coverLetter) {
+                                        <tr>
+                                            <th style="max-width: 50px">Cover Letter PDF</th>
+                                            <td style="word-wrap: break-word;">
+                                                <a href="javascript:void(0);"
+                                                data-url="@routes.FileController.getFile(tableName, coverFileType, tableRecorderId)"
+                                                class="blue-text text-darken-3"
+                                                onclick="openAndCheckNewTabUrl(this)">
+                                                    Download Cover Letter
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row center">
+                        <form class="form-signin" enctype="multipart/form-data" id="editTechnologyForm" method="post" onsubmit="return getHTML()"
+                        action="@routes.ChallengeController.challengeApplicationStatusChange(challengeApplication.getId, "pending")">
+                            @if(userTypes == "2" && challengeApplication.getAppliedChallenge.getStatus() !="closed" ) {
+                                <button type="submit" id="challengeOffer" class="btn waves-effect waves-light blue darken-2">
+                                    Offer</button>
+                            }
+                            @if(userTypes == "2") {
+                                <a href="@routes.ChallengeController.challengeApplicationsList("challenge", challengeApplication.getAppliedChallenge.getId, 1, "id")"
+                                class="btn waves-effect waves-light green darken-2">
+                                    Cancel
+                                </a>
+                            }
+                            @if(userTypes == "1") {
+                                <a href="@routes.ChallengeController.challengeListAppliedByUser(1)" class="btn waves-effect waves-light blue darken-2">
+                                    Back to Applied Challenge List</a>
+                            }
+                            @if(userTypes == "4") {
+                               <a href="@routes.ChallengeController.challengeApplicationsList("challenge", challengeApplication.getAppliedChallenge.getId, 1, "id")" class="btn waves-effect waves-light blue darken-2">
+@*                                <a href="@routes.ChallengeController.challengeListPostedByUser(1)" class="btn waves-effect waves-light blue darken-2">*@
+                                    Back to Challenge Applications List</a>
+                            }
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+            fetch(url, { method: 'HEAD' }).then(response => {
+                if (response.ok) {
+                    const newTab = window.open(url, '_blank');
+                    if (!newTab) {
+                        alert("Please allow pop-ups in your browser to view this file.");
+                    }
+                } else {
+                    alert("The user did not upload this file");
+                }
+            })
+            .catch(error => {
+                console.error("Error checking the URL:", error);
+                alert("Failed to check the file. Please try again later.");
+            });
+        }
+    </script>
+}

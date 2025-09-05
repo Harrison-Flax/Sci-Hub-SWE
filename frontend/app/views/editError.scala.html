@@ -1,0 +1,36 @@
+@import java.util
+@import models._
+
+@(editType: String)
+@import helper._
+@import models.Project
+
+@main("General Edit Error") {
+    <div class="container">
+        <div class="center">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h5>@editType not updated!</h5>
+                    <h6>Unfortunately, your @editType could not be updated. Please try again later.</h6>
+                    <br>
+                    <span id="show"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Wait five seconds and redirect to the homepage of OpenNEX *@
+    <script type="text/javascript">
+            var t=5; // set the time of re-direction to be 5 seconds
+            setInterval("refer()",1000); // 1s start up
+            function refer(){
+                if(t==0){
+                    location='@routes.Application.home()';
+                }
+
+                document.getElementById('show').innerHTML="This page will be redirected to the homepage in "
+                        +""+t+" seconds";
+                t--;
+            }
+    </script>
+}

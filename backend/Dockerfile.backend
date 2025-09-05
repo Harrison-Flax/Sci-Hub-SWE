@@ -1,0 +1,40 @@
+# Use OpenJDK 8 to run Play backend
+FROM openjdk:8-jdk-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install sbt to build the project (also install unzip)
+RUN apt-get update && \
+    apt-get install -y curl gnupg unzip && \
+    echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" \
+      | tee /etc/apt/sources.list.d/sbt.list && \
+    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x99E82A75642AC823" | apt-key add && \
+    apt-get update && \
+    apt-get install -y sbt=1.5.5 && \
+    apt-get clean
+
+# Copy the project files into the container
+COPY . /app
+
+# Build the distribution package
+RUN sbt dist
+
+# Unpack the distribution package
+RUN unzip target/universal/*.zip -d /app
+
+# For debugging
+RUN ls -R /app
+
+# Expose Play backend port
+EXPOSE 9037
+
+# By default, provide a dummy key (for dev/test). You can override this at runtime.
+ENV PLAY_SECRET_KEY="CHANGEME-BACKEND"
+
+# Replace "my-backend-1.0-SNAPSHOT" with the actual folder name from your unzipped distribution
+# Replace "my-backend" with the name of your generated script
+CMD ["/app/basicframework-1.0-SNAPSHOT/bin/basicframework", \
+     "-Dplay.http.secret.key=${PLAY_SECRET_KEY}", \
+     "-Dhttp.port=9037", \
+     "-Dhttp.address=0.0.0.0"]

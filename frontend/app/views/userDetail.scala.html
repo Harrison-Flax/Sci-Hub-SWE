@@ -1,0 +1,111 @@
+@import org.apache.commons.lang3.StringUtils
+@(user: User)
+
+@import helper._
+
+@scripts = {
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/responsive-table.css")">
+    <link rel="stylesheet" href="/assets/stylesheets/responsive-table.css">
+}
+
+@main("User Profile", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    @if(session.get("id").equalsIgnoreCase(user.getId.toString)) {
+                        <h4 class="center">My Profile</h4>
+                    } else {
+                        <h4 class="center">@user.getUserName</h4>
+                    }
+                <div class="detail-desktop">
+                    <div class="row">
+                        <div class="col s4">
+                            <div class="center">
+                                <img class="circle" id="showImg" src="@routes.Application.getImageFromPath(user.getAvatar())" style="border-width: 1px;
+                                        border-style: solid;
+                                        border-radius: 50%;
+                                        height: auto;
+                                        width: 70%;">
+                            </div>
+                        </div>
+                        <div class="col s8">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="max-width: 50px">First Name</th>
+                                        <td style="word-wrap: break-word;">@user.getFirstName</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Middle Initial</th>
+                                        @if(user.getMiddleInitial!="null" && user.getMiddleInitial != "") {
+                                            <td style="word-wrap: break-word;">@user.getMiddleInitial</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Last Name</th>
+                                        <td style="word-wrap: break-word;">@user.getLastName</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Organization</th>
+                                        @if(user.getOrganization!="null" && user.getOrganization != "") {
+                                            <td style="word-wrap: break-word;">@user.getOrganization</td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th style="max-width: 50px">Personal URL</th>
+                                        @if(user.getHomepage!="null" && user.getHomepage != "") {
+                                            <td style="word-wrap: break-word;"><a href="@user.getHomepage" target="_blank">@user.getHomepage</a></td>
+                                        } else {
+                                            <td>-</td>
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                       </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div class="detail-mobile">
+                    <div class="card-panel detail-card">
+                        <div class="center">
+                            <img class="circle" id="showImg" src="@routes.Application.getImageFromPath(user.getAvatar())" style="border: 1px solid; border-radius: 50%; width: 100px; height: 100px;">
+                        </div>
+
+                        <div><h6>First Name:</h6> @user.getFirstName </div>
+
+                        <div><h6>Middle initial:</h6> @if(user.getMiddleInitial != "null" && user.getMiddleInitial != "") { @user.getMiddleInitial } else { - }</div>
+
+                        <div><h6>Last Name:</h6> @user.getLastName </div>
+
+                        <div><h6>Organization:</h6> @if(user.getOrganization != "null" && user.getOrganization != "") { @user.getOrganization } else { - }</div>
+
+                        <div><h6>Personal URL:</h6> @if(user.getHomepage != "null" && user.getHomepage != "") {
+                            <a href="@user.getHomepage" target="_blank">@user.getHomepage</a>
+                        } else { - }
+                        </div>
+                    </div>
+                </div>
+
+                <div class=“center”>
+                @if(session.get("id").equalsIgnoreCase(user.getId.toString)) {
+                    <center><a href="@routes.UserController.userEditPage()" class="btn waves-effect waves-light blue darken-2">
+                        Edit Profile</a></center>
+                } else{
+                    <a href="@routes.UserController.userList(1, "id")" class="btn waves-effect waves-light blue darken-2">
+                        Back to User List</a>
+                }
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+

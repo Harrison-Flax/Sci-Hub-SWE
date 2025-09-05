@@ -1,0 +1,644 @@
+@import helper._
+@import models._
+@import models.TACandidate
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            count = 0;
+            var quill;
+            $(document).ready(function () {
+                $("#addPanel").hide();
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+                });
+
+
+
+            });
+
+
+
+            function cancelAdd(){
+                $("#warningModal2").modal('close');
+            }
+
+            function hiddenOrNot(taJobCourseType) {
+                // divHiddentaJobCourseSelection1
+                var hiddenDiv = "divHidden" + taJobCourseType;
+
+
+                if (hiddenDiv == "divHiddentaJobCourseSelection1"){
+                    var div = document.getElementById(hiddenDiv);
+                    if(div.hidden == true) {
+                        div.hidden = false;
+                    }
+                }else{
+                    hiddenDiv = "divHiddentaJobCourseSelection1";
+                    var div = document.getElementById(hiddenDiv);
+                    div.hidden = true;
+
+                    for (var i = 0; i < document.getElementsByName("preferenceCheckbox").length; i++) {
+                        var div = document.getElementsByName("preferenceCheckbox")[i];
+                        div.checked = false;
+                    }
+                }
+            }
+
+            function getMultipleCheckBoxPreference() {
+                var taCoursesSelectionHiddenList = [];
+                var arr = document.getElementsByName("preferenceCheckbox");
+
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].checked){
+                        taCoursesSelectionHiddenList.push(arr[i].value);
+                    }
+                }
+
+                // if (taCoursesSelectionHiddenList.length == 0)
+                //     taCoursesSelectionHiddenList = [
+                //         "CS 1340 Introduction to Computing Concepts Python",
+                //         "CS 1341 Principles of Computer Science Java",
+                //         "CS 1342 Programming Concepts C++",
+                //         "CS 2353 Discrete Math",
+                //         "CS 2340 H/W Core",
+                //         "CS 2341 Data Structures",
+                //         "CS 3341 S/W Core",
+                //         "CS 3377 Ethics",
+                //         "CS 5/7312 UI/UX",
+                //         "CS 5/7314 Software Testing and Quality Assurance",
+                //         "CS 5/7315 Software Project Planning and Management",
+                //         "CS 5/7320 Artificial Intelligence",
+                //         "CS 5/7331 Data Mining",
+                //         "CS 5/7392 Web App Development",
+                //         "CS 5/7390 Virtual and Augmented Reality",
+                //         "CS 5/7322 NLP",
+                //         "CS 8321 ML and Neural Networks",
+                //         "CS 5/7324 ML in Python",
+                //         "CS/AI Online 7310/7311/7330/7343/7350"
+                //     ];
+
+                // for(var i = 0; i <taCoursesSelectionHiddenList.length; i++){
+                //     document.getElementById("taCoursesSelectionHidden").value = document.getElementById("taCoursesSelectionHidden").value + taCoursesSelectionHiddenList[i] + "; "
+                // }
+                // document.getElementById("taCoursesSelectionHidden").value = document.getElementById("taCoursesSelectionHidden").value.trim();
+
+                var taCoursesSelectionHiddenString = taCoursesSelectionHiddenList.join("; ");
+
+                document.getElementById("taCoursesSelectionHidden").value = taCoursesSelectionHiddenString;
+
+            }
+
+
+            function getMultipleCheckBoxUnwanted() {
+                var taCoursesUnwantedList = [];
+                var checkboxes = document.getElementsByName("unwantedCheckBox");
+
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked) {
+                        taCoursesUnwantedList.push(checkboxes[i].value);
+                    }
+                }
+
+                var unwantedCoursesString = taCoursesUnwantedList.join("; ");
+
+                document.getElementById("taCoursesUnwantedHidden").value = unwantedCoursesString;
+
+            }
+
+
+
+            $("#showPanel").click(function () {
+                $("#warningModal2").modal('close');
+            })
+
+            function prepareFormForSubmission() //display current HTML
+            {
+                getMultipleCheckBoxPreference();
+                getMultipleCheckBoxUnwanted();
+                if(document.getElementById("smuIdMsg").innerText.length != 0)
+                    return false;
+                var ajaxflag = true;
+                $.ajax({
+                    type: "GET",
+                    success: function (data) {
+                        var response = data;
+                        console.log(data);
+                        if('badFormat' in response) {
+                            console.log(response['badFormat']);
+                            ajaxflag = false;
+                        } else{
+                            if('notExisted' in response){
+                                ajaxflag = false;
+                            }else{
+
+                            }
+
+                        }
+                    }
+                });
+                if(!ajaxflag){
+                    return false;
+                }
+
+
+                // if (document.getElementById("agreement").checked == false) {
+                //     document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can register a project!";
+                //     $("#warningModal").modal();
+                //     $("#warningModal").modal('open');
+                //     return false;
+                // }
+
+                return true;
+            }
+    </script>
+}
+
+@main("General TA Application", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        General TA Application</h4>
+                    <form class="form-signin" enctype="multipart/form-data" id="jobForm" onsubmit="return prepareFormForSubmission()" method="post" action="@routes.TACandidateController.tacandidateRegisterPOST()">
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="smuId" id="smuId" class="validate" required>
+                                <label for="smuId">SMU ID* </label>
+                                <span id="smuIdMsg" class="helper-text" data-success="✓" data-error="Please input smu id" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>Your status</legend>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus1" value="Ph.D. student">
+                                        <span>Ph.D. student</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus2" value="MS-CS student (2nd year)">
+                                        <span>MS-CS student (2nd year)</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus3" value="MS-CS student (1st year)">
+                                        <span>MS-CS student (1st year)</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus4" value="MS-Cybersecurity student (2nd year)">
+                                        <span>MS-Cybersecurity student (2nd year)</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus5" value="MS-SE student (2nd year)">
+                                        <span>MS-SE student (2nd year)</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus6" value="MS-SE student (1st year)">
+                                        <span>MS-SE student (1st year)</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus7" value="Senior">
+                                        <span>Senior</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus8" value="Junior">
+                                        <span>Junior</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus0" value="Sophmore">
+                                        <span>Sophmore</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m6">
+                                    <label>
+                                        <input type="radio" name="status" id="taStatus10" value="Freshman">
+                                        <span>Freshman</span>
+                                    </label>
+                                </div>
+
+
+                            </fieldset>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>How many hours you could work as a TA per week?</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="hours" id="taCandidateHours1" value="5">
+                                        <span>5 hours/week</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="hours" id="taCandidateHours2" value="10">
+                                        <span>10 hours/week</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="hours" id="taCandidateHours3" value="15">
+                                        <span>15 hours/week</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="hours" id="taCandidateHours4" value="20">
+                                        <span>20 hours/week</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wtap: break-word; margin-top: 10px;" id="taCandidateCourses" placeholder="" name="courses" required onchange="validateRegex(this.id, /.{0,600}/)"></textarea>
+                                <label for="longDescription">Please list CS courses you have completed:*</label>
+                                <span id="taCandidateCoursesMsg" class="helper-text" data-success="✓" data-error="The couses must be under 600 characters" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>Do you have specific preferences for the courses?</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taCoursePreferenceSelection" id="taCoursePreferenceSelection1" value="1" onchange='hiddenOrNot("taJobCourseSelection1")'>
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="taCoursePreferenceSelection" id="taCoursePreferenceSelection2" value="2" onchange='hiddenOrNot("taJobCourseSelection2")'>
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="row" hidden="true" name="divHiddentaJobCourseSelection" id="divHiddentaJobCourseSelection1">
+                            <h5>Courses listed below are all CS courses that need Teaching Assistants</h5>
+                            <fieldset>
+                                <legend>Please list the courses you would like to be a TA for:</legend>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection1" value="CS 1340 Introduction to Computing Concepts Python">
+                                        <span>CS 1340 Introduction to Computing Concepts Python</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection2" value="CS 1341 Principles of Computer Science Java">
+                                        <span>CS 1341 Principles of Computer Science Java</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection3" value="CS 1342 Programming Concepts C++">
+                                        <span>CS 1342 Programming Concepts C++</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection4" value="CS 2353 Discrete Math">
+                                        <span>CS 2353 Discrete Math</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection5" value="CS 2340 H/W Core">
+                                        <span>CS 2340 H/W Core</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection6" value="CS 2341 Data Structures">
+                                        <span>CS 2341 Data Structures</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection9" value="CS 3341 S/W Core">
+                                        <span>CS 3341 S/W Core</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection9" value="CS 3377 Ethics">
+                                        <span>CS 3377 Ethics</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection16" value="CS 5/7-312 UI/UX">
+                                        <span>CS 5/7312 UI/UX</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection16" value="CS 5/7314 Software Testing and Quality Assurance">
+                                        <span>CS 5/7314 Software Testing and Quality Assurance</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection17" value="CS 5/7315 Software Project Planning and Management">
+                                        <span>CS 5/7315 Software Project Planning and Management</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection21" value="CS 5/7320 Artificial Intelligence">
+                                        <span>CS 5/7320 Artificial Intelligence</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS 5/7331 Data Mining">
+                                        <span>CS 5/7331 Data Mining</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS 5/7392 Web App Development">
+                                        <span>CS 5/7392 Web App Development</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS 5/7390 Virtual and Augmented Reality">
+                                        <span>CS 5/7390 Virtual and Augmented Reality</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS 5/7322 NLP">
+                                        <span>CS 5/7322 NLP</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS 8321 ML and Neural Networks">
+                                        <span>CS 8321 ML and Neural Networks</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS 5/7324 ML in Python">
+                                        <span>CS 5/7324 ML in Python</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="preferenceCheckbox" id="taCoursesSelection23" value="CS/AI Online 7310/7311/7330/7343/7350">
+                                        <span>CS/AI Online 7310/7311/7330/7343/7350</span>
+                                    </label>
+                                </div>
+
+                            </fieldset>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>Please list the courses you DO NOT want to be a TA for:</legend>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted1340" value="CS 1340">
+                                        <span>CS 1340</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted1341" value="CS 1341">
+                                        <span>CS 1341</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted1342" value="CS 1342">
+                                        <span>CS 1342</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted2340" value="CS 2340">
+                                        <span>CS 2340</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted2341" value="CS 2341">
+                                        <span>CS 2341</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted2353" value="CS 2353">
+                                        <span>CS 2353</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted3377" value="CS 3377">
+                                        <span>CS 3377</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7312" value="CS 5/7-312">
+                                        <span>CS 5/7-312</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7314" value="CS 5/7-314">
+                                        <span>CS 5/7-314</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7315" value="CS 5/7-315">
+                                        <span>CS 5/7-315</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7316" value="CS 5/7-316">
+                                        <span>CS 5/7-316</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7320" value="CS 5/7-320">
+                                        <span>CS 5/7-320</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7322" value="CS 5/7-322">
+                                        <span>CS 5/7-322</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted8321" value="CS 8321">
+                                        <span>CS 8321</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7324" value="CS 5/7-324">
+                                        <span>CS 5/7-324</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7331" value="CS 5/7-331">
+                                        <span>CS 5/7-331</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7390" value="CS 5/7-390">
+                                        <span>CS 5/7-390</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7392" value="CS 5/7-392">
+                                        <span>CS 5/7-392</span>
+                                    </label>
+                                </div>
+                                <div class="col s12">
+                                    <label>
+                                        <input type="checkbox" name="unwantedCheckBox" id="taCoursesUnwanted7310" value="CS/AI Online 7310/7311/7330/7343/7350">
+                                        <span>CS/AI Online 7310/7311/7330/7343/7350</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="row" hidden="true">
+                            <div class="input-field col s12">
+                                <input type="text" name="preference" id="taCoursesSelectionHidden" >
+                            </div>
+                        </div>
+
+
+                        <div class="row" hidden="true">
+                            <div class="input-field col s12">
+                                <input type="text" name="unwanted" id="taCoursesUnwantedHidden" >
+                            </div>
+                        </div>
+
+
+
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wrap: break-word; margin-top: 10px;" id="taCandidateComments" placeholder="" name="comment" onchange="validateRegex(this.id, /.{0,600}/)"></textarea>
+                                <label for="longDescription">Please indicate any comments/requests/constraints etc:</label>
+                                <span id="taCandidateCoursesMsg" class="helper-text" data-success="✓" data-error="The couses must be under 600 characters" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <fieldset>
+                                <legend>Have you email to Dr. Manikas your resume? (Naming format of your resume file:<\last_name>_<\first_name>.pdf)</legend>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="isResumeSent" id="isResumeSent1" value="1">
+                                        <span>Yes, I have sent to Dr. Manikas</span>
+                                    </label>
+                                </div>
+                                <div class="col s12 m4">
+                                    <label>
+                                        <input type="radio" name="isResumeSent" id="isResumeSent2" value="0">
+                                        <span>No, I have not sent to Dr. Manikas</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+
+
+                        <div id="warningModal" class="modal">
+                            <div class="modal-content">
+                                <h5 class="center" style="color: red">Warning!</h5>
+                                <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                            </div>
+                        </div>
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="candidateRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

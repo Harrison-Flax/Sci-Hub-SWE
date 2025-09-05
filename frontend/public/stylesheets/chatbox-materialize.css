@@ -1,0 +1,11 @@
+.chatbox {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    margin-right: 30px; 
+}
+.chatbox a {
+    position: fixed;
+    bottom: 35px;
+    right: 40px;
+} 

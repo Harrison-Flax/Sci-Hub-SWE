@@ -1,0 +1,55 @@
+@*@(entries: List[Author])*@
+@(entries: List[User])
+@import helper._
+@main("Top Author") {
+    <div class="container">
+        <div class="card-panel center">
+
+
+        <table class="centered responsive-table striped" id="userTable" >
+        <thead>
+            <tr class="list-header" style="border-bottom: 1px solid; !important;">
+                <th style="cursor: pointer;">Researcher Id</th>
+                <th style="cursor: pointer;">Researcher Name</th>
+@*                <th style="cursor: pointer;">Affiliation</th>*@
+                <th style="cursor: pointer;">Email</th>
+                <th style="cursor: pointer;">Research Areas</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for((entry, index) <- entries.zipWithIndex) {
+            @if(index<21){
+
+            <tr>
+                <td>@entry.getId()</td>
+
+@*                <td><a href = "@routes.AuthorController.authorDetailPage(entry.getId())">@entry.getAuthorName() </a></td>*@
+                <td><a href = "@routes.AuthorController.authorDetailPage(entry.getId())">@entry.getFirstName() </a></td>
+
+@*                @if(entry.getAffiliation() != "") {*@
+@*                    <td><span class="@entry.getId() editable" data-name='summary'></span>*@
+@*                        @entry.getAffiliation()*@
+@*                    </td>*@
+@*                } else {*@
+@*                    <td><span class="@entry.getId() editable" data-name='summary'>&ensp; -</span></td>*@
+@*                }*@
+
+                <td>@entry.getEmail()</td>
+
+                @if(entry.getResearchFields() !="null" && entry.getResearchFields() != "") {
+                    <td>@entry.getResearchFields()</td>
+                }else{
+                    <td>-</td>
+                }
+
+
+                </td>
+
+            </tr>
+            }
+        }
+        </tbody>
+    </table>
+        </div>
+    </div>
+}

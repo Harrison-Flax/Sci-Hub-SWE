@@ -1,0 +1,92 @@
+@(taCourses: List[SimpleCourseTAAssignment])
+
+@import models.SimpleCourseTAAssignment
+
+@scripts = {
+    <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('.course-button').click(function() {
+                    var courseId = $(this).data('course-id');
+                    loadCourseDetails(courseId);
+                });
+            });
+
+            function loadCourseDetails(courseId) {
+                $.ajax({
+                    url: '/getCourseDetails/' + courseId,
+                    type: 'GET',
+                    success: function(data) {
+                        var courseDetails = JSON.parse(data);
+                        var startDate = new Date('2024-01-05');  // Fixed start date of week 1
+                        var detailsHtml = '<table>';
+                        detailsHtml += '<tr><th>Week</th><th>Start Date</th><th>Approved Hours</th><th>Total Hours Used</th><th>Submit Hours</th></tr>';
+
+                        for (var week = 1; week <= 4; week++) {
+                            var weekStartDate = new Date(startDate);
+                            weekStartDate.setDate(startDate.getDate() + (week - 1) * 7);
+                            var dateString = weekStartDate.getFullYear() + '-' + (weekStartDate.getMonth() + 1) + '-' + weekStartDate.getDate();
+
+                            var approvedHours = courseDetails.approvedHours;
+                            var totalHoursUsed = courseDetails.usedHours[week] ? courseDetails.usedHours[week] : '';
+
+                            detailsHtml += '<tr>';
+                            detailsHtml += '<td>' + week + '</td>';
+                            detailsHtml += '<td>' + dateString + '</td>';
+                            detailsHtml += '<td>' + approvedHours + '</td>';
+                            detailsHtml += '<td id="hours-' + courseId + '-' + week + '">' + totalHoursUsed + '</td>';
+
+                            if (!totalHoursUsed) {
+                                detailsHtml += '<td><input type="number" id="hours-input-' + courseId + '-' + week + '" />';
+                                detailsHtml += '<button onclick="submitHours(\'' + courseId + '\', ' + week + ')">Submit</button></td>';
+                            } else {
+                                detailsHtml += '<td>Submitted</td>';
+                            }
+
+                            detailsHtml += '</tr>';
+                        }
+                        detailsHtml += '</table>';
+                        $('#course-detail').html(detailsHtml);
+                    },
+                    error: function() {
+                        console.error('Error loading course details.');
+                    }
+                });
+            }
+
+            function submitHours(courseId, week) {
+                var hours = $('#hours-input-' + courseId + '-' + week).val();
+                $.ajax({
+                    url: '/submitHours/' + courseId + '/' + week,
+                    type: 'POST',
+                    data: { hours: hours },
+                    success: function(response) {
+                        console.log('Hours submitted successfully:', response);
+                        $('#hours-' + courseId + '-' + week).text(hours);
+                        $('#hours-input-' + courseId + '-' + week).remove();
+                        $('#submit-button-' + courseId + '-' + week).remove();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Failed to submit hours:", status, error);
+                    }
+                });
+            }
+    </script>
+}
+
+@main("TA Weekly Hours Submission", scripts) {
+    <div class="page-container">
+        <div class="course-list">
+        @for(assignment <- taCourses) {
+            <button class="course-button" data-course-id="@assignment.getCourseId">
+            @assignment.getCourseNum
+            </button>
+        }
+        </div>
+        <div class="course-details">
+            <div id="course-detail">
+                    <!-- Details will be rendered here by the JavaScript above -->
+            </div>
+        </div>
+    </div>
+}

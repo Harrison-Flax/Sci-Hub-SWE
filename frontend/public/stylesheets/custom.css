@@ -1,0 +1,55 @@
+.jumbotron {
+	background-color: transparent;
+}
+.jumbotron img{
+	margin-top: -40px;
+}
+.jumbotron h1{
+	font-size: 3em;
+}
+
+.footer {
+	border-top: 1px solid #eee;
+	margin-top: 25px;
+	padding-top: 25px;
+	padding-bottom: 25px;
+	text-align: right;
+}
+
+.operation {
+	display: flex;
+}
+.operation .btn{
+	margin-right: 5px;
+}
+
+.editable-click {
+  color: blue;
+  border-color: blue;
+} 
+.editable-click.editable-disabled {
+  color: black;  
+  border-bottom: none;
+}
+.editable-empty{
+  color: gray;
+  font-style: italic;
+}
+#list_inline{
+ display: inline-block;
+}
+#cancel{
+ display: inline-block;
+    margin-top: -40px;
+    margin-left: 11px;
+}
+
+#dataset{
+	width: 95%;
+	max-width: 1600px;
+}
+
+#homeTutorial{
+	width: 98%;
+	max-width: 1600px;
+}

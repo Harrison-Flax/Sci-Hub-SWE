@@ -1,0 +1,419 @@
+@import helper._
+@import models._
+@import models.Technology
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            count = 0;
+            var quill;
+            var isSalaryNotMatched;
+            $(document).ready(function () {
+                $("#addPanel").hide();
+                $("#showPanel").click(function () {
+                    var panel = document.getElementById("addPanel");
+                    if (panel.style.display == "none") {
+                        $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Close Window");
+                    }
+                    else {
+                        $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");
+                        $("#buttonText").text("Add Members");
+                        document.getElementById("memberName").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("email").classList.remove("invalid");
+                        document.getElementById("memberName").classList.remove("invalid");
+                    }
+                    $("#addPanel").slideToggle();
+                });
+
+
+
+            });
+
+            function checkValidJobTitle() {
+                var title = document.getElementById("title").value;
+                var obj = {
+                    title: title
+                };
+
+                $.ajax({
+                    url: "/job/isJobNameExisted",
+                    data: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    type: "POST",
+                    success: function (data) {
+                        console.log(data);
+                        var response = data;
+                        if ("error" in response) {
+                            document.getElementById("titleMsg").innerHTML = "Replicated job name, please change another name!"
+                        } else {
+                            document.getElementById("titleMsg").innerHTML = ""
+                        }
+                    }
+                })
+
+            }
+
+            function compareSalaryRange(){
+                var value1;
+                var value2;
+                value1 = document.getElementById("minSalary").value;
+                value2 = document.getElementById("maxSalary").value;
+                if (value1 > value2){
+                    isSalaryNotMatched = true;
+                    document.getElementById("maxSalaryMsg").innerHTML = "Max Salary should more than or equal to Min Salary"
+                    document.getElementById("minSalaryMsg").innerHTML = "Min Salary should less than or equal to Max Salary"
+                    return false
+                } else {
+                    isSalaryNotMatched = false;
+                    return true
+                }
+            }
+
+
+
+            function cancelAdd(){
+                $("#warningModal2").modal('close');
+            }
+
+            function updateTxt() {
+                document.getElementById("jobtxt").click();
+            }
+
+            function camelize(s) {
+                var ss = s.split(' ');
+                for(var i = 1; i < ss.length; i++) ss[i] = ss[i].charAt(0).toUpperCase() + ss[i].substring(1);
+                return ss.join('');
+            }
+
+            function changeTxt() {
+                if (document.getElementById("jobtxt").value == "") return;
+                var reads = new FileReader();
+                f = document.getElementById("jobtxt").files[0];
+                // reads.readAsDataURL(f);
+                reads.readAsText(f);
+                reads.onload = function (e) {
+                    var content = e.target.result;
+                    var lowerContent = content.toLowerCase();
+
+                    var dic = new Array();
+                    dic['title'] = 20;
+                    dic['organization'] = 20;
+                    dic['location'] = 30;
+                    dic['goals'] = 30;
+                    dic['short description'] = 20;
+                    dic['long description'] = 100;
+                    dic['required expertise'] = 30;
+                    dic['preferred expertise'] = 30;
+                    dic['fields'] = 30;
+                    dic['url'] = 100;
+
+                    for (var k in dic) {
+                        var kIndex = lowerContent.indexOf(k + ":");
+                        if (kIndex == -1 && k == 'url') {
+                            k = 'http';
+                            kIndex = lowerContent.indexOf(k + ":");
+                        }
+                        if (kIndex != -1) {
+                            var inputEntry = content.substring(kIndex + k.length + 1).trim();
+                            var encloseIndex = inputEntry.indexOf("\n");
+                            if (encloseIndex == -1 || encloseIndex > dic[k]) encloseIndex = dic[k];
+                            inputEntry = inputEntry.substring(0, encloseIndex).trim();
+                            if (k == 'http') {
+                                k = 'url';
+                                inputEntry = 'http:' + inputEntry;
+                            }
+                            var tagId = camelize(k);
+                            $('#' + tagId).val(inputEntry);
+                            $("label[for='" + tagId + "']").attr("class", "active");
+                        }
+                    }
+                };
+            }
+
+            $("#showPanel").click(function () {
+                $("#warningModal2").modal('close');
+            })
+
+            function prepareFormForSubmission() //display current HTML
+            {
+                if(document.getElementById("titleMsg").innerText.length != 0)
+                    return false;
+                var ajaxflag = true;
+                $.ajax({
+                    type: "GET",
+                    success: function (data) {
+                        var response = data;
+                        console.log(data);
+                        if('badFormat' in response) {
+                            console.log(response['badFormat']);
+                            ajaxflag = false;
+                        } else{
+                            if('notExisted' in response){
+                                ajaxflag = false;
+                            }else{
+
+                            }
+
+                        }
+                    }
+                });
+                if(!ajaxflag){
+                    return false;
+                }
+
+
+                // if (document.getElementById("agreement").checked == false) {
+                //     document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can register a project!";
+                //     $("#warningModal").modal();
+                //     $("#warningModal").modal('open');
+                //     return false;
+                // }
+
+                return true;
+            }
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function clearPDF(inputId, textId) {
+                console.log("clearFile called for", inputId, textId);
+                var fileInput = document.getElementById(inputId);
+                if(fileInput) {
+                    fileInput.value = "";
+                } else {
+                    console.error("Cannot find element with id", inputId);
+                }
+                var textInput = document.getElementById(textId);
+                if(textInput) {
+                    textInput.value = "";
+                    $('#' + textId).trigger('change');
+                } else {
+                    console.error("Cannot find element with id", textId);
+                }
+            }
+    </script>
+}
+
+@main("Post Job", scripts) {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("../../public/javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Post Job</h4>
+                    <!-- <h6 class="left form-signin-heading" align="center">
+                        You can just upload a text file, and our Intelligent Assistant will apply Natural Language Processing to extract core requirements for you to edit/revise.</h6>
+                    <div class="row"> -->
+                    @*</div>*@
+
+@*                    <h6 class="left form-signin-heading" align="center">*@
+@*                        Or you could fill in the following information in-person:</h6>*@
+@*                    <div class="row">*@
+@*                        <span >Upload Job Description in a TEXT file: </span>*@
+@*                        <a class="btn-floating waves-effect waves-light blue darken-2" title="Update Job Description in a text file" href="javascript:void(0)" onclick="updateTxt()">*@
+@*                            <i class="material-icons">upload</i>*@
+@*                            <input type="file" id="jobtxt" name="jobtxt" style="display: none;" accept=".txt" onchange="changeTxt()"/>*@
+@*                        </a>*@
+@*                    </div>*@
+
+                    <!-- <h6 class="left form-signin-heading" align="center">
+                        Or you could fill in the following information in-person:</h6> -->
+                    <form class="form-signin" enctype="multipart/form-data" id="jobForm" onsubmit="return prepareFormForSubmission()" method="post" action="@routes.JobController.jobRegisterPOST()">
+                        @*
+                        <div class="row">
+                            <div class="file-field input-field col s12">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                        <span>Upload Job Description PDF</span>
+                                        <input type="file" accept=".pdf" id="jobDescriptionPdf" name="jobDescriptionPdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                        <input class="file-path validate" type="text" placeholder="Upload Job Description PDF" id="filePathJobDescriptionPdf" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('jobDescriptionPdf','filePathJobDescriptionPdf')" style="margin-left: 10px;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                                            *@
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="title" id="title" class="validate" required onchange="checkValidJobTitle()">
+                                <label for="title">Title* </label>
+                                <span id="titleMsg" class="helper-text" data-success="✓" data-error="Please input a title" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="goals" id="goals" class="validate" required>
+                                <label for="goals">Goals* </label>
+                                <span id="goalsMsg" class="helper-text" data-success="✓" data-error="Please input goals" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="organization" id="organization" class="validate" required>
+                                <label for="organization">
+                                    Department/Lab Name* </label>
+                                <span id="organizationMsg" class="helper-text" data-success="✓" data-error="Please input the department/lab name" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="location" id="location" class="validate" required>
+                                <label for="location">
+                                    Location* </label>
+                                <span id="locationMsg" class="helper-text" data-success="✓" data-error="Please input the location" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" class="validate" required onchange="validateRegex(this.id, /.{0,100}/)">
+                                <label for="shortDescription">Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-success="✓" data-error="The short description must be under 100 characters" style="color: red;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea type="text" style="height: 200px;
+                                    word-wtap: break-word; margin-top: 10px;" id="longDescription" placeholder="" name="longDescription" required onchange="validateRegex(this.id, /.{0,600}/)"></textarea>
+                                <label for="longDescription">Long Description*</label>
+                                <span id="longDescriptionMsg" class="helper-text" data-success="✓" data-error="The long description must be under 600 characters" style="color: red; font-size: 12px"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="requiredExpertise" id="keywords" class="validate" required>
+                                <label for="requiredExpertise">
+                                    Required Expertise* </label>
+                                <span id="requiredExpertiseMsg" class="helper-text" data-success="✓" data-error="Please enter some required expertise"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredExpertise" id="keywords" class="validate" required>
+                                <label for="preferredExpertise">
+                                    Preferred Expertise* </label>
+                                <span id="preferredExpertise" class="helper-text" data-success="✓" data-error="Please enter some preferred expertise"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="fields" id="fields" class="validate" required>
+                                <label for="fields">
+                                    Fields* </label>
+                                <span id="fieldsMsg" class="helper-text" data-success="✓" data-error="Please enter some fields of work"></span>
+                            </div>
+                        </div>
+
+                        Salary Range
+                        <div class="row">
+                            <div class="input-field col s12 m5">
+                                <input type="number" name="minSalary" id="minSalary" class="validate" value=0 required>
+                                <label for="minSalary">Min Salary</label>
+                                <span id="minSalaryMsg" class="helper-text" data-success="✓" data-error="Please input a minimum salary" style="color: red"></span>
+                            </div>
+                            <div class="input-field col s12 m2">_</div>
+
+                            <div class="input-field col s12 m5">
+                                <input type="number" name="maxSalary" id="maxSalary" class="validate" value=0 required>
+                                <label for="maxSalary">Max Salary</label>
+                                <span id="maxSalaryMsg" class="helper-text" data-success="✓" data-error="Please input a maximum salary" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="url" id="url" class="validate" onchange="validateRegex(this.id, 'URL')">
+                                <label for="url">
+                                    TA Job URL </label>
+                                <span id="urlMsg" class="helper-text" data-success="✓" data-error="Please input a valid URL"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="file-field input-field col s12">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                        <span>Upload Job PDF</span>
+                                        <input type="file" accept=".pdf" id="jobPdf" name="jobPdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                        <input class="file-path validate" type="text" placeholder="Upload job PDF" id="filePathJobPdf" readonly>
+                                    </div>
+                                        <button type="button" class="btn-small red" onclick="clearPDF('jobPdf','filePathJobPdf')" style="margin-left: 10px;">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="warningModal" class="modal">
+                            <div class="modal-content">
+                                <h5 class="center" style="color: red">Warning!</h5>
+                                <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                            </div>
+                        </div>
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="jobRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Submit</button>
+                                <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

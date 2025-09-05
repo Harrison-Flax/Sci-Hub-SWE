@@ -1,0 +1,183 @@
+@(technologies: List[Technology], pageNum: Integer, sortCriteria: String, totalCount: Integer, totalPages: Integer)
+
+@import helper._
+@import models._
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('.tooltipped').tooltip();
+            });
+    </script>
+}
+
+@main("Technology - Admin Dashboard", scripts) {
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <nav class="breadcrumb-nav">
+                    <div class="nav-wrapper">
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="card-panel">
+            <div class="row">
+                <div class="col s12">
+                    <h4 class="center">Technology Management</h4>
+                </div>
+            </div>
+
+            @if(technologies.size() > 0) {
+                <div class="row">
+                    <div class="col s6">
+                        <h6 class="left"> @totalCount techonolies in total,Page @pageNum </h6>
+                    </div>
+                    <div class="col s6" style="padding-top: -5px; margin-top: -2px">
+                        <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown-sort' style="text-transform: none; font-weight: bold; color: black;">
+                            Sort: &nbsp; <font color="#3a5dc3">
+                            @if(sortCriteria.equals("id")) {
+                                ID
+                            } else if(sortCriteria.equals("technologyTitle")) {
+                        title
+                        } else if(sortCriteria.equals("registeredTime")) {
+                        registered time
+                        } else {
+                        ID
+                        }
+                        </font> <i class="material-icons right">expand_more</i>
+                        </a>
+
+                        <ul id='dropdown-sort' class='dropdown-content'>
+                            <li><a href="@routes.AdminController.technologyManagement(1, "id")" class="grey-text text-darken-4">
+                                <i class="material-icons">tag</i>ID</a></li>
+                            <li><a href="@routes.AdminController.technologyManagement(1, "technologyTitle")" class="grey-text text-darken-4">
+                                <i class="material-icons">title</i>title</a></li>
+                            <li><a href="@routes.AdminController.technologyManagement(1, "registeredTime")" class="grey-text text-darken-4">
+                                <i class="material-icons">schedule</i>registered time</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <table class="centered responsive-table striped">
+                    <thead>
+                        <tr class="list-header">
+                            <th>ID</th>
+                            <th>title</th>
+                            <th>Goals</th>
+                            <th>Keywords</th>
+                            <th>PIName</th>
+                            <th>TeamMembers</th>
+                            <th>Organizations</th>
+                            <th>Rating</th>
+                            <th>IsActive</th>
+                            <th>RegisteredTime</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(tech <- technologies) {
+                        <tr>
+                            <td>@tech.getId()</td>
+                            <td>
+                                <div class="truncate" style="max-width: 200px;" title="@tech.getTechnologyTitle()">
+                                    <a href="@routes.TechnologyController.technologyDetail(tech.getId())" class="blue-text">
+                                    @tech.getTechnologyTitle()
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@tech.getGoals()">
+                                @tech.getGoals()
+                                </div>
+                            </td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@tech.getKeywords()">
+                                @tech.getKeywords()
+                                </div>
+                            </td>
+                            <td>@tech.getPIName()</td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@tech.getTeamMembers()">
+                                @tech.getTeamMembers()
+                                </div>
+                            </td>
+                            <td>
+                                <div class="truncate" style="max-width: 150px;" title="@tech.getOrganizations()">
+                                @tech.getOrganizations()
+                                </div>
+                            </td>
+                            <td>
+                            @if(tech.getIsActive() == "True") {
+                                <span class="chip green white-text">active</span>
+                            } else {
+                                <span class="chip red white-text">inactive</span>
+                            }
+                            </td>
+                            <td>@tech.getRegisteredTime()</td>
+                            <td>
+                                <a href="@routes.TechnologyController.technologyDetail(tech.getId())"
+                                class="btn-small blue tooltipped" data-position="top" data-tooltip="view detail">
+                                    <i class="material-icons">visibility</i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+
+                    <!-- Pagination -->
+                @if(totalPages > 1) {
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="pagination center-align">
+                                @if(pageNum == 1) {
+                                    <li class="waves-effect disabled">
+                                        <i class="material-icons">chevron_left</i>
+                                    </li>
+                                } else {
+                                    <li class="waves-effect">
+                                        <a href="@routes.AdminController.technologyManagement(pageNum - 1, sortCriteria)">
+                                            <i class="material-icons">chevron_left</i>
+                                        </a>
+                                    </li>
+                                }
+
+                                @for(i <- 1 to totalPages) {
+                                    @if(i == pageNum) {
+                                        <li class="active">
+                                            <a href="@routes.AdminController.technologyManagement(i, sortCriteria)">@i</a>
+                                        </li>
+                                    } else {
+                                        <li class="waves-effect">
+                                            <a href="@routes.AdminController.technologyManagement(i, sortCriteria)">@i</a>
+                                        </li>
+                                    }
+                                }
+
+                                @if(pageNum == totalPages) {
+                                    <li class="waves-effect disabled">
+                                        <i class="material-icons">chevron_right</i>
+                                    </li>
+                                } else {
+                                    <li class="waves-effect">
+                                        <a href="@routes.AdminController.technologyManagement(pageNum + 1, sortCriteria)">
+                                            <i class="material-icons">chevron_right</i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            } else {
+                <div class="row">
+                    <div class="col s12 center">
+                        <h5>No technology data</h5>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

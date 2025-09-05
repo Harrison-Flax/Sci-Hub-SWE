@@ -1,0 +1,41 @@
+@import java.util
+@import models._
+
+@import helper._
+@import models.Project
+
+@main("General Error Page") {
+    <div class="container">
+        <div class="center">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h5>General Error Page</h5>
+                    <h6>Sorry,
+                        @if(flash.contains("user_general_error")) {
+                            @flash.get("user_general_error")
+                        }else {
+                            Your action did not go through.
+                        }
+                        Please try again later.</h6>
+                    <br>
+                    <span id="show"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Wait five seconds and redirect to the homepage of OpenNEX *@
+    <script type="text/javascript">
+            var t=5; // set the time of re-direction to be 5 seconds
+            setInterval("refer()",1000); // 1s start up
+            function refer(){
+                if(t==0){
+                    location='@routes.Application.home()';
+                }
+
+                document.getElementById('show').innerHTML="This page will be redirected to the homepage in "
+                        +""+t+" seconds";
+                t--;
+            }
+    </script>
+}

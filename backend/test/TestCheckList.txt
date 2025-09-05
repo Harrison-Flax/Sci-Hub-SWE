@@ -1,0 +1,308 @@
+1-ClimateServiceController
+    1.getAllClimateServices(String format)
+        1.shouldGetAllClimateServices
+    2.getProjectById(Long projId)
+        1.shouldGetProjectGivenValidId
+        2.shouldNotGetProjectGivenInvalidId
+    3.getAllProject()
+        1.shouldGetAllProjects
+    4.getTeamMembersByProjectId
+        1.shouldGetTeamMembersGivenValidProjectId
+        2.shouldNotGetTeamMembersGivenInvalidProjectId
+    5.get
+        1.shouldGetClimateServiceGivenValidEntryId
+        2.shouldNotGetClimateServiceGivenInvalidEntryId
+    6.getByAPIID
+        1.shouldGetClimateServiceByAPIID
+    7.getComments
+        1.shouldGetAllComments
+    8.getAllUsersByService
+        1.shouldGetAllUsersByService
+    9.getAllDatasetsByService
+        1.shouldGetAllDatasetsByService
+    10.getMyFollowedClimateServices
+        1.shouldGetMyFollowedClimateServicesForValidUser
+        2.shouldNotGetMyFollowedClimateServicesWithInvalidUser
+    11.getMyRegisteredClimateServices
+        1.shouldGetMyRegisteredClimateServices
+        2.shouldNotGetMyRegisteredClimateServices
+    l2.getAllUserTags
+        1.shouldGetAllUserTags
+    13.getAllAPIEvents
+        1.shouldGetAllAPIEvents
+    14.getAllFollowedEvents
+        1.shouldGetAllFollowedEvents
+
+
+
+2-BugReportControllerTest
+    1.getAllBugReports
+        1.shouldGetAllBugReports
+    2.getAllSolvedBugReports
+        1.shouldGetAllSolvedBugReports
+    3.getAllUnsolvedBugReports
+        1.shouldGetAllUnSolvedBugReports
+    4.getBugReport
+        1.shouldGetBugReportWithValidId
+        2.shouldNotGetBugReportGivenInvalidId
+
+3-CommentController
+    1.getReply
+        1.shouldGetReply
+
+4-CommunityDockerController
+    1.getAllCommunityDocker
+        1.shouldGetAllCommunityDocker
+
+5-WishControllerTest
+    1.getAllWishes
+        1.shouldGetAllWishes
+
+6-CapabilityCategoryControllerTest
+    1.getCategoryById
+        1.shouldGetCategoryGivenValidId
+        2.shouldNotGetCategoryGivenInvalidId
+    2.getAllCategory
+        1.shouldGetAllCategories
+
+7-ConversationControllerTest
+    1.getAllConversations
+        1.shouldGetAllConversations
+    2.getConversationByUserId
+        1.shouldGetConversationsGivenValidUserId
+        2.shouldNotGetConversationGivenNullUserId
+
+8-DatasetControllerTest
+    1.getAllDatasets // method modified from DatasetController
+        1.shouldGetAllDatasets
+    2.getAllDataEntryTitle  // method removed from DatasetController
+        1.shouldGetAllDatasetEntryTitles
+    3.getMyFollowedDatasets
+        1.shouldGetMyFollowedDatasetsGivenValidUserId
+        2.shouldNotGetMyFollowedDatasetsGivenNullUserId
+        3.shouldNotGetMyFollowedDatasetsGivenInvalidUserId
+    4.getDatasetById
+        1.shouldGetDatasetGivenValidId
+        2.shouldNotGetDatasetGivenNullId
+        3.shouldNotGetDatasetGivenInvalidId
+    5.getMyPublishedDatasets
+        1.shouldGetMyPublishedDatasetsGivenValidUserId
+        2.shouldNotGetMyPublishedDatasetsGivenNullUserId
+        3.shouldNotGetMyPublishedDatasetsGivenInvalidUserId
+    6.getComment
+        1.shouldGetCommentsGivenValidId
+        2.shouldNotGetCommentGivenInvalidId
+
+9-DatasetLogController
+    1.getServiceExecutionLogsByDatasetAndUser
+        1.shouldGetServiceExecutionLogsGivenValidDatasetAndUserIds
+        2.shouldNotGetServiceExecutionLogsGivenInvalidDatasetAndUserIds
+    2.getDatasetLogById
+        1.shouldGetDatasetLogGivenValidId
+        2.shouldNotGetDatasetLogGivenInvalidId
+    3.getAllDatasetLogs
+        1.shouldGetAllDatasetLogs
+    4.queryPopularService
+        1.shouldGetPopularServicesForDatasetGivenValidId
+        2.shouldNotGetPopularServicesForDatasetGivenInvalidId
+
+10-DockerController
+    1.checkForDuplicate
+        1.shouldGetNumberOfDuplicateDockersWhenDuplicatesFound
+        2.shouldNotGetDockerDuplicatesWhenDuplicatesNotFound
+    1.getAllDockerImages
+        1.shouldGetAllDockerImagesGivenValidId
+        2.shouldNotGetAllDockerImagesGivenNullId
+    1.showDockers
+        1.shouldGetAllDockers
+    1.getAllFollowedEventsDocker
+        1.shouldGetAllFollowedEventsDockerGivenValidDockerUserId
+        2.shouldNotGetAllFollowedEventDockersGivenNullDockerId
+        3.shouldNotGetAllFollowedEventDockersGivenNullUserId
+        4.shouldNotGetAllFollowedEventDockersGivenInvalidIds
+    1.getDockerByIdGet
+        1.shouldGetDockerGivenValidId
+        2.shouldNotGetDockerGivenNullId
+    1.getDockerByUserId
+        1.shouldGetDockerGivenValidUserId
+        2.shouldNotGetDockerGivenNullUserId
+    1.getNASAApisByDockerId
+        1.shouldGetNASAApisGivenValidDockerId
+        2.shouldNotGetNASAApisGivenNullDockerId
+    1.getComments
+        1.shouldGetCommentsGivenValidDockerId
+        2.shouldNotGetCommentsGivenNullDockerId
+
+11-DonateController
+    1.getAllDonations
+        .shouldGetAllDonations
+
+12-ForumController
+    1.showThreads
+        1.shouldGetAllThreads
+    2.showPosts
+        1.shouldGetAllPostsGivenValidThreadId
+        2.shouldNotGetAllPostsGivenNullThreadId
+    3.getPost
+        1.shouldGetPostGivenValidId
+        2.shouldNotGetPostGivenInvalidId
+
+13-GroupController
+    1.showGroups
+        1.shouldGetAllGroups
+    1.myGroups
+        1.shouldGetAllGroupsGivenValidUserId
+        2.shouldNotGetGroupsGivenNullUserId
+
+14-MilestonesController
+    1.getMilestones
+        1.shouldGetMilestonesGivenValidProjectId
+        2.shouldNotGetMilestonesGivenInvalidProjectId
+
+15-NewsController
+    1.getAllNews
+        1.shouldGetAllNewsWhenNewsFound
+        2.shouldNotGetAnyNewsWhenNoNewsFound
+
+    2.getNewsByUser
+        1.shouldGetNewsByUserGivenValidUserId
+        2.shouldNotGetNewsByUserGivenInvalidUserId
+
+    3.getNewsForUser
+        1.shouldNotGetNewsForUserWhenNullUserId
+        2.shouldNotGetNewsForUserWhenNoNewsFound
+        3.shouldGetNewsForUserGivenValidUserId
+
+    4.getUnreadNewsForUser
+        1.shouldNotGetUnreadNewsForUserGivenNullUserId
+        2.shouldNotGetUnreadNewsForUserWhenNoNewsFound
+        3.shouldGetUnreadNewsForUserGivenValidUserId
+
+    5.getNewsById
+        1.shouldGetNewsByIdGivenValidId
+        2.shouldNotGetNewsByIdGivenNullId
+        3.shouldNotGetNewsByIdWhenNoNewsFound
+
+16-NotificationController
+    1.getFolloweesByUser
+        1.shouldNotGetFolloweesByUserGivenNullUSerId
+        2.shouldGetFolloweesByUserGivenValidUserId
+    2.getFollowersByUser
+        1.shouldNotGetFollowersByUserGivenNullUSerId
+        2.shouldGetFollowersByUserGivenValidUserId
+    3.GetAllNotifications
+        1.shouldGetAllNotifications
+
+17-ParameterController
+    1.getParametersByServiceId
+        1.shouldGetParametersByServiceId
+
+18-ProjectsController
+    1.getAllProjects
+        1.shouldGetAllProjects
+
+    2.getAllProjectStatus
+        1.shouldGetAllProjectStatus
+    3.getProjectById
+        1.shouldGetProjectGivenValidProjectId
+        2.shouldNotGetProjectGivenNullProjectId
+        3.shouldNotGetProjectGivenInvalidProjectId
+    4.getComment
+        1.shouldGetCommentGivenValidProjectId
+        2.shouldNotGetCommentGivenNullProjectId
+    5.getRating
+        1.shouldGetRatingGivenValidFieldProjectId
+        2.shouldNotGetRatingGivenInvalidField
+        3.shouldNotGetRatingGivenNullProjectId
+        4.shouldNotGetRatingGivenInvalidProjectId
+    6.getInitiator
+        1.shouldGetInitiatorGivenValidProjectId
+        2.shouldNotGetInitiatorGivenNullProjectId
+    7.getCandidates
+        1.shouldGetCandidatesGivenValidProjectId
+        2.shouldNotGetCandidatesGivenNullProjectId
+    8.getServiceUserAndProvider
+        1.shouldGetServiceUserAndProviderGivenValidProjectId
+        2.shouldNotGetServiceUserAndProviderGivenNullProjectId
+    9.finishedProjectSearchByTopic
+        1.shouldGetFinishedProjectGivenValidTopic
+        2.shouldNotGetFinishedProjectsGivenNullTopic
+    10.ongoingProjectSearchByTopic
+        1.shouldGetOnGoingProjectGivenValidTopic
+        2.shouldNotGetOnGoingProjectsGivenNullTopic
+
+19-RepresenatativeInvitationController
+    1.getInvitationsByCapabilityId
+        1.shouldGetInvitationsGivenValidCapabilityId
+        2.shouldNotGetInvitationsGivenNullCapabilityId
+    2.getInvitationByUuid
+        1.shouldGetInvitationGivenValidUuid
+        2.shouldNotGetInvitationGivenNullUuid
+    3.getInvitationById
+        1.shouldGetInvitationGivenValidId
+
+20-SecurityQuestionController
+    1.getAllQuestions
+        1.shouldGetAllSecurityQuestions
+    2.getQuestionByUser
+        1.shouldGetQuestionsGivenValidUserEmail
+        2.shouldNotGetQuestionsGivenInvalidUserEmail
+        3.shouldNotGetQuestionsGivenNullEmail
+    3.validateQuestions
+        1.shouldReturnInvalidAnswerGivenNullUserId
+        2.shouldReturnInvalidAnswerGivenWrongAnswerSecurityQuestion1
+        3.shouldReturnInvalidAnswerGivenWrongAnswerSecurityQuestion2
+        4.shouldReturnValidAnswerWhenGivenValidSecurityAnswers
+
+21-WorkflowController
+    1.getWorkflowCodeByWfid
+        1.shouldGetWorkflowCodeGivenValidWfidFormat
+        2.shouldNotGetWorkflowCodeGivenNullWfid
+        3.shouldNotGetWorkflowCodeGivenInvalidFormat
+    2.getAllWorkflow
+        1.shouldGetAllWorkflowsGivenValidFormat
+        2.shouldNotGetAllWorkflowGivenInvalidFormat
+    3.getComments
+        1.shouldGetCommentsGivenValidWfId
+        2.shouldNotGetCommentsGivenInvalidWfId
+    4.getMyRegisteredWorkflows
+        1.shouldGetMyRegisteredWorkflowsGivenValidUserId
+        2.shouldNotGetMyRegisteredWorkflowsGivenInvalidUserId
+    5.getMyFollowedWorkflows
+        1.shouldGetMyFollowedWorkflowsGivenValidUserId
+        2.shouldNotGetMyFollowedWorkflowsGivenInvalidUserId
+
+22-WishController
+    1.getWish
+        1.shouldGetWishGivenValidIdFormat
+        2.shouldNotGetWishGivenInvalidId
+        3.shouldNotGetWishGivenInvalidFormat
+
+23-SupportAppController
+    1.getAllSupportApp
+        1.shouldGetAllSupportApp
+    2.getSupportAppById
+        1.shouldGetSupportAppGivenValidId
+        2.shouldNotGetSupportAppGivenNullId
+
+24-UserControllerTest
+
+25-ServiceExPublishControllerTest
+
+26-ServiceExecutionLogControllerTest
+
+27-MailControllerTest
+
+28-InstrumentControllerTest
+
+29-HomeControllerTest
+
+30-GraphAlgorithmControllerTest
+
+31-ContractControllerTest
+
+32-BroadcastControllerTest
+
+33-AnalyticsControllerTest
+
+

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<!-- saved from url=(0108)http://ec2-52-53-95-229.us-west-1.compute.amazonaws.com:8080/assets/html/mapView.html?userId=91&serviceId=43 -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+
+  <!-- for Bootstrap -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- /<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+-->
+
+  <script src="./Map View_files/jquery.min.js.download"></script>
+  <link rel="stylesheet" href="./Map View_files/bootstrap.min.css">
+  <script src="./Map View_files/bootstrap.min.js.download"></script>
+
+  <!-- cmac related -->
+  <link rel="stylesheet" href="./Map View_files/common.css">
+  <script src="./Map View_files/dataList1.js.download"></script>
+  <script src="./Map View_files/varList.js.download"></script>
+  <script src="./Map View_files/common-v4.js.download"></script>
+  <script src="./Map View_files/js.cookie-2.1.3.min.js.download"></script>
+<script src="./Map View_files/vue.js.download"></script>
+
+  <title>Map View</title>
+
+  <script>
+
+  // because they are used in common.js
+  var isNVar = 1;
+  var nVar0 = 6;
+  var nVar = nVar0;
+  var nVarP = 1; 
+  //if ( isNVar==0 ) { nVar = nVar0; }
+  var useQueryStr = 1; 
+
+  var includeDataUrl = true;
+  var DataUrl = "";
+
+var dList = [
+{  "name": "Data", 
+   "isPressure": 1, 
+   "pressure2url": 1, 
+   "pressureDf": "500", 
+   "pressureDfOcean": "500", 
+   "isPressureRange": 0, 
+   "pressureDfa": "900", 
+   "pressureDfaOcean": "2000", 
+   "only2D": 0, 
+   "only3D": 0,
+   "includeLatLon": 0, 
+   "includeTime": 1, 
+   "pickMonth": 1, 
+},
+{  "name": "Additional Data 1", 
+   "isPressure": 1, 
+   "pressure2url": 1, 
+   "pressureDf": "500", 
+   "pressureDfOcean": "500", 
+   "isPressureRange": 0, 
+   "pressureDfa": "900", 
+   "pressureDfaOcean": "2000", 
+   "only2D": 0, 
+   "only3D": 0,
+   "includeLatLon": 0, 
+   "includeTime": 1, 
+   "pickMonth": 1, 
+},
+{  "name": "Additional Data 2", 
+   "isPressure": 1, 
+   "pressure2url": 1, 
+   "pressureDf": "500", 
+   "pressureDfOcean": "500", 
+   "isPressureRange": 0, 
+   "pressureDfa": "900", 
+   "pressureDfaOcean": "2000", 
+   "only2D": 0, 
+   "only3D": 0,
+   "includeLatLon": 0, 
+   "includeTime": 1, 
+   "pickMonth": 1, 
+},
+{  "name": "Additional Data 3", 
+   "isPressure": 1, 
+   "pressure2url": 1, 
+   "pressureDf": "500", 
+   "pressureDfOcean": "500", 
+   "isPressureRange": 0, 
+   "pressureDfa": "900", 
+   "pressureDfaOcean": "2000", 
+   "only2D": 0, 
+   "only3D": 0,
+   "includeLatLon": 0, 
+   "includeTime": 1, 
+   "pickMonth": 1, 
+},
+{  "name": "Additional Data 4", 
+   "isPressure": 1, 
+   "pressure2url": 1, 
+   "pressureDf": "500", 
+   "pressureDfOcean": "500", 
+   "isPressureRange": 0, 
+   "pressureDfa": "900", 
+   "pressureDfaOcean": "2000", 
+   "only2D": 0, 
+   "only3D": 0,
+   "includeLatLon": 0, 
+   "includeTime": 1, 
+   "pickMonth": 1, 
+},
+{  "name": "Additional Data 5", 
+   "isPressure": 1, 
+   "pressure2url": 1, 
+   "pressureDf": "500", 
+   "pressureDfOcean": "500", 
+   "isPressureRange": 0, 
+   "pressureDfa": "900", 
+   "pressureDfaOcean": "2000", 
+   "only2D": 0, 
+   "only3D": 0,
+   "includeLatLon": 0, 
+   "includeTime": 1, 
+   "pickMonth": 1, 
+},
+];
+
+// format: RestFulName: [htmlId, functionName, additionalParams]
+var inputs = {
+'purpose': ['purpose', 'url2escape'],
+'lonS': ['lonS', 'urlDirect'],
+'lonE': ['lonE', 'urlDirect'],
+'latS': ['latS', 'urlDirect'],
+'latE': ['latE', 'urlDirect'],
+'nVar': ['nVar', 'urlDirect'],
+'scale': ['scale', 'urlScale1'],
+};
+
+var mapping = {};
+var key99;
+var arg99;
+for (var k in inputs) {
+  key99 = k;
+  arg99 = inputs[k];
+  mapping[k] = eval('new ' + inputs[k][1] + '()');
+}
+
+
+
+
+
+window.onload = function() {
+ addDataList(1); 
+ addVarList(1); 
+ addPres(1); 
+ addDataList(2); 
+ addVarList(2); 
+ addPres(2); 
+ addDataList(3); 
+ addVarList(3); 
+ addPres(3); 
+ addDataList(4); 
+ addVarList(4); 
+ addPres(4); 
+ addDataList(5); 
+ addVarList(5); 
+ addPres(5); 
+ addDataList(6); 
+ addVarList(6); 
+ addPres(6); 
+
+
+
+
+  disableButton("download_data");
+  enableButton("action1"); 
+
+  if (isNVar==1) {
+    hideVar();
+  }
+
+  if ($("#purpose").val()==" ") {
+    $("#purpose").val("");
+  }
+
+
+
+
+$("#var"+1).change();
+$("#var"+2).change();
+$("#var"+3).change();
+$("#var"+4).change();
+$("#var"+5).change();
+$("#var"+6).change();
+
+var WF, wfId, versionId, wfRunId, userId1;
+processQS4();
+assignWF();
+
+}  // onload = function()
+
+$(document).ready(function(){
+
+// remember the last picked variable
+$(".var").click( function() {
+  //console.log(this.id);
+  var id1 = this.id;
+  $("#"+id1).change( function() {
+    $("#"+id1).data("aa", $("#"+id1).val()); 
+  });
+});
+
+$(".inputChange").change(function(){
+displayUrl4();
+disableButton("download_data");
+includeDataUrl = false;
+});
+
+
+
+      $("#download_data").click(function(event) {
+        var durl = $("#data_url").val();
+        // alert(durl);
+        window.location.assign(durl);
+      });
+
+      $("#action1").click(function(event) {
+
+
+        displayUrl4();
+
+        Response = null;
+
+        // no data to download yet
+        disableButton("action1");
+        disableButton("download_data");
+
+        if (WF==1) {
+          sendWF();
+          return;
+        }
+
+        $("#Response").val("Calculating ...");
+        $("#data_url").val("Calculating ...");
+        $("#Image").html("Image will appear here.");
+
+
+        var url = "http://ec2-52-53-95-229.us-west-1.compute.amazonaws.com:8080/svc/mapView?";
+        var registerRrl = "https://opennex.org/serviceExecutionLog/addAPIExecutionLog";
+        var argList = makeUrl4(true);
+        console.log("argList:" +  argList);
+
+          url = url + argList;
+        console.log("server url:");
+        console.log(url);
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: "json",
+            data: null,
+            success: function(data, textStatus, xhr) {
+                Response = data;
+                // alert("data: " + data);
+                if (data.success == false) {
+                    // alert(data.error);
+                    Response = null;
+                    var text = JSON.stringify(data, null, 4);
+
+                    if (text.indexOf("No Data") != -1) {
+                      $("#Image").val("No Data");
+                      $("#Response").val("No Data");
+                      $("#data_url").val("No Data");
+                      enableButton("action1"); 
+                      return;
+                    }
+
+                    text = "Error in backend: <br>" + text; 
+                    // $("#Response").html("<span style='color:red'>" + text + "</span>");
+                    $("#Response").val(text);
+                    $("#data_url").val("No data file due to backend error.");
+                    enableButton("action1"); 
+                    return;
+                }  // if (data.success == false)
+
+                var text = JSON.stringify(data, null, 4);
+                // alert(text);
+                // $("#Response").html("<pre>"+text+"</pre>");
+                $("#Response").val(text);
+                var html = "<img src='"+data.url+"' />";
+                //var html = "<img src='"+data.url+"' width='820'/>";
+                $("#Image").html(html);
+
+                // post dataUrl to textarea and enable download button
+                $("#data_url").val(data.dataUrl);
+                enableButton("download_data");
+                enableButton("action1"); 
+
+                includeDataUrl = true;
+                dataUrl = data.dataUrl;
+                displayUrl4a();
+
+
+            }, // success: function(data, textStatus, xhr)
+            error: function(xhr, textStatus, errorThrown) {
+                $("#Response").val("error!");
+                $("#data_url").val("error!");
+                enableButton("action1"); 
+                // alert("xhr.status: "+xhr.status);
+                // alert("error status: "+textStatus);
+            },
+            complete: function(xhr, textStatus) {
+                //alert("complete status: "+textStatus);
+            },
+      }); // .ajax
+   }); // action.click
+  });  // ready(function())
+
+  </script>
+
+</head>
+
+<body>
+<div class="container-fluid">
+<div id="vueId"><div class="row center1"><div class="col-sm-8 col-sm-offset-2 col-xs-12 color-head"><h3>Service: Map View</h3>
+Map View service allows a user to display one or more variables as function(s) of latitude and longitude as a map or maps with the color representing the values of the physical quantity of interest. The values are computed by averaging over a range of time. For 3-d variables, the values are for specified pressure levels.
+</div> <div class="col-sm-offset-2"></div></div> <div><div id="dataBlock1" class="color0"><div class="row "><div class="col-sm-12 center1 subtitle1">
+Data
+</div></div> <div class="row"><div class="col-sm-4 right1">
+   source:
+  </div> <div class="col-sm-8 left1"><select id="data1" onchange="addVarList(1); addPres(1);timeBound([1],&#39;1&#39;); " class="inputChange"><optgroup label="Model: Historical"><option value="GFDL/ESM2G">GFDL/ESM2G</option><option value="GISS/E2-H">GISS/E2-H</option><option value="GISS/E2-R">GISS/E2-R</option><option value="NCAR/CAM5">NCAR/CAM5</option><option value="NCC/NORESM">NCC/NORESM</option><option value="UKMO/HadGEM2-ES">UKMO/HadGEM2-ES</option></optgroup><optgroup label="Model: AMIP"><option value="CCCMA/CANAM4">CCCMA/CANAM4</option><option value="CSIRO/MK3.6">CSIRO/MK3.6</option><option value="GFDL/CM3">GFDL/CM3</option><option value="IPSL/CM5A-LR">IPSL/CM5A-LR</option><option value="MIROC/MIROC5">MIROC/MIROC5</option><option value="UKMO/HadGEM2-A">UKMO/HadGEM2-A</option><option value="CNRM/CM5">CNRM/CM5</option><option value="FUB-DWD/SSMI-MERIS">FUB-DWD/SSMI-MERIS</option><option value="IAP/FGOALS-S2">IAP/FGOALS-S2</option><option value="MPI/ESM-LR">MPI/ESM-LR</option><option value="MRI/CGCM3">MRI/CGCM3</option><option value="CMCC/CM">CMCC/CM</option></optgroup><optgroup label="Observation"><option value="NASA/GRACE">NASA/GRACE</option><option value="NASA/MODIS">NASA/MODIS</option><option value="NASA/AMSRE">NASA/AMSRE</option><option value="NASA/TRMM">NASA/TRMM</option><option value="NASA/GPCP">NASA/GPCP</option><option value="NASA/QuikSCAT">NASA/QuikSCAT</option><option value="NASA/AVISO">NASA/AVISO</option><option value="NOAA/NODC">NOAA/NODC</option><option value="NASA/CERES">NASA/CERES</option><option value="NASA/AIRS">NASA/AIRS</option><option value="NASA/MLS">NASA/MLS</option><option value="NASA/MISR">NASA/MISR</option><option value="NASA/TES">NASA/TES</option><option value="NCEP/GLDAS">NCEP/GLDAS</option><option value="ARGO/ARGO">ARGO/ARGO</option><option value="UOE/ATSR">UOE/ATSR</option><option value="WCRP/ISCCP">WCRP/ISCCP</option></optgroup><optgroup label="Reanalysis"><option value="ECMWF/interim">ECMWF/interim</option></optgroup><optgroup label="WRF"><option value="WRF/CO-KF">WRF/CO-KF</option><option value="WRF/CO-TIE">WRF/CO-TIE</option><option value="WRF/MP-MOR">WRF/MP-MOR</option><option value="WRF/MP-WDM">WRF/MP-WDM</option><option value="WRF/PBl-NN2">WRF/PBl-NN2</option><option value="WRF/PBL-YSU">WRF/PBL-YSU</option><option value="WRF/RA-CAM">WRF/RA-CAM</option><option value="WRF/ST">WRF/ST</option></optgroup></select></div></div> <div class="row"><div class="col-sm-4 right1">
+   variable:
+  </div> <div class="col-sm-8 left1"><select id="var1" onchange="addPres(1);timeBound([1],&#39;1&#39;)" class="inputChange var"><option value="cct">Cloud Top Pressure</option><option value="cl">Cloud Area Fraction</option><option value="cli">Cloud Ice Water Content</option><option value="clt">Total Cloud Fraction</option><option value="clw">Cloud Liquid Water Content</option><option value="hur">Relative Humidity</option><option value="hus">Specific Humidity</option><option value="lai">Leaf Area Index</option><option value="od550aer">Ambient Aerosol Optical Thickness at 550 nm</option><option value="pr">Precipitation Flux</option><option value="prw">Water Vapor Path</option><option value="rlds">Surface Downwelling Longwave Radiation</option><option value="rldscs">Surface Downwelling Clear-Sky Longwave Radiation</option><option value="rlus">Surface Upwelling Longwave Radiation</option><option value="rlut">TOA Outgoing Longwave Radiation</option><option value="rlutcs">TOA Outgoing Clear-Sky Longwave Radiation</option><option value="rsdt">TOA Incident Shortwave Radiation</option><option value="rsut">TOA Outgoing Shortwave Radiation</option><option value="rsutcs">TOA Outgoing Clear-Sky Shortwave Radiation</option><option value="sfcWind">Near-Surface Wind Speed</option><option value="ta">Air Temperature</option><option value="tas">Near-Surface Air Temperature</option><option value="tos">Sea Surface Temperature</option><option value="ts">Surface Temperature</option><option value="uas">Eastward Near-Surface Wind</option><option value="vas">Northward Near-Surface Wind</option><option value="wap">Vertical Wind Velocity in Pressure</option><option value="zg">Geopotential Height</option><option value="zos">Sea Surface Height</option></select></div></div> <div class="row"><div class="col-sm-4 right1"><div id="monthSelect01">
+select months:
+<select name="months" id="months1" onchange="select_months(1)" class="inputChange"><option id="all1">select all</option> <option id="none1">select none</option> <option id="summer1">Summer:Jun-Jul-Aug</option> <option id="autum1">Autumn:Sep-Oct-Nov</option> <option id="winter1">Winter:Dec-Jan-Feb</option> <option id="spring1">Spring:Mar-Apr-May</option></select></div></div> <div class="col-sm-8 left1"><div id="monthSelect1"><form role="form"><label class="checkbox-inline"><input type="checkbox" id="Jan1" value="Jan" checked="checked" class="inputChange">Jan</label> <label class="checkbox-inline"><input type="checkbox" id="Feb1" value="Feb" checked="checked" class="inputChange">Feb</label> <label class="checkbox-inline"><input type="checkbox" id="Mar1" value="Mar" checked="checked" class="inputChange">Mar</label> <label class="checkbox-inline"><input type="checkbox" id="Apr1" value="Apr" checked="checked" class="inputChange">Apr</label> <label class="checkbox-inline"><input type="checkbox" id="May1" value="May" checked="checked" class="inputChange">May</label> <label class="checkbox-inline"><input type="checkbox" id="Jun1" value="Jun" checked="checked" class="inputChange">Jun</label> <label class="checkbox-inline"><input type="checkbox" id="Jul1" value="Jul" checked="checked" class="inputChange">Jul</label> <label class="checkbox-inline"><input type="checkbox" id="Aug1" value="Aug" checked="checked" class="inputChange">Aug</label> <label class="checkbox-inline"><input type="checkbox" id="Sep1" value="Sep" checked="checked" class="inputChange">Sep</label> <label class="checkbox-inline"><input type="checkbox" id="Oct1" value="Oct" checked="checked" class="inputChange">Oct</label> <label class="checkbox-inline"><input type="checkbox" id="Nov1" value="Nov" checked="checked" class="inputChange">Nov</label> <label class="checkbox-inline"><input type="checkbox" id="Dec1" value="Dec" checked="checked" class="inputChange">Dec</label></form></div></div></div> <div class="row"><div class="col-sm-4 right1"><div id="startYear1">start year-month: (earliest:1971-01)</div></div> <div class="col-sm-2 left1"><input id="timeS1" value="2004-01" autocomplete="off" size="7" onchange="checkTimeL(1)" class="inputChange"></div> <div class="col-sm-4 right1"><div id="endYear1">end year-month: (latest:2005-12)</div></div> <div class="col-sm-2 left1"><input id="timeE1" value="2004-12" size="7" autocomplete="off" onchange="checkTimeH(1)" class="inputChange"></div></div> <div class="row"><div id="pressureLabel1" class="col-sm-4 right1">pressure:</div> <div class="col-sm-8 left1"><input id="pres1" value="500" size="7" class="inputChange" disabled=""></div></div></div> <div class="color2"><div class="row"><div class="col-sm-4 right1">
+    Number of Additional Variables (max 5):
+  </div> <div class="col-sm-8 left1"><input id="nVar" value="0" autocomplete="off" size="7" onchange="hideVar()" class="inputChange"></div></div></div> <div id="dataBlock2" class="color1" style="display: none;"><div class="row "><div class="col-sm-12 center1 subtitle1">
+Additional Data 1
+</div></div> <div class="row"><div class="col-sm-4 right1">
+   source:
+  </div> <div class="col-sm-8 left1"><select id="data2" onchange="addVarList(2); addPres(2);timeBound([2],&#39;2&#39;); " class="inputChange"><optgroup label="Model: Historical"><option value="GFDL/ESM2G">GFDL/ESM2G</option><option value="GISS/E2-H">GISS/E2-H</option><option value="GISS/E2-R">GISS/E2-R</option><option value="NCAR/CAM5">NCAR/CAM5</option><option value="NCC/NORESM">NCC/NORESM</option><option value="UKMO/HadGEM2-ES">UKMO/HadGEM2-ES</option></optgroup><optgroup label="Model: AMIP"><option value="CCCMA/CANAM4">CCCMA/CANAM4</option><option value="CSIRO/MK3.6">CSIRO/MK3.6</option><option value="GFDL/CM3">GFDL/CM3</option><option value="IPSL/CM5A-LR">IPSL/CM5A-LR</option><option value="MIROC/MIROC5">MIROC/MIROC5</option><option value="UKMO/HadGEM2-A">UKMO/HadGEM2-A</option><option value="CNRM/CM5">CNRM/CM5</option><option value="FUB-DWD/SSMI-MERIS">FUB-DWD/SSMI-MERIS</option><option value="IAP/FGOALS-S2">IAP/FGOALS-S2</option><option value="MPI/ESM-LR">MPI/ESM-LR</option><option value="MRI/CGCM3">MRI/CGCM3</option><option value="CMCC/CM">CMCC/CM</option></optgroup><optgroup label="Observation"><option value="NASA/GRACE">NASA/GRACE</option><option value="NASA/MODIS">NASA/MODIS</option><option value="NASA/AMSRE">NASA/AMSRE</option><option value="NASA/TRMM">NASA/TRMM</option><option value="NASA/GPCP">NASA/GPCP</option><option value="NASA/QuikSCAT">NASA/QuikSCAT</option><option value="NASA/AVISO">NASA/AVISO</option><option value="NOAA/NODC">NOAA/NODC</option><option value="NASA/CERES">NASA/CERES</option><option value="NASA/AIRS">NASA/AIRS</option><option value="NASA/MLS">NASA/MLS</option><option value="NASA/MISR">NASA/MISR</option><option value="NASA/TES">NASA/TES</option><option value="NCEP/GLDAS">NCEP/GLDAS</option><option value="ARGO/ARGO">ARGO/ARGO</option><option value="UOE/ATSR">UOE/ATSR</option><option value="WCRP/ISCCP">WCRP/ISCCP</option></optgroup><optgroup label="Reanalysis"><option value="ECMWF/interim">ECMWF/interim</option></optgroup><optgroup label="WRF"><option value="WRF/CO-KF">WRF/CO-KF</option><option value="WRF/CO-TIE">WRF/CO-TIE</option><option value="WRF/MP-MOR">WRF/MP-MOR</option><option value="WRF/MP-WDM">WRF/MP-WDM</option><option value="WRF/PBl-NN2">WRF/PBl-NN2</option><option value="WRF/PBL-YSU">WRF/PBL-YSU</option><option value="WRF/RA-CAM">WRF/RA-CAM</option><option value="WRF/ST">WRF/ST</option></optgroup></select></div></div> <div class="row"><div class="col-sm-4 right1">
+   variable:
+  </div> <div class="col-sm-8 left1"><select id="var2" onchange="addPres(2);timeBound([2],&#39;2&#39;)" class="inputChange var"><option value="cct">Cloud Top Pressure</option><option value="cl">Cloud Area Fraction</option><option value="cli">Cloud Ice Water Content</option><option value="clt">Total Cloud Fraction</option><option value="clw">Cloud Liquid Water Content</option><option value="hur">Relative Humidity</option><option value="hus">Specific Humidity</option><option value="lai">Leaf Area Index</option><option value="od550aer">Ambient Aerosol Optical Thickness at 550 nm</option><option value="pr">Precipitation Flux</option><option value="prw">Water Vapor Path</option><option value="rlds">Surface Downwelling Longwave Radiation</option><option value="rldscs">Surface Downwelling Clear-Sky Longwave Radiation</option><option value="rlus">Surface Upwelling Longwave Radiation</option><option value="rlut">TOA Outgoing Longwave Radiation</option><option value="rlutcs">TOA Outgoing Clear-Sky Longwave Radiation</option><option value="rsdt">TOA Incident Shortwave Radiation</option><option value="rsut">TOA Outgoing Shortwave Radiation</option><option value="rsutcs">TOA Outgoing Clear-Sky Shortwave Radiation</option><option value="sfcWind">Near-Surface Wind Speed</option><option value="ta">Air Temperature</option><option value="tas">Near-Surface Air Temperature</option><option value="tos">Sea Surface Temperature</option><option value="ts">Surface Temperature</option><option value="uas">Eastward Near-Surface Wind</option><option value="vas">Northward Near-Surface Wind</option><option value="wap">Vertical Wind Velocity in Pressure</option><option value="zg">Geopotential Height</option><option value="zos">Sea Surface Height</option></select></div></div> <div class="row"><div class="col-sm-4 right1"><div id="monthSelect02">
+select months:
+<select name="months" id="months2" onchange="select_months(2)" class="inputChange"><option id="all2">select all</option> <option id="none2">select none</option> <option id="summer2">Summer:Jun-Jul-Aug</option> <option id="autum2">Autumn:Sep-Oct-Nov</option> <option id="winter2">Winter:Dec-Jan-Feb</option> <option id="spring2">Spring:Mar-Apr-May</option></select></div></div> <div class="col-sm-8 left1"><div id="monthSelect2"><form role="form"><label class="checkbox-inline"><input type="checkbox" id="Jan2" value="Jan" checked="checked" class="inputChange">Jan</label> <label class="checkbox-inline"><input type="checkbox" id="Feb2" value="Feb" checked="checked" class="inputChange">Feb</label> <label class="checkbox-inline"><input type="checkbox" id="Mar2" value="Mar" checked="checked" class="inputChange">Mar</label> <label class="checkbox-inline"><input type="checkbox" id="Apr2" value="Apr" checked="checked" class="inputChange">Apr</label> <label class="checkbox-inline"><input type="checkbox" id="May2" value="May" checked="checked" class="inputChange">May</label> <label class="checkbox-inline"><input type="checkbox" id="Jun2" value="Jun" checked="checked" class="inputChange">Jun</label> <label class="checkbox-inline"><input type="checkbox" id="Jul2" value="Jul" checked="checked" class="inputChange">Jul</label> <label class="checkbox-inline"><input type="checkbox" id="Aug2" value="Aug" checked="checked" class="inputChange">Aug</label> <label class="checkbox-inline"><input type="checkbox" id="Sep2" value="Sep" checked="checked" class="inputChange">Sep</label> <label class="checkbox-inline"><input type="checkbox" id="Oct2" value="Oct" checked="checked" class="inputChange">Oct</label> <label class="checkbox-inline"><input type="checkbox" id="Nov2" value="Nov" checked="checked" class="inputChange">Nov</label> <label class="checkbox-inline"><input type="checkbox" id="Dec2" value="Dec" checked="checked" class="inputChange">Dec</label></form></div></div></div> <div class="row"><div class="col-sm-4 right1"><div id="startYear2">start year-month: (earliest:1971-01)</div></div> <div class="col-sm-2 left1"><input id="timeS2" value="2004-01" autocomplete="off" size="7" onchange="checkTimeL(2)" class="inputChange"></div> <div class="col-sm-4 right1"><div id="endYear2">end year-month: (latest:2005-12)</div></div> <div class="col-sm-2 left1"><input id="timeE2" value="2004-12" size="7" autocomplete="off" onchange="checkTimeH(2)" class="inputChange"></div></div> <div class="row"><div id="pressureLabel2" class="col-sm-4 right1">pressure:</div> <div class="col-sm-8 left1"><input id="pres2" value="500" size="7" class="inputChange" disabled=""></div></div></div> <div id="dataBlock3" class="color0" style="display: none;"><div class="row "><div class="col-sm-12 center1 subtitle1">
+Additional Data 2
+</div></div> <div class="row"><div class="col-sm-4 right1">
+   source:
+  </div> <div class="col-sm-8 left1"><select id="data3" onchange="addVarList(3); addPres(3);timeBound([3],&#39;3&#39;); " class="inputChange"><optgroup label="Model: Historical"><option value="GFDL/ESM2G">GFDL/ESM2G</option><option value="GISS/E2-H">GISS/E2-H</option><option value="GISS/E2-R">GISS/E2-R</option><option value="NCAR/CAM5">NCAR/CAM5</option><option value="NCC/NORESM">NCC/NORESM</option><option value="UKMO/HadGEM2-ES">UKMO/HadGEM2-ES</option></optgroup><optgroup label="Model: AMIP"><option value="CCCMA/CANAM4">CCCMA/CANAM4</option><option value="CSIRO/MK3.6">CSIRO/MK3.6</option><option value="GFDL/CM3">GFDL/CM3</option><option value="IPSL/CM5A-LR">IPSL/CM5A-LR</option><option value="MIROC/MIROC5">MIROC/MIROC5</option><option value="UKMO/HadGEM2-A">UKMO/HadGEM2-A</option><option value="CNRM/CM5">CNRM/CM5</option><option value="FUB-DWD/SSMI-MERIS">FUB-DWD/SSMI-MERIS</option><option value="IAP/FGOALS-S2">IAP/FGOALS-S2</option><option value="MPI/ESM-LR">MPI/ESM-LR</option><option value="MRI/CGCM3">MRI/CGCM3</option><option value="CMCC/CM">CMCC/CM</option></optgroup><optgroup label="Observation"><option value="NASA/GRACE">NASA/GRACE</option><option value="NASA/MODIS">NASA/MODIS</option><option value="NASA/AMSRE">NASA/AMSRE</option><option value="NASA/TRMM">NASA/TRMM</option><option value="NASA/GPCP">NASA/GPCP</option><option value="NASA/QuikSCAT">NASA/QuikSCAT</option><option value="NASA/AVISO">NASA/AVISO</option><option value="NOAA/NODC">NOAA/NODC</option><option value="NASA/CERES">NASA/CERES</option><option value="NASA/AIRS">NASA/AIRS</option><option value="NASA/MLS">NASA/MLS</option><option value="NASA/MISR">NASA/MISR</option><option value="NASA/TES">NASA/TES</option><option value="NCEP/GLDAS">NCEP/GLDAS</option><option value="ARGO/ARGO">ARGO/ARGO</option><option value="UOE/ATSR">UOE/ATSR</option><option value="WCRP/ISCCP">WCRP/ISCCP</option></optgroup><optgroup label="Reanalysis"><option value="ECMWF/interim">ECMWF/interim</option></optgroup><optgroup label="WRF"><option value="WRF/CO-KF">WRF/CO-KF</option><option value="WRF/CO-TIE">WRF/CO-TIE</option><option value="WRF/MP-MOR">WRF/MP-MOR</option><option value="WRF/MP-WDM">WRF/MP-WDM</option><option value="WRF/PBl-NN2">WRF/PBl-NN2</option><option value="WRF/PBL-YSU">WRF/PBL-YSU</option><option value="WRF/RA-CAM">WRF/RA-CAM</option><option value="WRF/ST">WRF/ST</option></optgroup></select></div></div> <div class="row"><div class="col-sm-4 right1">
+   variable:
+  </div> <div class="col-sm-8 left1"><select id="var3" onchange="addPres(3);timeBound([3],&#39;3&#39;)" class="inputChange var"><option value="cct">Cloud Top Pressure</option><option value="cl">Cloud Area Fraction</option><option value="cli">Cloud Ice Water Content</option><option value="clt">Total Cloud Fraction</option><option value="clw">Cloud Liquid Water Content</option><option value="hur">Relative Humidity</option><option value="hus">Specific Humidity</option><option value="lai">Leaf Area Index</option><option value="od550aer">Ambient Aerosol Optical Thickness at 550 nm</option><option value="pr">Precipitation Flux</option><option value="prw">Water Vapor Path</option><option value="rlds">Surface Downwelling Longwave Radiation</option><option value="rldscs">Surface Downwelling Clear-Sky Longwave Radiation</option><option value="rlus">Surface Upwelling Longwave Radiation</option><option value="rlut">TOA Outgoing Longwave Radiation</option><option value="rlutcs">TOA Outgoing Clear-Sky Longwave Radiation</option><option value="rsdt">TOA Incident Shortwave Radiation</option><option value="rsut">TOA Outgoing Shortwave Radiation</option><option value="rsutcs">TOA Outgoing Clear-Sky Shortwave Radiation</option><option value="sfcWind">Near-Surface Wind Speed</option><option value="ta">Air Temperature</option><option value="tas">Near-Surface Air Temperature</option><option value="tos">Sea Surface Temperature</option><option value="ts">Surface Temperature</option><option value="uas">Eastward Near-Surface Wind</option><option value="vas">Northward Near-Surface Wind</option><option value="wap">Vertical Wind Velocity in Pressure</option><option value="zg">Geopotential Height</option><option value="zos">Sea Surface Height</option></select></div></div> <div class="row"><div class="col-sm-4 right1"><div id="monthSelect03">
+select months:
+<select name="months" id="months3" onchange="select_months(3)" class="inputChange"><option id="all3">select all</option> <option id="none3">select none</option> <option id="summer3">Summer:Jun-Jul-Aug</option> <option id="autum3">Autumn:Sep-Oct-Nov</option> <option id="winter3">Winter:Dec-Jan-Feb</option> <option id="spring3">Spring:Mar-Apr-May</option></select></div></div> <div class="col-sm-8 left1"><div id="monthSelect3"><form role="form"><label class="checkbox-inline"><input type="checkbox" id="Jan3" value="Jan" checked="checked" class="inputChange">Jan</label> <label class="checkbox-inline"><input type="checkbox" id="Feb3" value="Feb" checked="checked" class="inputChange">Feb</label> <label class="checkbox-inline"><input type="checkbox" id="Mar3" value="Mar" checked="checked" class="inputChange">Mar</label> <label class="checkbox-inline"><input type="checkbox" id="Apr3" value="Apr" checked="checked" class="inputChange">Apr</label> <label class="checkbox-inline"><input type="checkbox" id="May3" value="May" checked="checked" class="inputChange">May</label> <label class="checkbox-inline"><input type="checkbox" id="Jun3" value="Jun" checked="checked" class="inputChange">Jun</label> <label class="checkbox-inline"><input type="checkbox" id="Jul3" value="Jul" checked="checked" class="inputChange">Jul</label> <label class="checkbox-inline"><input type="checkbox" id="Aug3" value="Aug" checked="checked" class="inputChange">Aug</label> <label class="checkbox-inline"><input type="checkbox" id="Sep3" value="Sep" checked="checked" class="inputChange">Sep</label> <label class="checkbox-inline"><input type="checkbox" id="Oct3" value="Oct" checked="checked" class="inputChange">Oct</label> <label class="checkbox-inline"><input type="checkbox" id="Nov3" value="Nov" checked="checked" class="inputChange">Nov</label> <label class="checkbox-inline"><input type="checkbox" id="Dec3" value="Dec" checked="checked" class="inputChange">Dec</label></form></div></div></div> <div class="row"><div class="col-sm-4 right1"><div id="startYear3">start year-month: (earliest:1971-01)</div></div> <div class="col-sm-2 left1"><input id="timeS3" value="2004-01" autocomplete="off" size="7" onchange="checkTimeL(3)" class="inputChange"></div> <div class="col-sm-4 right1"><div id="endYear3">end year-month: (latest:2005-12)</div></div> <div class="col-sm-2 left1"><input id="timeE3" value="2004-12" size="7" autocomplete="off" onchange="checkTimeH(3)" class="inputChange"></div></div> <div class="row"><div id="pressureLabel3" class="col-sm-4 right1">pressure:</div> <div class="col-sm-8 left1"><input id="pres3" value="500" size="7" class="inputChange" disabled=""></div></div></div> <div id="dataBlock4" class="color1" style="display: none;"><div class="row "><div class="col-sm-12 center1 subtitle1">
+Additional Data 3
+</div></div> <div class="row"><div class="col-sm-4 right1">
+   source:
+  </div> <div class="col-sm-8 left1"><select id="data4" onchange="addVarList(4); addPres(4);timeBound([4],&#39;4&#39;); " class="inputChange"><optgroup label="Model: Historical"><option value="GFDL/ESM2G">GFDL/ESM2G</option><option value="GISS/E2-H">GISS/E2-H</option><option value="GISS/E2-R">GISS/E2-R</option><option value="NCAR/CAM5">NCAR/CAM5</option><option value="NCC/NORESM">NCC/NORESM</option><option value="UKMO/HadGEM2-ES">UKMO/HadGEM2-ES</option></optgroup><optgroup label="Model: AMIP"><option value="CCCMA/CANAM4">CCCMA/CANAM4</option><option value="CSIRO/MK3.6">CSIRO/MK3.6</option><option value="GFDL/CM3">GFDL/CM3</option><option value="IPSL/CM5A-LR">IPSL/CM5A-LR</option><option value="MIROC/MIROC5">MIROC/MIROC5</option><option value="UKMO/HadGEM2-A">UKMO/HadGEM2-A</option><option value="CNRM/CM5">CNRM/CM5</option><option value="FUB-DWD/SSMI-MERIS">FUB-DWD/SSMI-MERIS</option><option value="IAP/FGOALS-S2">IAP/FGOALS-S2</option><option value="MPI/ESM-LR">MPI/ESM-LR</option><option value="MRI/CGCM3">MRI/CGCM3</option><option value="CMCC/CM">CMCC/CM</option></optgroup><optgroup label="Observation"><option value="NASA/GRACE">NASA/GRACE</option><option value="NASA/MODIS">NASA/MODIS</option><option value="NASA/AMSRE">NASA/AMSRE</option><option value="NASA/TRMM">NASA/TRMM</option><option value="NASA/GPCP">NASA/GPCP</option><option value="NASA/QuikSCAT">NASA/QuikSCAT</option><option value="NASA/AVISO">NASA/AVISO</option><option value="NOAA/NODC">NOAA/NODC</option><option value="NASA/CERES">NASA/CERES</option><option value="NASA/AIRS">NASA/AIRS</option><option value="NASA/MLS">NASA/MLS</option><option value="NASA/MISR">NASA/MISR</option><option value="NASA/TES">NASA/TES</option><option value="NCEP/GLDAS">NCEP/GLDAS</option><option value="ARGO/ARGO">ARGO/ARGO</option><option value="UOE/ATSR">UOE/ATSR</option><option value="WCRP/ISCCP">WCRP/ISCCP</option></optgroup><optgroup label="Reanalysis"><option value="ECMWF/interim">ECMWF/interim</option></optgroup><optgroup label="WRF"><option value="WRF/CO-KF">WRF/CO-KF</option><option value="WRF/CO-TIE">WRF/CO-TIE</option><option value="WRF/MP-MOR">WRF/MP-MOR</option><option value="WRF/MP-WDM">WRF/MP-WDM</option><option value="WRF/PBl-NN2">WRF/PBl-NN2</option><option value="WRF/PBL-YSU">WRF/PBL-YSU</option><option value="WRF/RA-CAM">WRF/RA-CAM</option><option value="WRF/ST">WRF/ST</option></optgroup></select></div></div> <div class="row"><div class="col-sm-4 right1">
+   variable:
+  </div> <div class="col-sm-8 left1"><select id="var4" onchange="addPres(4);timeBound([4],&#39;4&#39;)" class="inputChange var"><option value="cct">Cloud Top Pressure</option><option value="cl">Cloud Area Fraction</option><option value="cli">Cloud Ice Water Content</option><option value="clt">Total Cloud Fraction</option><option value="clw">Cloud Liquid Water Content</option><option value="hur">Relative Humidity</option><option value="hus">Specific Humidity</option><option value="lai">Leaf Area Index</option><option value="od550aer">Ambient Aerosol Optical Thickness at 550 nm</option><option value="pr">Precipitation Flux</option><option value="prw">Water Vapor Path</option><option value="rlds">Surface Downwelling Longwave Radiation</option><option value="rldscs">Surface Downwelling Clear-Sky Longwave Radiation</option><option value="rlus">Surface Upwelling Longwave Radiation</option><option value="rlut">TOA Outgoing Longwave Radiation</option><option value="rlutcs">TOA Outgoing Clear-Sky Longwave Radiation</option><option value="rsdt">TOA Incident Shortwave Radiation</option><option value="rsut">TOA Outgoing Shortwave Radiation</option><option value="rsutcs">TOA Outgoing Clear-Sky Shortwave Radiation</option><option value="sfcWind">Near-Surface Wind Speed</option><option value="ta">Air Temperature</option><option value="tas">Near-Surface Air Temperature</option><option value="tos">Sea Surface Temperature</option><option value="ts">Surface Temperature</option><option value="uas">Eastward Near-Surface Wind</option><option value="vas">Northward Near-Surface Wind</option><option value="wap">Vertical Wind Velocity in Pressure</option><option value="zg">Geopotential Height</option><option value="zos">Sea Surface Height</option></select></div></div> <div class="row"><div class="col-sm-4 right1"><div id="monthSelect04">
+select months:
+<select name="months" id="months4" onchange="select_months(4)" class="inputChange"><option id="all4">select all</option> <option id="none4">select none</option> <option id="summer4">Summer:Jun-Jul-Aug</option> <option id="autum4">Autumn:Sep-Oct-Nov</option> <option id="winter4">Winter:Dec-Jan-Feb</option> <option id="spring4">Spring:Mar-Apr-May</option></select></div></div> <div class="col-sm-8 left1"><div id="monthSelect4"><form role="form"><label class="checkbox-inline"><input type="checkbox" id="Jan4" value="Jan" checked="checked" class="inputChange">Jan</label> <label class="checkbox-inline"><input type="checkbox" id="Feb4" value="Feb" checked="checked" class="inputChange">Feb</label> <label class="checkbox-inline"><input type="checkbox" id="Mar4" value="Mar" checked="checked" class="inputChange">Mar</label> <label class="checkbox-inline"><input type="checkbox" id="Apr4" value="Apr" checked="checked" class="inputChange">Apr</label> <label class="checkbox-inline"><input type="checkbox" id="May4" value="May" checked="checked" class="inputChange">May</label> <label class="checkbox-inline"><input type="checkbox" id="Jun4" value="Jun" checked="checked" class="inputChange">Jun</label> <label class="checkbox-inline"><input type="checkbox" id="Jul4" value="Jul" checked="checked" class="inputChange">Jul</label> <label class="checkbox-inline"><input type="checkbox" id="Aug4" value="Aug" checked="checked" class="inputChange">Aug</label> <label class="checkbox-inline"><input type="checkbox" id="Sep4" value="Sep" checked="checked" class="inputChange">Sep</label> <label class="checkbox-inline"><input type="checkbox" id="Oct4" value="Oct" checked="checked" class="inputChange">Oct</label> <label class="checkbox-inline"><input type="checkbox" id="Nov4" value="Nov" checked="checked" class="inputChange">Nov</label> <label class="checkbox-inline"><input type="checkbox" id="Dec4" value="Dec" checked="checked" class="inputChange">Dec</label></form></div></div></div> <div class="row"><div class="col-sm-4 right1"><div id="startYear4">start year-month: (earliest:1971-01)</div></div> <div class="col-sm-2 left1"><input id="timeS4" value="2004-01" autocomplete="off" size="7" onchange="checkTimeL(4)" class="inputChange"></div> <div class="col-sm-4 right1"><div id="endYear4">end year-month: (latest:2005-12)</div></div> <div class="col-sm-2 left1"><input id="timeE4" value="2004-12" size="7" autocomplete="off" onchange="checkTimeH(4)" class="inputChange"></div></div> <div class="row"><div id="pressureLabel4" class="col-sm-4 right1">pressure:</div> <div class="col-sm-8 left1"><input id="pres4" value="500" size="7" class="inputChange" disabled=""></div></div></div> <div id="dataBlock5" class="color0" style="display: none;"><div class="row "><div class="col-sm-12 center1 subtitle1">
+Additional Data 4
+</div></div> <div class="row"><div class="col-sm-4 right1">
+   source:
+  </div> <div class="col-sm-8 left1"><select id="data5" onchange="addVarList(5); addPres(5);timeBound([5],&#39;5&#39;); " class="inputChange"><optgroup label="Model: Historical"><option value="GFDL/ESM2G">GFDL/ESM2G</option><option value="GISS/E2-H">GISS/E2-H</option><option value="GISS/E2-R">GISS/E2-R</option><option value="NCAR/CAM5">NCAR/CAM5</option><option value="NCC/NORESM">NCC/NORESM</option><option value="UKMO/HadGEM2-ES">UKMO/HadGEM2-ES</option></optgroup><optgroup label="Model: AMIP"><option value="CCCMA/CANAM4">CCCMA/CANAM4</option><option value="CSIRO/MK3.6">CSIRO/MK3.6</option><option value="GFDL/CM3">GFDL/CM3</option><option value="IPSL/CM5A-LR">IPSL/CM5A-LR</option><option value="MIROC/MIROC5">MIROC/MIROC5</option><option value="UKMO/HadGEM2-A">UKMO/HadGEM2-A</option><option value="CNRM/CM5">CNRM/CM5</option><option value="FUB-DWD/SSMI-MERIS">FUB-DWD/SSMI-MERIS</option><option value="IAP/FGOALS-S2">IAP/FGOALS-S2</option><option value="MPI/ESM-LR">MPI/ESM-LR</option><option value="MRI/CGCM3">MRI/CGCM3</option><option value="CMCC/CM">CMCC/CM</option></optgroup><optgroup label="Observation"><option value="NASA/GRACE">NASA/GRACE</option><option value="NASA/MODIS">NASA/MODIS</option><option value="NASA/AMSRE">NASA/AMSRE</option><option value="NASA/TRMM">NASA/TRMM</option><option value="NASA/GPCP">NASA/GPCP</option><option value="NASA/QuikSCAT">NASA/QuikSCAT</option><option value="NASA/AVISO">NASA/AVISO</option><option value="NOAA/NODC">NOAA/NODC</option><option value="NASA/CERES">NASA/CERES</option><option value="NASA/AIRS">NASA/AIRS</option><option value="NASA/MLS">NASA/MLS</option><option value="NASA/MISR">NASA/MISR</option><option value="NASA/TES">NASA/TES</option><option value="NCEP/GLDAS">NCEP/GLDAS</option><option value="ARGO/ARGO">ARGO/ARGO</option><option value="UOE/ATSR">UOE/ATSR</option><option value="WCRP/ISCCP">WCRP/ISCCP</option></optgroup><optgroup label="Reanalysis"><option value="ECMWF/interim">ECMWF/interim</option></optgroup><optgroup label="WRF"><option value="WRF/CO-KF">WRF/CO-KF</option><option value="WRF/CO-TIE">WRF/CO-TIE</option><option value="WRF/MP-MOR">WRF/MP-MOR</option><option value="WRF/MP-WDM">WRF/MP-WDM</option><option value="WRF/PBl-NN2">WRF/PBl-NN2</option><option value="WRF/PBL-YSU">WRF/PBL-YSU</option><option value="WRF/RA-CAM">WRF/RA-CAM</option><option value="WRF/ST">WRF/ST</option></optgroup></select></div></div> <div class="row"><div class="col-sm-4 right1">
+   variable:
+  </div> <div class="col-sm-8 left1"><select id="var5" onchange="addPres(5);timeBound([5],&#39;5&#39;)" class="inputChange var"><option value="cct">Cloud Top Pressure</option><option value="cl">Cloud Area Fraction</option><option value="cli">Cloud Ice Water Content</option><option value="clt">Total Cloud Fraction</option><option value="clw">Cloud Liquid Water Content</option><option value="hur">Relative Humidity</option><option value="hus">Specific Humidity</option><option value="lai">Leaf Area Index</option><option value="od550aer">Ambient Aerosol Optical Thickness at 550 nm</option><option value="pr">Precipitation Flux</option><option value="prw">Water Vapor Path</option><option value="rlds">Surface Downwelling Longwave Radiation</option><option value="rldscs">Surface Downwelling Clear-Sky Longwave Radiation</option><option value="rlus">Surface Upwelling Longwave Radiation</option><option value="rlut">TOA Outgoing Longwave Radiation</option><option value="rlutcs">TOA Outgoing Clear-Sky Longwave Radiation</option><option value="rsdt">TOA Incident Shortwave Radiation</option><option value="rsut">TOA Outgoing Shortwave Radiation</option><option value="rsutcs">TOA Outgoing Clear-Sky Shortwave Radiation</option><option value="sfcWind">Near-Surface Wind Speed</option><option value="ta">Air Temperature</option><option value="tas">Near-Surface Air Temperature</option><option value="tos">Sea Surface Temperature</option><option value="ts">Surface Temperature</option><option value="uas">Eastward Near-Surface Wind</option><option value="vas">Northward Near-Surface Wind</option><option value="wap">Vertical Wind Velocity in Pressure</option><option value="zg">Geopotential Height</option><option value="zos">Sea Surface Height</option></select></div></div> <div class="row"><div class="col-sm-4 right1"><div id="monthSelect05">
+select months:
+<select name="months" id="months5" onchange="select_months(5)" class="inputChange"><option id="all5">select all</option> <option id="none5">select none</option> <option id="summer5">Summer:Jun-Jul-Aug</option> <option id="autum5">Autumn:Sep-Oct-Nov</option> <option id="winter5">Winter:Dec-Jan-Feb</option> <option id="spring5">Spring:Mar-Apr-May</option></select></div></div> <div class="col-sm-8 left1"><div id="monthSelect5"><form role="form"><label class="checkbox-inline"><input type="checkbox" id="Jan5" value="Jan" checked="checked" class="inputChange">Jan</label> <label class="checkbox-inline"><input type="checkbox" id="Feb5" value="Feb" checked="checked" class="inputChange">Feb</label> <label class="checkbox-inline"><input type="checkbox" id="Mar5" value="Mar" checked="checked" class="inputChange">Mar</label> <label class="checkbox-inline"><input type="checkbox" id="Apr5" value="Apr" checked="checked" class="inputChange">Apr</label> <label class="checkbox-inline"><input type="checkbox" id="May5" value="May" checked="checked" class="inputChange">May</label> <label class="checkbox-inline"><input type="checkbox" id="Jun5" value="Jun" checked="checked" class="inputChange">Jun</label> <label class="checkbox-inline"><input type="checkbox" id="Jul5" value="Jul" checked="checked" class="inputChange">Jul</label> <label class="checkbox-inline"><input type="checkbox" id="Aug5" value="Aug" checked="checked" class="inputChange">Aug</label> <label class="checkbox-inline"><input type="checkbox" id="Sep5" value="Sep" checked="checked" class="inputChange">Sep</label> <label class="checkbox-inline"><input type="checkbox" id="Oct5" value="Oct" checked="checked" class="inputChange">Oct</label> <label class="checkbox-inline"><input type="checkbox" id="Nov5" value="Nov" checked="checked" class="inputChange">Nov</label> <label class="checkbox-inline"><input type="checkbox" id="Dec5" value="Dec" checked="checked" class="inputChange">Dec</label></form></div></div></div> <div class="row"><div class="col-sm-4 right1"><div id="startYear5">start year-month: (earliest:1971-01)</div></div> <div class="col-sm-2 left1"><input id="timeS5" value="2004-01" autocomplete="off" size="7" onchange="checkTimeL(5)" class="inputChange"></div> <div class="col-sm-4 right1"><div id="endYear5">end year-month: (latest:2005-12)</div></div> <div class="col-sm-2 left1"><input id="timeE5" value="2004-12" size="7" autocomplete="off" onchange="checkTimeH(5)" class="inputChange"></div></div> <div class="row"><div id="pressureLabel5" class="col-sm-4 right1">pressure:</div> <div class="col-sm-8 left1"><input id="pres5" value="500" size="7" class="inputChange" disabled=""></div></div></div> <div id="dataBlock6" class="color1" style="display: none;"><div class="row "><div class="col-sm-12 center1 subtitle1">
+Additional Data 5
+</div></div> <div class="row"><div class="col-sm-4 right1">
+   source:
+  </div> <div class="col-sm-8 left1"><select id="data6" onchange="addVarList(6); addPres(6);timeBound([6],&#39;6&#39;); " class="inputChange"><optgroup label="Model: Historical"><option value="GFDL/ESM2G">GFDL/ESM2G</option><option value="GISS/E2-H">GISS/E2-H</option><option value="GISS/E2-R">GISS/E2-R</option><option value="NCAR/CAM5">NCAR/CAM5</option><option value="NCC/NORESM">NCC/NORESM</option><option value="UKMO/HadGEM2-ES">UKMO/HadGEM2-ES</option></optgroup><optgroup label="Model: AMIP"><option value="CCCMA/CANAM4">CCCMA/CANAM4</option><option value="CSIRO/MK3.6">CSIRO/MK3.6</option><option value="GFDL/CM3">GFDL/CM3</option><option value="IPSL/CM5A-LR">IPSL/CM5A-LR</option><option value="MIROC/MIROC5">MIROC/MIROC5</option><option value="UKMO/HadGEM2-A">UKMO/HadGEM2-A</option><option value="CNRM/CM5">CNRM/CM5</option><option value="FUB-DWD/SSMI-MERIS">FUB-DWD/SSMI-MERIS</option><option value="IAP/FGOALS-S2">IAP/FGOALS-S2</option><option value="MPI/ESM-LR">MPI/ESM-LR</option><option value="MRI/CGCM3">MRI/CGCM3</option><option value="CMCC/CM">CMCC/CM</option></optgroup><optgroup label="Observation"><option value="NASA/GRACE">NASA/GRACE</option><option value="NASA/MODIS">NASA/MODIS</option><option value="NASA/AMSRE">NASA/AMSRE</option><option value="NASA/TRMM">NASA/TRMM</option><option value="NASA/GPCP">NASA/GPCP</option><option value="NASA/QuikSCAT">NASA/QuikSCAT</option><option value="NASA/AVISO">NASA/AVISO</option><option value="NOAA/NODC">NOAA/NODC</option><option value="NASA/CERES">NASA/CERES</option><option value="NASA/AIRS">NASA/AIRS</option><option value="NASA/MLS">NASA/MLS</option><option value="NASA/MISR">NASA/MISR</option><option value="NASA/TES">NASA/TES</option><option value="NCEP/GLDAS">NCEP/GLDAS</option><option value="ARGO/ARGO">ARGO/ARGO</option><option value="UOE/ATSR">UOE/ATSR</option><option value="WCRP/ISCCP">WCRP/ISCCP</option></optgroup><optgroup label="Reanalysis"><option value="ECMWF/interim">ECMWF/interim</option></optgroup><optgroup label="WRF"><option value="WRF/CO-KF">WRF/CO-KF</option><option value="WRF/CO-TIE">WRF/CO-TIE</option><option value="WRF/MP-MOR">WRF/MP-MOR</option><option value="WRF/MP-WDM">WRF/MP-WDM</option><option value="WRF/PBl-NN2">WRF/PBl-NN2</option><option value="WRF/PBL-YSU">WRF/PBL-YSU</option><option value="WRF/RA-CAM">WRF/RA-CAM</option><option value="WRF/ST">WRF/ST</option></optgroup></select></div></div> <div class="row"><div class="col-sm-4 right1">
+   variable:
+  </div> <div class="col-sm-8 left1"><select id="var6" onchange="addPres(6);timeBound([6],&#39;6&#39;)" class="inputChange var"><option value="cct">Cloud Top Pressure</option><option value="cl">Cloud Area Fraction</option><option value="cli">Cloud Ice Water Content</option><option value="clt">Total Cloud Fraction</option><option value="clw">Cloud Liquid Water Content</option><option value="hur">Relative Humidity</option><option value="hus">Specific Humidity</option><option value="lai">Leaf Area Index</option><option value="od550aer">Ambient Aerosol Optical Thickness at 550 nm</option><option value="pr">Precipitation Flux</option><option value="prw">Water Vapor Path</option><option value="rlds">Surface Downwelling Longwave Radiation</option><option value="rldscs">Surface Downwelling Clear-Sky Longwave Radiation</option><option value="rlus">Surface Upwelling Longwave Radiation</option><option value="rlut">TOA Outgoing Longwave Radiation</option><option value="rlutcs">TOA Outgoing Clear-Sky Longwave Radiation</option><option value="rsdt">TOA Incident Shortwave Radiation</option><option value="rsut">TOA Outgoing Shortwave Radiation</option><option value="rsutcs">TOA Outgoing Clear-Sky Shortwave Radiation</option><option value="sfcWind">Near-Surface Wind Speed</option><option value="ta">Air Temperature</option><option value="tas">Near-Surface Air Temperature</option><option value="tos">Sea Surface Temperature</option><option value="ts">Surface Temperature</option><option value="uas">Eastward Near-Surface Wind</option><option value="vas">Northward Near-Surface Wind</option><option value="wap">Vertical Wind Velocity in Pressure</option><option value="zg">Geopotential Height</option><option value="zos">Sea Surface Height</option></select></div></div> <div class="row"><div class="col-sm-4 right1"><div id="monthSelect06">
+select months:
+<select name="months" id="months6" onchange="select_months(6)" class="inputChange"><option id="all6">select all</option> <option id="none6">select none</option> <option id="summer6">Summer:Jun-Jul-Aug</option> <option id="autum6">Autumn:Sep-Oct-Nov</option> <option id="winter6">Winter:Dec-Jan-Feb</option> <option id="spring6">Spring:Mar-Apr-May</option></select></div></div> <div class="col-sm-8 left1"><div id="monthSelect6"><form role="form"><label class="checkbox-inline"><input type="checkbox" id="Jan6" value="Jan" checked="checked" class="inputChange">Jan</label> <label class="checkbox-inline"><input type="checkbox" id="Feb6" value="Feb" checked="checked" class="inputChange">Feb</label> <label class="checkbox-inline"><input type="checkbox" id="Mar6" value="Mar" checked="checked" class="inputChange">Mar</label> <label class="checkbox-inline"><input type="checkbox" id="Apr6" value="Apr" checked="checked" class="inputChange">Apr</label> <label class="checkbox-inline"><input type="checkbox" id="May6" value="May" checked="checked" class="inputChange">May</label> <label class="checkbox-inline"><input type="checkbox" id="Jun6" value="Jun" checked="checked" class="inputChange">Jun</label> <label class="checkbox-inline"><input type="checkbox" id="Jul6" value="Jul" checked="checked" class="inputChange">Jul</label> <label class="checkbox-inline"><input type="checkbox" id="Aug6" value="Aug" checked="checked" class="inputChange">Aug</label> <label class="checkbox-inline"><input type="checkbox" id="Sep6" value="Sep" checked="checked" class="inputChange">Sep</label> <label class="checkbox-inline"><input type="checkbox" id="Oct6" value="Oct" checked="checked" class="inputChange">Oct</label> <label class="checkbox-inline"><input type="checkbox" id="Nov6" value="Nov" checked="checked" class="inputChange">Nov</label> <label class="checkbox-inline"><input type="checkbox" id="Dec6" value="Dec" checked="checked" class="inputChange">Dec</label></form></div></div></div> <div class="row"><div class="col-sm-4 right1"><div id="startYear6">start year-month: (earliest:1971-01)</div></div> <div class="col-sm-2 left1"><input id="timeS6" value="2004-01" autocomplete="off" size="7" onchange="checkTimeL(6)" class="inputChange"></div> <div class="col-sm-4 right1"><div id="endYear6">end year-month: (latest:2005-12)</div></div> <div class="col-sm-2 left1"><input id="timeE6" value="2004-12" size="7" autocomplete="off" onchange="checkTimeH(6)" class="inputChange"></div></div> <div class="row"><div id="pressureLabel6" class="col-sm-4 right1">pressure:</div> <div class="col-sm-8 left1"><input id="pres6" value="500" size="7" class="inputChange" disabled=""></div></div></div> <div class="color3"><div class="row center1 subtitle1">
+Data Subsetting
+</div> <div class="row"><div class="col-sm-4 right1">
+    start lon (deg):
+  </div> <div class="col-sm-2 left1"><input id="lonS" value="0" autocomplete="off" size="7" class="inputChange"></div> <div class="col-sm-4 right1">
+    end lon (deg):
+  </div> <div class="col-sm-2 left1"><input id="lonE" value="360" autocomplete="off" size="7" class="inputChange"></div></div> <div class="row"><div class="col-sm-4 right1">
+    start lat (deg):
+  </div> <div class="col-sm-2 left1"><input id="latS" value="-90" autocomplete="off" size="7" class="inputChange"></div> <div class="col-sm-4 right1">
+    end lat (deg):
+  </div> <div class="col-sm-2 left1"><input id="latE" value="90" autocomplete="off" size="7" class="inputChange"></div></div></div></div> <div class="color0"><div class="row"><div class="col-sm-12 center1 subtitle1">
+    Display Options:
+  </div></div> <div class="row"><div class="col-sm-4 right1">
+        color scale: 
+  </div> <div class="col-sm-8 left1"><form><label for="radioLin" class="input-online"><input type="radio" name="scale1" value="linear" id="radioLin" checked="checked" class="inputChange">linear  <label><label for="radioLog" class="input-online"><input type="radio" name="scale1" value="logarithmic" id="radioLog" class="inputChange">logarithmic<label></label></label></label></label></form></div></div></div> <div class="color2"><div class="row"><div class="col-sm-4 right1">
+    Execution purpose:
+  </div> <div class="col-sm-8 left1"><form><textarea name="purpose" id="purpose" value="" rows="4" cols="50" class="inputChange"></textarea></form></div></div></div> <div class="color4"><div class="row"><div class="col-sm-6 center1"><input id="action1" type="submit" value="Get Plot" style="height: 28px; background: rgb(77, 255, 166);"></div> <div class="col-sm-6 center1"><form><input id="download_data" type="button" value="Download Data" disabled="" style="height: 28px; background: rgb(153, 153, 153);"></form></div></div></div> <div class="row"><div class="col-sm-12 center1 subtitle1">
+    Browser URL:
+  </div></div> <div id="actionUrl0" class="row"><div class="col-sm-12 center1"><textarea id="actionUrl" rows="5"></textarea></div></div> <div id="Image0" center1="" class="row"><div class="col-sm-12 center1"><div id="Image" class="borderedText">Image will be here</div></div></div> <div class="row"><div class="col-sm-12 center1 subtitle1">
+    Data File URL:
+  </div></div> <div class="row"><div class="col-sm-12 center1"><textarea readonly="readonly" id="data_url" cols="150" rows="2"></textarea></div></div> <div class="row"><div class="col-sm-12 center1 subtitle1">
+    Service Response Text:
+  </div></div> <div center1="" class="row"><div class="col-sm-12 center1"><textarea id="Response" cols="150" rows="6"></textarea></div></div></div> <!-- vueId-->
+</div> <!-- container -->
+<script>
+var vueApp = new Vue({
+  el: "#vueId",
+  data: {
+
+    // vue_data_para
+    getPlotText: 'Get Plot',
+    getPlotText0: 'Get Plot',
+    WF: 0,
+  },
+}); // vueApp
+
+</script>
+
+
+
+</body></html>

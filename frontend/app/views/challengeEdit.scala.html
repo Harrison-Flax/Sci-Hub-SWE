@@ -1,0 +1,656 @@
+@(challenge: Challenge, tableName: String, challengeFileType: String, tableRecorderId: String, backendPort: String, challengeDocument: Boolean)
+@import helper._
+@import models._
+    @import models.Challenge
+
+@scripts = {
+    <style>
+            tr {
+                border-bottom: none;
+            }
+            td {
+                text-align: center;
+            }
+            .ql-editor strong{
+                font-weight:bold;
+            }
+            #editor {
+                height: 375px;
+            }
+    </style>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+
+    <script type="text/javascript">
+            count = 0;
+            delc = 0;
+            var originCreator;
+            @*// countImagesInDescription = @challenge.getNextImageIndex;*@
+            var quill;
+            function checkCreator() {
+                $("#warningModal").modal("open");
+                $("#challengeCreatorMsg").text("");
+            }
+            @*$(document).ready(*@
+            @*    function () {*@
+            @*    /***@
+            @*     * This portion defines all the (non)required fields that need validation on max lengths and special*@
+            @*     * characters, as well as URL validity.*@
+            @*     */*@
+            @*    validateField("memberName", "memberNameMsg", "varChar255", true);*@
+            @*    validateField("email", "emailMsg", "varChar255", true);*@
+            @*    validateField("title", "titleMsg", "varChar500", true);*@
+            @*    validateField("location", "locationMsg", "varChar200", true);*@
+            @*    validateField("goals", "goalsMsg", "varChar1000", true);*@
+            @*    validateField("tech", "techMsg", "varChar500", false);*@
+            @*    /****************************** End of Validation Portion **********************************************/*@
+
+            @*    originCreator = '@challenge.getChallengeCreator.getId';*@
+            @*    $("#cancel-change-creator").click(function () {*@
+            @*        $("#challengeCreator").val(originCreator);*@
+            @*    })*@
+            @*    $("#confirm-change-creator").click(function () {*@
+            @*        originCreator = $("#challengeCreator").val();*@
+            @*    })*@
+
+            @*    quill = new Quill('#editor', {*@
+            @*        modules: {*@
+            @*            toolbar: [*@
+            @*                [{ 'font': [] }],*@
+            @*                [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown*@
+            @*                ['bold', 'italic', 'underline', 'strike'],        // toggled buttons*@
+            @*                [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme*@
+            @*                ['blockquote'],*@
+
+            @*                [{ 'list': 'ordered'}, { 'list': 'bullet' }],*@
+            @*                [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript*@
+            @*                [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent*@
+            @*                [{ 'direction': 'rtl' }],                         // text directio*@
+            @*                [{ 'align': [] }],*@
+            @*                ['link', 'image']*@
+            @*            ]*@
+            @*        },*@
+            @*        placeholder: 'Enter challenge description...',*@
+            @*        theme: 'snow'*@
+            @*    });*@
+
+            @*    var limit = challengeDescriptionMaxLength;*@
+            @*    quill.on('text-change', function (delta, old, source) {*@
+            @*        if (quill.getLength() > limit+1) {*@
+            @*            document.getElementById("descriptionMsg").innerHTML = "Field should be no longer than "+ limit +" characters";*@
+            @*        }else{*@
+            @*            document.getElementById("descriptionMsg").innerHTML = "";*@
+            @*        }*@
+            @*    });*@
+
+            @*    quill.clipboard.dangerouslyPasteHTML(entityToString());*@
+            @*  //  $("#description").val();*@
+            @*    $("#addPanel").hide();*@
+            @*    $("#previewPanel").hide();*@
+            @*    if($("#showImg").attr("src") == "") {*@
+            @*        $("#challengePreview").hide();*@
+            @*    }*@
+            @*    $("#showPanel").click(function () {*@
+            @*        var panel = document.getElementById("addPanel");*@
+            @*        if (panel.style.display == "none") {*@
+            @*            $("#btnName").attr("style", "transform:rotate(-45deg);transition:transform 0.3s linear;");*@
+            @*            $("#buttonText").text("Close Window");*@
+            @*        }*@
+            @*        else {*@
+            @*            $("#btnName").attr("style", "transform:rotate(0deg);transition:transform 0.3s linear;");*@
+            @*            $("#buttonText").text("Add Members");*@
+            @*            document.getElementById("memberName").value = "";*@
+            @*            document.getElementById("email").value = "";*@
+            @*            document.getElementById("email").classList.remove("invalid");*@
+            @*            document.getElementById("memberName").classList.remove("invalid");*@
+            @*        }*@
+            @*        $("#addPanel").slideToggle();*@
+
+            @*    });*@
+
+
+            @*    //preview the updated image*@
+            @*    // $("#addmember").click(function changepic() {*@
+            @*    //     if (document.getElementById("memberName").value.trim().length==0){*@
+            @*    //         document.getElementById("memberName").classList.add("invalid");*@
+            @*    //     }*@
+            @*    //     if (document.getElementById("email").value.trim().length==0){*@
+            @*    //         document.getElementById("email").classList.add("invalid");*@
+            @*    //     }*@
+            @*    //     // document.getElementById("email").value.trim().length()==0;*@
+            @*    //     var isName = document.getElementById("memberName").classList.contains("invalid") ? false : true;*@
+            @*    //     var isEmail = document.getElementById("email").classList.contains("invalid") ? false : true;*@
+            @*    //*@
+            @*    //     if(!isName || !isEmail) return;*@
+            @*    //     if (document.getElementById("photo").value == "") {*@
+            @*    //         var url = "../../../../assets/images/person.jpg";*@
+            @*    //         showPreview(url);*@
+            @*    //         return;*@
+            @*    //     }*@
+            @*    //     var reads = new FileReader();*@
+            @*    //     f = document.getElementById("photo").files[0];*@
+            @*    //     reads.readAsDataURL(f);*@
+            @*    //     reads.onload = function (e) {*@
+            @*    //         showPreview(this.result);*@
+            @*    //*@
+            @*    //     };*@
+            @*    // });*@
+            @*    document.body.scrollTop = document.documentElement.scrollTop = 0;*@
+            @*});*@
+
+            function entityToString(){
+                var div=document.createElement('div');
+                @if(challenge.getShortDescription!=null){
+                    div.innerHTML = "@challenge.getShortDescription";
+                }
+                var res=div.innerText||div.textContent;
+                return res;
+            }
+
+            function getHTML() //display current HTML
+            {
+                if(document.getElementById("descriptionMsg").innerText.length != 0)
+                    return false;
+                console.log(Number.isInteger('fjidsao'));
+                //console.log("isnan:" + isNaN($("#challengeCreator").text());
+                var cid = $("#challengeCreator").val()
+                console.log("cid" + $("#challengeCreator").val());
+                console.log("typeof" + typeof($("#challengeCreator").val()));
+
+                if(isNaN(cid)){
+                    //document.getElementById(urlMsgId).setAttribute('data-error', msg);
+                    console.log("cidddMSg:" + $("#challengeCreatorMsg").text())
+                    $("#challengeCreatorMsg").text("Please specify correct id format");
+
+                    return false;
+                }
+                exist = false;
+                $.ajax({
+                    url: "/user/allUserIds",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    async: false,
+                    type: "GET"
+                }).done(function (data) {
+                    console.log("data:" + data)
+                    console.log("id:" + cid)
+                    for(i in data){
+                        console.log(Number(data[i]) + "," + Number(cid))
+                        if(Number(data[i]) == Number(cid)){
+                            exist = true;
+                            console.log("loop:" + exist);
+                        }
+                    }
+
+                });
+                console.log("out" + exist)
+                if(!exist){
+                    $("#challengeCreatorMsg").text("This user does not exist!");
+                    return false;
+                }
+                $("#editor").find("img").each(function () {
+                   if($(this).attr("width") == null) {
+                       // If this is a new image
+                       var img = this;
+                       var dataurl = $(this).attr("src");
+                       var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                       while (n--) {
+                           u8arr[n] = bstr.charCodeAt(n);
+                       }
+                       var f = new File([u8arr], "file", {type: mime});
+                       var fd = new FormData();
+                       fd.append('file', f);
+                       countImagesInDescription ++;
+                       $.ajax({
+                           url: "/challenge/uploadDescriptionImg/@challenge.getId/" + (countImagesInDescription-1) ,
+                           data: fd,
+                           contentType: false,
+                           dataType: "text",
+                           processData: false,
+                           async: false,
+                           type: "POST",
+                           success: function (data) {
+                               console.log(data);
+                               $(img).attr("src", data);
+                               $(img).attr("width", "50%");
+                           },
+                           error: function (msg) {
+                               console.log("123123123");
+                           }
+                       });
+                   }
+
+
+
+               });
+
+                var ajaxflag = true;
+                var parentChallengeId = $("#parentChallengeId").val();
+                if(parentChallengeId !== "0") {
+                    $.ajax({
+                        url: "/challenge/checkParentChallenge/" + parentChallengeId,
+                        async: false,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        type: "GET",
+                        success: function (data) {
+                            var response = data;
+                            console.log(data);
+                            if ('badFormat' in response) {
+                                console.log(response['badFormat']);
+                                $("#parentChallengeIdMsg").text(response['badFormat']);
+                                ajaxflag = false;
+                            } else {
+                                if ('notExisted' in response) {
+                                    $("#parentChallengeIdMsg").text(response['notExisted']);
+                                    ajaxflag = false;
+                                } else {
+
+                                }
+
+                            }
+                        }
+                    });
+                }
+                if(!ajaxflag){
+                    return false;
+                }
+
+               var html = quill.root.innerHTML;
+               $("#description").val(html);
+               $("#countImagesInDescription").val(countImagesInDescription);
+
+
+
+
+                return true;
+            }
+
+            // function showProPreview(obj) {
+            //     if($("#showImg").attr("src") == "") {
+            //         $("#deleteBtn").hide();
+            //     }
+            //     else {
+            //         $("#deleteBtn").show();
+            //         //$('#previewMsg').text("");
+            //     }
+            //         var panel = document.getElementById("previewPanel");
+            //         if (panel.style.display == "none") {
+            //             $(obj).text("Close Preview");
+            //         }
+            //         else {
+            //             $(obj).text("Preview Or Delete Picture");
+            //         }
+            //         $("#previewPanel").slideToggle();
+            //
+            // }
+
+            // function deleteMember(obj) {
+            //     var tr  = $(obj).parent().parent();
+            //     if(tr.attr("id") != null) {
+            //         tr.append("<td style='display: none;' > <input name ='delete" + delc + "' value='" + tr.attr("id") + "'></td>")
+            //         //tr.attr("name", "delete" + delc);
+            //         delc++;
+            //         $("#delc").val(delc);
+            //         tr.hide();
+            //     }
+            //     else tr.remove();
+            // }
+
+            // function showPreview(url) {
+            //     if($("#memberName").val() == ""){
+            //         $("#msg").text("Member Name cannot be null.");
+            //         document.getElementById("addmember").disabled = true;
+            //         return;
+            //     }
+            //     $("#msg").text("");
+            //     document.getElementById("addmember").disabled = false;
+            //     var appendItem = "<tr><td><img src=\"" + url + "\" height='35px' style=\"width:35px;border-radius:50%;\"</td>" +
+            //             "<td>" + $("#memberName").val() + "<input type=\"text\" name='member" + count + "' id='member" + count + "' value=\""+ $("#memberName").val() +"\" style=\"display: none;\"></td>" +
+            //             "<td>" + $("#email").val() + "<input type=\"text\" name='email" + count + "' id='email" + count + "' value=\""+ $("#email").val() +"\" style=\"display: none;\"></td>" +
+            //             "<td><a href='javascript:void(0)' onclick='deleteMember(this)'><i style='color:red;' class=\"material-icons\">delete</i></a></td><td id='clone"+count+"'></td></tr>";
+            //     $("#previewTable").append(appendItem);
+            //     var td = $("#clone" + count);
+            //     var obj = $("#photo").clone();
+            //     obj.attr("id", "photo" + count);
+            //     obj.attr("name", "photo" + count);
+            //     td.append(obj);
+            //     td.attr("style","display:none;");
+            //     count++;
+            //     $("#count").val(count);
+            //     $("#memberName").val("");
+            //     $("#email").val("");
+            //     $("#showpath").val("");
+            //     $("#photo").val("");
+            // }
+
+            //preview the updated image
+            // function changChallengePic() {
+            //     if(document.getElementById("picture").value == "") return;
+            //     var reads = new FileReader();
+            //     f = document.getElementById("picture").files[0];
+            //     reads.readAsDataURL(f);
+            //     reads.onload = function(e) {
+            //         document.getElementById('showImg').src = this.result;
+            //         $('#record').val("update");
+            //         $('#previewMsg').text("This is the preview image. You need to click \"UPDATE\" button below if you want to save the changes.");
+            //         $("#deleteBtn").show();
+            //         $("#challengePreview").show();
+            //     };
+            // }
+
+            // function deleteImg() {
+            //     document.getElementById('showImg').src = "";
+            //     $('#record').val("delete");
+            //     $("#deleteBtn").hide();
+            //     $("#challengePreview").hide();
+            //     showProPreview("#challengePreview");
+            //     $('#previewMsg').text("The image is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            // }
+
+            // function deletePDF() {
+            //     document.getElementById('showImg').src = "";
+            //     $('#pdfRecord').val("delete");
+            //     $("#pdfDeleteBtn").hide();
+            //     $("#pdfDownload").hide();
+            //     $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            // }
+
+            function markAsPrivate() {
+
+            }
+
+            function deletePDF() {
+                document.getElementById('showImg').src = "";
+                $('#pdfRecord').val("delete");
+                $("#pdfDeleteBtn").hide();
+                $("#pdfDownload").hide();
+                $('#pdfPreviewMsg').text("The PDF is deleted. You need to click \"UPDATE\" button below if you want to save the changes.");
+            }
+
+            function clearPDF(inputId, textId) {
+                console.log("clearFile called for", inputId, textId);
+                var fileInput = document.getElementById(inputId);
+                if(fileInput) {
+                    fileInput.value = "";
+                } else {
+                    console.error("Cannot find element with id", inputId);
+                }
+                var textInput = document.getElementById(textId);
+                if(textInput) {
+                    textInput.value = "";
+                    $('#' + textId).trigger('change');
+                } else {
+                    console.error("Cannot find element with id", textId);
+                }
+            }
+    </script>
+}
+
+@main("Challenge Edit", scripts) {
+
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("public/javascripts/plugins/quill.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col  s12 m10 offset-m1">
+                <div class="card-panel">
+                    <h4 class="center form-signin-heading" align="center">
+                        Edit Challenge Information</h4>
+                    <div id="warningModal" class="modal">
+                        <div class="modal-content">
+                            <h5 style="color: red">Warning!</h5>
+                            <p style="font-weight: bold">Do you really want to change the creator of this challenge?
+                                Please note that after this change, You <span style="color: red">
+                                MAY NOT</span> edit this challenge again.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="cancel-change-creator" class="modal-close waves-effect waves-green btn-flat">
+                                Cancel</a>
+                            <a id="confirm-change-creator"
+                            class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                        </div>
+                    </div>
+                    <form class="form-signin" enctype="multipart/form-data" id="editChallengeForm" method="post" onsubmit="return getHTML()" action="@routes.ChallengeController.challengeEditPOST(challenge.getId)">
+
+                        <div id="hiddenDiv" style="display: none;">
+                            <input name="id" id="id" class="validate" value="@challenge.getId">
+                            <input name="isActive" id="isActive" class="validate" value="@challenge.getIsActive">
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="challengeTitle" id="challengeTitle" class="validate" value="@challenge.getChallengeTitle" required onchange="checkValidChallengeTitle()">
+                                <label for="challengeTitle">Title*</label>
+                                <span id="challengeTitleMsg" class="helper-text" data-error="" style="color: red;"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="shortDescription" id="shortDescription" class="validate" value="@challenge.getShortDescription" required>
+                                <label for="shortDescription">
+                                    Short Description* </label>
+                                <span id="shortDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="longDescription" id="longDescription" class="validate" value="@challenge.getLongDescription" required>
+                                <label for="longDescription">
+                                    Long Description* </label>
+                                <span id="longDescriptionMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="location" id="location" class="validate" value="@challenge.getLocation" required>
+                                <label for="location">
+                                    Location* </label>
+                                <span id="locationMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="requiredExpertise" id="requiredExpertise" class="validate" value="@challenge.getRequiredExpertise" required>
+                                <label for="requiredExpertise">
+                                    Required Expertise* </label>
+                                <span id="requiredExpertiseMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredExpertise" id="preferredExpertise" class="validate" value="@challenge.getPreferredExpertise" required>
+                                <label for="preferredExpertise">
+                                    Preferred Expertise* </label>
+                                <span id="preferredExpertiseMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input
+                                type="text" name="preferredTime" id="preferredTime" class="validate" value="@challenge.getPreferredTime" required>
+                                <label for="preferredTime">
+                                    Preferred Time* </label>
+                                <span id="preferredTimeMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        Budget Range
+                        <div class="row">
+                            <div class="input-field col s12 m5">
+                                @*<input type="password" name="password" id="password" class="validate" required>*@
+                                <input type="number" name="minBudget" id="minBudget" class="validate" value = @challenge.getMinBudget>
+                                <label for="minBudget">Min Budget*</label>
+                                <span id="minBudgetMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                                @*<form action="/action_page.php">*@
+                                @*Password: <input type="password" name="pw" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">*@
+                                @*<input type="submit">*@
+                                @*</form>*@
+                            </div>
+                            <div class="input-field col s12 m2">_</div>
+
+                            <div class="input-field col s12 m5">
+                                @*<input type="password" name="repassword" id="repassword" class="validate" oninput="checkPwd()" required>*@
+                                <input type="number" name="maxBudget" id="maxBudget" class="validate" value = @challenge.getMaxBudget>
+                                <label for="maxBudget">Max Budget*</label>
+                                <span id="maxBudgetMsg" class="helper-text" data-success="✓" data-error="" style="color: red"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="text" name="tech" id="tech" class="validate" value="@challenge.getTech" >
+                                <label for="tech">
+                                    Technologies Used* </label>
+                                <span id="techMsg" class="helper-text" data-error=""></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="file-field input-field col s12">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="btn waves-effect waves-light blue darken-2" style="margin-right: 10px;">
+                                        <span>Upload Challenge PDF</span>
+                                        <input type="file" accept=".pdf" id="challengePdf" name="challengePdf">
+                                    </div>
+                                    <div class="file-path-wrapper" style="flex-grow: 1;">
+                                        <input class="file-path validate" type="text" placeholder="Upload challenge PDF" id="filePathChallengePdf" readonly>
+                                    </div>
+                                    <button type="button" class="btn-small red" onclick="clearPDF('challengePdf','filePathChallengePdf')" style="margin-left: 10px;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        @if(challengeDocument) {
+                            <div class="row" style="margin-top: 10px;">
+                                <div class="col s12">
+                                    <a href="javascript:void(0);"
+                                    data-url="@routes.FileController.getFile(tableName, challengeFileType, tableRecorderId)"
+                                    class="blue-text text-darken-3"
+                                    onclick="openAndCheckNewTabUrl(this)">
+                                        Download Current Challenge Document
+                                    </a>
+                                </div>
+                            </div>
+                        }
+
+@*                        <div class="row">*@
+@*                            <div class="file-field input-field col s12" >*@
+@*                                <div class="btn waves-effect waves-light blue darken-2" >*@
+@*                                    <span >Change Challenge PDF</span>*@
+@*                                    <input type="file" accept=".pdf" id="pdf" name="pdf">*@
+@*                                </div>*@
+@*                                <div class="file-path-wrapper">*@
+@*                                    <input class="file-path validate" type="text">*@
+@*                                </div>*@
+@*                                <div id="pdfPreviewMsg" style="color:blue"></div>*@
+@*                                @if(challenge.getChallengePdf != null && challenge.getChallengePdf != "") {*@
+@*                                        <a id="pdfDownload" href="@challenge.getChallengePdf">*@
+@*                                            Download Current Challenge PDF</a>*@
+@*                                        <a id = "pdfDeleteBtn" class="right" href="#" style="color: red;" onclick="deletePDF()">*@
+@*                                            <i class="material-icons">cross</i> Delete Current PDF</a>*@
+@*                                }*@
+@*                                <input id="pdfRecord" name = "pdfRecord" style="display: none;"/>*@
+@*                            </div>*@
+@*                        </div>*@
+
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="video" id="video" value="@challenge.getVideoUrl" class="validate">*@
+@*                                <label for="video">*@
+@*                                    Video URL </label>*@
+@*                                <span id="videoMsg" class="helper-text" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="github" id="github" value = "@challenge.getGithubUrl" class="validate">*@
+@*                                <label for="github">*@
+@*                                    Github URL </label>*@
+@*                                <span id="githubMsg" class="helper-text" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="team_page" id="team_page" value = "@challenge.getTeamPageUrl">*@
+@*                                <label for="team_page">*@
+@*                                    Team Page URL </label>*@
+@*                                <span id="team_pageMsg" class="helper-text" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <p style="color: #000;">Description: </p>*@
+@*                                <div id="editor">*@
+@*                                </div>*@
+@*                                <span id="descriptionMsg" class="helper-text" data-error="" style="color: red; font-size: 12px"></span>*@
+@*                                <textarea*@
+@*                                class="materialize-textarea" name="description" style="display: none" id="description"></textarea>*@
+@*                                <input type="text" name="countImagesInDescription" id="countImagesInDescription" hidden>*@
+@*                            </div>*@
+@*                        </div>*@
+
+@*                        <div class="row">*@
+@*                            <div class="input-field col s12">*@
+@*                                <input*@
+@*                                type="text" name="parentChallengeId" id="parentChallengeId" value = "@challenge.getParentChallengeId" class="validate">*@
+@*                                <label for="parentChallengeId">*@
+@*                                    Parent Challenge Id</label>*@
+@*                                <span id="parentChallengeIdMsg" class="helper-text" style="color:red" data-error=""></span>*@
+@*                            </div>*@
+@*                        </div>*@
+
+
+                        <div class="actions row center">
+                            <div class="input-field col s12">
+                                <button type="submit" id="challengeRegister" class="btn waves-effect waves-light blue darken-2">
+                                    Update</button>
+                                <a href="@routes.ChallengeController.challengeDetail(challenge.getId)" class="btn waves-effect waves-light red darken-2">
+                                    Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            function openAndCheckNewTabUrl(link) {const url = link.getAttribute('data-url');
+
+                fetch(url, { method: 'HEAD' }).then(response => {
+                    if (response.ok) {
+                        const newTab = window.open(url, '_blank');
+                        if (!newTab) {
+                            alert("Please allow pop-ups in your browser to view this file.");
+                        }
+                    } else {
+                        alert("The user did not upload this file");
+                    }
+                })
+                        .catch(error => {
+                            console.error("Error checking the URL:", error);
+                            alert("Failed to check the file. Please try again later.");
+                        });
+            }
+    </script>
+
+}

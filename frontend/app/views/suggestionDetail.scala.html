@@ -1,0 +1,102 @@
+@import org.apache.commons.lang3.StringUtils
+@(suggestion: Suggestion)
+
+@import helper._
+
+@scripts = {
+    <script type="text/javascript">
+    </script>
+}
+
+@main("Suggestion Detail", scripts) {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/starrs.js")'></script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel">
+                    <h4 class="center">@suggestion.getTitle</h4>
+                    <div class="row">
+                        <div class="col s12">
+                            <table class="striped responsive-table">
+                                <tbody>
+                                    <tr>
+                                        <th>Title</th>
+                                        <td style="word-wrap: break-word;">@suggestion.getTitle</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Reporter Name</th>
+                                        <td style="word-wrap: break-word;">@suggestion.getSuggestionReporter.getUserName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Reporter Email</th>
+                                        <td style="word-wrap: break-word;">@suggestion.getSuggestionReporter.getEmail</td>
+                                    </tr>
+
+                                    @if(suggestion.getSuggestionReporter.getOrganization != null && suggestion.getSuggestionReporter.getOrganization != "") {
+
+                                        <tr>
+                                            <th>Reporter Organization</th>
+                                            <td style=" word-wrap: break-word;">@suggestion.getSuggestionReporter.getOrganization</td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <th>Short Description</th>
+                                        <td style="word-wrap: break-word;">@suggestion.getDescription</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Long Description</th>
+                                        @if(suggestion.getLongDescription != "null" && suggestion.getLongDescription!="") {
+                                            <td style="word-wrap: break-word;">@suggestion.getLongDescription</td>
+                                        } else {
+                                            <td style="word-wrap: break-word;">-</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th>Create Time</th>
+                                        <td style="word-wrap: break-word;">@suggestion.getCreateTime</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>Reporter's Actions</th>
+                                        <td>
+                                            <a class="btn-floating waves-effect waves-light blue darken-2" title="Edit" href="@routes.SuggestionController.suggestionEditPage(suggestion.getId)"><i class="material-icons">
+                                                edit</i></a>  &nbsp;
+                                            <a class="btn-floating waves-effect waves-light red modal-trigger" title="Delete" href="#warningModal"><i class="material-icons">
+                                                delete</i></a>
+
+
+
+                                                <!-- Inactive Warning Modal Structure -->
+                                            <div id="warningModal" class="modal">
+                                                <div class="modal-content">
+                                                    <h5 style="color: red">Warning</h5>
+                                                    <p style="font-weight: bold">
+                                                        Do you really want to delete this suggestion report: @suggestion.getTitle ?
+                                                        Please note that after deletion, this suggestion report<span style="color: red">
+                                                        CANNOT</span> be recovered.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">
+                                                        Cancel</a>
+                                                    <a href='@routes.SuggestionController.suggestionDelete(suggestion.getId)'
+                                                    class="modal-close waves-effect waves-green btn-flat">Confirm</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row col s12 center">
+                            <br/>
+                            <a href="@routes.SuggestionController.suggestionList(1)" class="btn waves-effect waves-light blue darken-2">Back to Suggestion List</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

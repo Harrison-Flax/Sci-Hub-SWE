@@ -1,0 +1,205 @@
+@(relation:String)
+@import helper._
+@main("Relationship graph") {
+    <link href='@routes.Assets.at("stylesheets/quill.snow.css")'
+    rel="stylesheet" />
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/quill.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/plugins/d3.js")'></script>
+
+    <title>Node Relationship Graph</title>
+    <h4 class="center form-signin-heading" align="center">
+        Author Paper Relation</h4>
+    <style>
+            .link {
+                stroke: #000000;
+                stroke-opacity: 1;
+            }
+
+
+            .nodetext {
+                pointer-events: none;
+                font: 10px sans-serif;
+            }
+
+            .nodeRect {
+                fill: #9fa8da;
+            }
+
+            .nodeCircle {
+                stroke: #ffffff;
+                stroke-width: 1px;
+            }
+
+
+            image.circle {
+                cursor: pointer;
+            }
+    </style>
+
+    <div id="chart"></div>
+    <script>
+            var data = @Html(relation);
+            var w = 900,
+                    h = 900,
+                    radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
+
+            var color = d3.scale.category20();
+            var vis = d3.select("body").append("svg")
+                    .attr("width", w)
+                    .attr("height", h);
+            // svg repositioning
+            $("svg").css({ margin:'0 auto'});
+
+            vis.append("defs").append("marker")
+                    .attr("id", "arrowhead")
+                    .attr("refX", 17 + 3) /*must be smarter way to calculate shift*/
+                    .attr("refY", 2)
+                    .attr("markerWidth", 6)
+                    .attr("markerHeight", 4)
+                    .attr("orient", "auto")
+                    .append("path")
+                    .attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
+
+            data.links.forEach(function(link, index, list) {
+                if (typeof data.nodes[link.source] === 'undefined') {
+                    console.log('undefined source', link);
+                }
+                if (typeof data.nodes[link.target] === 'undefined') {
+                    console.log('undefined target', link);
+                }
+            });
+            var force = self.force = d3.layout.force()
+                    .nodes(data.nodes)
+                    .links(data.links)
+                    .distance(40)
+                    .charge(-400)
+                    .size([w, h])
+                    .start();
+
+
+
+            var link = vis.selectAll("line.link")
+                    .data(data.links)
+                    .enter().append("svg:line")
+                    .attr("class", function (d) {
+                        return "link";
+                    })
+                    .attr("x1", function (d) {
+                        return d.source.x;
+                    })
+                    .attr("y1", function (d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function (d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function (d) {
+                        return d.target.y;
+                    })
+                    .attr("marker-end", function (d) {
+                        if (d.value == 1) {
+                            return "url(#arrowhead)"
+                        } else {
+                            return " "
+                        };
+                    });
+
+
+            // function openLink() {
+            //     return function (d) {
+            //         var url = "";
+            //         if (d.slug != "") {
+            //             url = d.slug
+            //         } //else if(d.type == 2) {
+            //         //url = "clients/" + d.slug
+            //         //} else if(d.type == 3) {
+            //         //url = "agencies/" + d.slug
+            //         //}
+            //         window.open("//" + url)
+            //     }
+            // }url
+
+
+
+
+
+            var node = vis.selectAll("g.node")
+                    .data(data.nodes)
+                    .enter().append("svg:g")
+                    .attr("class", function (d) {
+                        if (d.entity === "Paper") {
+                            return "paper node";
+                        } else {
+                            return "circle1 node";
+                        }
+                    })
+                    .call(force.drag);
+
+            d3.selectAll(".paper").append("rect")
+                    .data(data.nodes)
+                    .attr("width", 20)
+                    .attr("height", 20)
+                    .attr("class", "nodeRect")
+
+
+            d3.selectAll("rect").append("svg:title")
+                    .text(function(d) { return d.title; })
+
+
+
+            d3.selectAll(".circle1").append("circle")
+                    .data(data.links)
+                    .attr("class","nodeCircle")
+                    .attr("r", 15)
+                    .style("fill", function(d) { return color(d.value); })
+                    .style("fill-opacity", 0.9)
+                    .call(force.drag);
+            d3.selectAll("circle").append("svg:title")
+                    .text(function(d) { return d.title; })
+
+            // node.append("svg:image")
+            //         .attr("class", "circle")
+            //         .attr("xlink:href", function (d) {
+            //             return d.img_href
+            //         })
+            //         .attr("x", "-16px")
+            //         .attr("y", "-16px")
+            //         .attr("width", "32px")
+            //         .attr("height", "32px")
+                  //  .on("click", openLink());
+
+            node.append("svg:text")
+                    .attr("class", "nodetext")
+                    .attr("dx", 0)
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "middle")
+                    .text(function (d) {
+                        if (d.entity === "Paper") {
+                            return ""
+                        } else {
+                            return d.title.split(" ")[0].substring(0,5);
+                        }
+
+                    });
+
+            force.on("tick", function () {
+                link.attr("x1", function (d) {
+                    return d.source.x;
+                })
+                        .attr("y1", function (d) {
+                            return d.source.y;
+                        })
+                        .attr("x2", function (d) {
+                            return d.target.x;
+                        })
+                        .attr("y2", function (d) {
+                            return d.target.y;
+                        });
+
+                node.attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
+            });
+
+    </script>
+}

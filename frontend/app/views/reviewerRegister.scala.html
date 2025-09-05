@@ -1,0 +1,149 @@
+@(userForm: play.data.Form[models.Reviewer], regPattern: String )
+@import helper._
+
+@scripts = {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/database_field_length.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/field_validation_helper.js")'></script>
+    <script type="text/javascript">
+            var isEmailEmpty = true;
+            var isEmailInvalid = true;
+            var isEmailAlreadyRegistered = true;
+            var isSQ1hasNoContent = false;
+            var isSQ2hasNoContent = false;
+            var isFirstNameEmpty = true;
+            var isLastNameEmpty = true;
+            var passwordNotSecureError = "Password must contain at least one special character, one uppercase, and lowercase letter, and at least 8 or more characters <br/>";
+            var passwordsDoNotMatchError = "Your password and confirmation password do not match. <br/>";
+            var emailAlreadyRegisteredError = "Your email address is already registered.<br/>";
+            var emailEmptyError = "Field 'Email' must be filled in.<br/>";
+            var firstNameEmptyError = "Field 'First Name' must be filled in.<br/>";
+            var lastNameEmptyError = "Field 'Last Name' must be filled in.<br/>";
+            var emailInvalidError = "Your email address must be valid.<br/>";
+
+            function checkFormValid() {
+
+                if (document.getElementById("agreement").checked == false) {
+                    document.getElementById("warningMessage").innerText = "You must accept the terms and conditions before you can sign up!";
+                    $("#warningModal").modal();
+                    $("#warningModal").modal('open');
+                    return false;
+                }
+                return true;
+            }
+
+    </script>
+}
+
+@main("Author Register", scripts) {
+        <div class="container">
+            <div class="row">
+                <div class="col s12 l10 offset-l1">
+                    <div class="card-panel z-depth-0">
+                        <h4 class="form-signin-heading center">Sign up</h4>
+                        <form class="form-signin" onsubmit="return checkFormValid();" enctype="multipart/form-data" method="get" action="@routes.ReviewerController.reviewerRegisterPOST()">
+                            <div class="row">
+                                <div class="input-field col s12 m4">
+                                    <input type="text" name="firstName" id="firstName" class="validate" required>
+                                    <label for="firstName">First Name*</label>
+                                    <span id="firstNameMsg" class="helper-text" data-error=""></span>
+                                </div>
+                                <div class="input-field col s12 m4">
+                                    <input type="text" name="middleInitial" id="middleInitial" class="validate">
+                                    <label for="middleInitial">Middle Name</label>
+                                    <span id="middleInitialMsg" class="helper-text" data-error=""></span>
+                                </div>
+                                <div class="input-field col s12 m4">
+                                    <input type="text" name="lastName" id="lastName" class="validate" required>
+                                    <label for="lastName">Last Name*</label>
+                                    <span id="lastNameMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="email" name="email" id="email" class="validate" required="" onchange="checkValidEmail()">
+                                    <label for="email">Email Address*</label>
+                                    <span id="emailMsg" class="helper-text" data-error="" style="color: red"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="researchFields" id="researchFields" class="validate">
+                                    <label for="researchFields">Research Fields</label>
+                                    <span id="researchFieldsMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="affiliation" id="affiliation" class="validate">
+                                    <label for="affiliation">Affiliation</label>
+                                    <span id="affiliationMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="title" id="title" class="validate">
+                                    <label for="title">Title</label>
+                                    <span id="titleMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="mailingAddress" id="mailingAddress" class="validate">
+                                    <label for="mailingAddress">Mailing Address</label>
+                                    <span id="mailingAddressMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="phoneNumber" id="phoneNumber" class="validate">
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <span id="phoneNumberMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="text" name="highestDegree" id="highestDegree" class="validate">
+                                    <label for="highestDegree">Highest Degree</label>
+                                    <span id="highestDegreeMsg" class="helper-text" data-error=""></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <label>
+                                    <input id="agreement" type="checkbox" />
+                                    <span>
+                                        I acknowledge that I have read the <a href="https://www.nasa.gov/about/highlights/HP_Privacy.html" target="_blank">
+                                        NASA Web Privacy Policy </a>
+                                        and <a href="https://nex.nasa.gov/nex/terms/" target="_blank">NEX Policy</a>
+                                        , and do hereby accept the Terms and Conditions contained in these documents.</span>
+                                </label>
+                            </div>
+                            <div id="warningModal" class="modal">
+                                <div class="modal-content">
+                                    <h5 class="center" style="color: red">Warning!</h5>
+                                    <h6 class="center" style="font-weight: bold" id="warningMessage"></h6>
+                                </div>
+                            </div>
+                            <div class="center actions row">
+                                <div class="input-field col s12">
+                                    <button type="submit" class="btn waves-effect waves-light blue darken-2" id="create">
+                                        Create</button>
+                                    <a href="@routes.Application.home()" class="btn waves-effect waves-light red darken-2">Cancel</a>
+                                    <div class="helper-text red-text" id="submitErrorMsg"></div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script >
+            var requiredFieldList = ["firstName", "lastName", "email", "password", "repassword"];
+            var notRequiredFieldList = ["middleInitial", "researchFields", "affiliation", "title", "mailingAddress", "highestDegree", "phoneNumber"];
+            setPattern(requiredFieldList, notRequiredFieldList, 'user');
+    </script>
+}

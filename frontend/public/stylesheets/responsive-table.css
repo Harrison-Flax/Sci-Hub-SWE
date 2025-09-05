@@ -1,0 +1,210 @@
+/* ========== Base Table Styles ========== */
+table.responsive-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
+table.responsive-table th,
+table.responsive-table td {
+    padding: 12px 8px;
+    text-align: left;
+    vertical-align: top;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* ========== Mobile Table Behavior ========== */
+@media screen and (max-width: 600px) {
+    table.responsive-table thead {
+        display: none;
+    }
+
+    table.responsive-table tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background: #f9f9f9;
+    }
+
+    table.responsive-table td {
+        display: block;
+        width: 100%;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+    }
+
+    table.responsive-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        color: #444;
+        margin-bottom: 6px;
+    }
+}
+
+/* ========== Link Wrapping in Cards ========== */
+.card-panel a,
+.card-panel div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* ========== Mobile List Cards ========== */
+.mobile-table-view {
+    padding: 0 10px;
+}
+
+.mobile-table-view .card-panel {
+    background-color: #fdfdfd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    font-size: 14px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+/* ========== Detail Page Card for Mobile ========== */
+.detail-card {
+    background-color: white;
+    padding: 16px;
+    margin: 16px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-size: 15px;
+    word-break: break-word;
+    text-align: left;
+}
+
+.detail-card div {
+    margin-bottom: 12px;
+}
+
+.detail-card strong {
+    color: #444;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.detail-mobile img.circle {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+    .desktop-table-view {
+        display: none !important;
+    }
+    .mobile-table-view {
+        display: block !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    .desktop-table-view {
+        display: block !important;
+    }
+    .mobile-table-view {
+        display: none !important;
+    }
+}
+
+/* ========== Desktop vs Mobile Visibility Rules ========== */
+/* Hide both by default to avoid double rendering flash */
+.detail-desktop,
+.detail-mobile {
+    display: none !important;
+}
+
+@media screen and (max-width: 1024px) {
+    .detail-desktop {
+        display: none !important;
+    }
+    .detail-mobile {
+        display: block !important;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    .detail-desktop {
+        display: block !important;
+    }
+
+    .detail-mobile {
+        display: none !important;
+    }
+}
+
+/*-----------------------------------------------*/
+table.responsive-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
+table.responsive-table th,
+table.responsive-table td {
+    padding: 12px 8px;
+    text-align: left;
+    vertical-align: top;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* -------- Mobile Responsive Table (Column View) -------- */
+@media screen and (max-width: 800px) {
+    /* Prevent Materialize horizontal scrolling */
+    .responsive-table {
+        display: block;
+        width: 100% !important;
+        overflow-x: visible !important;
+    }
+
+    .responsive-table thead {
+        display: none;
+    }
+
+    .responsive-table tbody {
+        display: block;
+    }
+
+    .responsive-table tr {
+        display: block;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+        margin-bottom: 12px;
+        padding: 12px;
+    }
+
+    .responsive-table td {
+        display: block;
+        width: 100%;
+        padding: 8px 0;
+        font-size: 14px;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .responsive-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 4px;
+        color: #333;
+    }
+
+    /* Hides th just in case it leaks */
+    .responsive-table th {
+        display: none !important;
+    }
+}
+
+
+

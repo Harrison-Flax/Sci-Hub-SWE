@@ -1,0 +1,27 @@
+# 1. JDK 8
+FROM openjdk:8-jdk-slim
+
+# 2. set up work dir
+WORKDIR /app
+
+# 3. install sbt and unzip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      curl \
+      gnupg \
+      unzip && \
+    echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" \
+      | tee /etc/apt/sources.list.d/sbt.list && \
+    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x99E82A75642AC823" | apt-key add && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends sbt=1.5.5 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 4. sbt update (No code inside)
+RUN sbt update
+
+# 5. expose port
+EXPOSE 9037
+
+# 6. run, waiting for code merged
+CMD ["sleep", "infinity"]

@@ -1,0 +1,176 @@
+@(courses: List[Course],
+        listType: String)
+
+@import models.Course
+
+@scripts= {
+    <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
+    <script type="text/javascript">
+            console.log('Scripts loaded.');
+
+            function loadCourseDetails(courseId) {
+                console.log('Loading details for course ID:', courseId);
+                $('.course-button').removeClass('active');
+                var activeButton = $('button[data-course-id="' + courseId + '"]');
+                if (activeButton.length === 0) {
+                    console.error("No active button found for course ID:", courseId);
+                    return;
+                }
+                activeButton.addClass('active');
+
+                $.ajax({
+                    url: 'http://localhost:9037/courses/details/' + courseId,
+                    type: 'GET',
+                    success: function(data) {
+                        try {
+                            console.log('Data received:', data);
+                            var detailsHtml = '<table>';
+                            detailsHtml += '<tr><th>Week</th><th>Start Date</th><th>Total Approved Hours</th><th>Total Hours Used</th><th>TA Details</th><th>Approval</th></tr>';
+                            Object.keys(data.weeks).forEach(function(week) {
+                                detailsHtml += '<tr>';
+                                detailsHtml += '<td>' + week + '</td>';
+                                detailsHtml += '<td>' + data.weeks[week].startDate + '</td>';
+                                detailsHtml += '<td>' + data.weeks[week].totalApprovedHours + '</td>';
+                                detailsHtml += '<td>' + data.weeks[week].totalHoursUsed + '</td>';
+                                detailsHtml += '<td>';
+                                data.weeks[week].taDetails.forEach(function(ta) {
+                                    detailsHtml += ta.name + ': ' + ta.usedHours + ' hrs<br>';
+                                });
+                                detailsHtml += '</td>';
+                                // detailsHtml += '<td><button onclick="approveTA(' + week.replace('Week ', '') + ')">Approve</button></td>';
+                                if (data.weeks[week].approved) {
+                                    detailsHtml += '<td>Approved</td>';
+                                } else {
+                                    detailsHtml += '<td><button onclick="approveTA(' + week.replace('Week ', '') + ')">Approve</button></td>';
+                                }
+                                detailsHtml += '</tr>';
+                            });
+                            detailsHtml += '</table><br><br>';
+                            $('#course-detail').html(detailsHtml);
+                        } catch (renderError) {
+                            console.error("Error during rendering course details:", renderError);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching course details:", error, status, xhr.responseText);
+                    }
+                });
+            }
+
+            function approveTA(week) {
+                var confirmApproval = confirm('Are you sure you want to approve all the TA hours for week ' + week + '?');
+                if (confirmApproval) {
+                    var courseId = $('.course-button.active').data('course-id');
+                    $.ajax({
+                        url: 'http://localhost:9037/courses/approve/' + courseId + '/' + week,
+                        type: 'POST',
+                        success: function(data) {
+                            console.log('Approval successful for week:', week);
+                            $('button[onclick="approveTA(' + week + ')"]').hide();
+                            $('button[onclick="approveTA(' + week + ')"]').closest('td').text('Approved');
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error approving TA hours:", error, status, xhr.responseText);
+                        }
+                    });
+                } else {
+                    console.log('Approval cancelled for week:', week);
+                }
+            }
+
+
+
+    </script>
+
+
+    <style>
+            .page-container {
+                display: flex;
+                justify-content: start;
+            }
+
+            .course-list {
+                flex-basis: 13%;
+                padding: 10px;
+                margin-right: 20px;
+                border-right: 1px solid #ccc;
+            }
+
+            .course-button {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 5px;
+                border: 1px solid #ddd;
+                background-color: #f8f8f8;
+                cursor: pointer;
+            }
+
+            .course-button.active {
+                background-color: #e7e7e7;
+            }
+
+            .course-details {
+                flex-basis: 80%;
+                padding: 1px;
+            }
+
+
+            .course-details table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .course-details th, .course-details td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            .course-details th {
+                background-color: #f2f2f2;
+            }
+
+            .active {
+                /* change the background color of course button */
+                background-color: #4CAF50; /* green */
+                color: white;
+            }
+    </style>
+
+
+}
+
+@main("Course List", scripts) {
+
+    <div class="row card-panel z-depth-0 project-zone-panel">
+        <div class="col s12" style="margin-top: -10px;
+            margin-bottom: -10px;">
+            <h6 class="center tooltipped" data-position="bottom" data-tooltip="This list shows all the TA candidates." >
+                <br>
+                TA Weekly Hours Records
+            </h6>
+        </div>
+    </div>
+
+    <br>
+
+    @if(courses.size() > 0) {
+        <div class="page-container">
+            <div class="course-list">
+            @for(course <- courses) {
+                <button class="course-button" data-course-id="@course.getId" onclick="loadCourseDetails('@course.getId')">@course.getCourseId</button>
+            }
+
+            </div>
+            <div class="course-details">
+                <div id="course-detail">
+                        <!-- Detailed information will be rendered by js scripts above -->
+                </div>
+            </div>
+        </div>
+    } else {
+        <h5>No courses in database.</h5>
+    }
+
+
+}
