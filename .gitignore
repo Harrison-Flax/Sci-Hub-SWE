@@ -9,3 +9,6 @@ tools/**/*
 
 **/sbt-dist
 .DS_Store
+
+.env
+*.iml

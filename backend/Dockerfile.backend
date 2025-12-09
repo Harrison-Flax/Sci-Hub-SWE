@@ -1,5 +1,10 @@
+# OLD:
 # Use OpenJDK 8 to run Play backend
-FROM openjdk:8-jdk-slim
+# FROM openjdk:8-jdk-slim
+
+# NEW:
+# Use eclipse-temurin JDK 8 to run Play backend
+FROM eclipse-temurin:8-jdk
 
 # Set working directory
 WORKDIR /app

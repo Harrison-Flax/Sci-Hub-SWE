@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    container_name: cshub-backend
+    ports:
+      - "9037:9037"
+    environment:
+      # Matches the original Environment Setup slides:
+      # DB_URL="jdbc:mysql://host.docker.internal:3306/old_cshub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      DB_URL: "jdbc:mysql://host.docker.internal:3306/old_cshub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      DB_USER: "root"
+      DB_PASS: "${MYSQL_PASSWORD}"
+    # MySQL is running on the host, so no compose-level depends_on needed
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    container_name: cshub-frontend
+    ports:
+      - "9036:9036"
+    environment:
+      # Also taken from the slides:
+      # BACKEND_HOST="host.docker.internal"
+      # BACKEND_PORT="9037"
+      # BACKEND_URL="http://host.docker.internal:9037"
+      BACKEND_HOST: "host.docker.internal"
+      BACKEND_PORT: "9037"
+      BACKEND_URL: "http://host.docker.internal:9037"
+    depends_on:
+      - backend

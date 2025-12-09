@@ -1,5 +1,10 @@
-# Use OpenJDK 8 to build and run a Play frontend
-FROM openjdk:8-jdk-slim
+# OLD:
+# Use OpenJDK 8 to run Play backend
+# FROM openjdk:8-jdk-slim
+
+# NEW:
+# Use eclipse-temurin JDK 8 to run Play backend
+FROM eclipse-temurin:8-jdk
 
 # Update package index and install required packages:
 RUN apt-get update && \
