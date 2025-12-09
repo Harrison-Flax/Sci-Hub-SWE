@@ -156,7 +156,7 @@ This will:
 
 When running, go to:
 
-{http://localhost:9036}[http://localhost:9036]
+http://localhost:9036  
 
 Stop with **Ctrl + C**.
 
