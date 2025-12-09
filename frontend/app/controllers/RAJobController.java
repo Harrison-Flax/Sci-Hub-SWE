@@ -29,8 +29,10 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static controllers.Application.checkLoginStatus;
 import static utils.Common.beginIndexForPagination;
@@ -309,6 +311,81 @@ public class RAJobController extends Controller {
             Logger.debug("RAJobController.rajobList() exception: " + e.toString());
             Application.flashMsg(RESTfulCalls.createUserResponse(RESTfulCalls.UserResponseType.GENERALERROR));
             return ok(generalError.render());
+        }
+    }
+    
+    /**
+     * Returns RA job data for RA type distribution visualization with optional filters.
+     */
+    public Result rajobPayRanges() {
+        checkLoginStatus();
+
+        String userId = session("id");
+        String department = request().getQueryString("department");
+        String mode = request().getQueryString("mode");
+        String status = request().getQueryString("status");
+        int pageLimit = Integer.parseInt(Constants.PAGINATION_NUMBER_ITEM_TWENTY) * 5;
+
+        try {
+            String url = RESTfulCalls.getBackendAPIUrl(config,
+                    Constants.RAJOB_LIST + userId + "?pageNum=1&pageLimit=" + pageLimit + "&sortCriteria=");
+            JsonNode rajobListJsonNode = RESTfulCalls.getAPI(url);
+            if (rajobListJsonNode == null || rajobListJsonNode.has("error")) {
+                return ok(emptyPayRangeResponse());
+            }
+
+            JsonNode items = rajobListJsonNode.path("items");
+            if (items == null || !items.isArray()) {
+                return ok(emptyPayRangeResponse());
+            }
+
+            ArrayNode filteredJobs = Json.newArray();
+            Set<String> departments = new HashSet<>();
+            Set<String> modes = new HashSet<>();
+            Set<String> statuses = new HashSet<>();
+            int hourlyCount = 0;
+            int fullTimeCount = 0;
+            for (JsonNode job : items) {
+                if (matchesPayRangeFilters(job, department, mode, status)) {
+                    filteredJobs.add(job);
+                    String org = job.path("organization").asText("");
+                    String loc = job.path("location").asText("");
+                    String jobStatus = job.path("status").asText("");
+                    if (!org.isEmpty()) {
+                        departments.add(org);
+                    }
+                    if (!loc.isEmpty()) {
+                        modes.add(loc);
+                    }
+                    if (!jobStatus.isEmpty()) {
+                        statuses.add(jobStatus);
+                    }
+                    int raType = job.path("raTypes").asInt(0);
+                    if (raType == 1) {
+                        hourlyCount += 1;
+                    } else if (raType == 2) {
+                        fullTimeCount += 1;
+                    }
+                }
+            }
+
+            ObjectNode response = Json.newObject();
+            ObjectNode counts = response.putObject("counts");
+            counts.put("hourly", hourlyCount);
+            counts.put("fullTime", fullTimeCount);
+            counts.put("withType", hourlyCount + fullTimeCount);
+
+            ObjectNode filters = response.putObject("filters");
+            filters.set("departments", toArrayNode(departments));
+            filters.set("modes", toArrayNode(modes));
+            filters.set("statuses", toArrayNode(statuses));
+
+            response.set("jobs", filteredJobs);
+
+            return ok(response);
+        } catch (Exception e) {
+            Logger.debug("RAJobController.rajobPayRanges() exception: " + e.toString());
+            return ok(emptyPayRangeResponse());
         }
     }
 
@@ -786,6 +863,52 @@ public class RAJobController extends Controller {
             Logger.debug("RAJobController.searchPOST() exception: " + e.toString());
             return redirect(routes.Application.home());
         }
+    }
+
+
+    private boolean matchesPayRangeFilters(JsonNode job, String department, String mode, String status) {
+        if (job == null || job.isMissingNode()) {
+            return false;
+        }
+
+        String organization = job.path("organization").asText("");
+        String location = job.path("location").asText("");
+        String jobStatus = job.path("status").asText("");
+
+        if (!isBlank(department) && !organization.equalsIgnoreCase(department.trim())) {
+            return false;
+        }
+
+        if (!isBlank(mode) && !location.equalsIgnoreCase(mode.trim())) {
+            return false;
+        }
+
+        if (!isBlank(status) && !jobStatus.equalsIgnoreCase(status.trim())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private ArrayNode toArrayNode(Set<String> values) {
+        ArrayNode arrayNode = Json.newArray();
+        if (values == null || values.isEmpty()) {
+            return arrayNode;
+        }
+        values.stream().sorted().forEach(arrayNode::add);
+        return arrayNode;
+    }
+
+    private ObjectNode emptyPayRangeResponse() {
+        ObjectNode response = Json.newObject();
+        response.set("counts", Json.newObject());
+        response.set("filters", Json.newObject());
+        response.set("jobs", Json.newArray());
+        return response;
     }
 
 

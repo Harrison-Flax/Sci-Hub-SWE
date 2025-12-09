@@ -14,6 +14,7 @@
 
 @scripts = {
     <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/assets/stylesheets/responsive-table.css">
     <script type="text/javascript">
 
@@ -85,6 +86,231 @@
                 return map;
             }
 
+            function populateFilter(selectElement, values, previousValue) {
+                var currentSelection = previousValue || selectElement.value || "";
+                var options = '<option value="">All</option>';
+                Array.from(values).sort().forEach(function (value) {
+                    options += '<option value="' + value + '">' + value + '</option>';
+                });
+                selectElement.innerHTML = options;
+                if (values.has(currentSelection)) {
+                    selectElement.value = currentSelection;
+                }
+            }
+
+            function updateFilterOptions(filters) {
+                var departments = new Set((filters && filters.departments) || []);
+                var modes = new Set((filters && filters.modes) || []);
+                var statuses = new Set((filters && filters.statuses) || []);
+
+                populateFilter(document.getElementById('departmentFilter'), departments);
+                populateFilter(document.getElementById('modeFilter'), modes);
+                populateFilter(document.getElementById('statusFilter'), statuses);
+            }
+
+            var payBarChart;
+            var payPieChart;
+
+            function destroyChartIfExists(chartInstance) {
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+            }
+
+            function renderPayScaleCharts(counts) {
+                var hourly = (counts && counts.hourly) || 0;
+                var fullTime = (counts && counts.fullTime) || 0;
+
+                var labels = ['Hourly RA ($20/hr grad, $15/hr undergrad)', 'Full-time RA ($2500/month + tuition waiver)'];
+                var data = [hourly, fullTime];
+                var total = data.reduce(function (sum, value) { return sum + value; }, 0);
+
+                var barCanvas = document.getElementById('payBarChart');
+                var pieCanvas = document.getElementById('payPieChart');
+                var fallbackText = document.getElementById('payChartFallback');
+
+                if (total === 0) {
+                    barCanvas.style.display = 'none';
+                    pieCanvas.style.display = 'none';
+                    fallbackText.style.display = 'block';
+                    fallbackText.textContent = 'No pay scale data available for the selected filters.';
+                    destroyChartIfExists(payBarChart);
+                    destroyChartIfExists(payPieChart);
+                    payBarChart = null;
+                    payPieChart = null;
+                    return;
+                }
+
+                barCanvas.style.display = 'block';
+                pieCanvas.style.display = 'block';
+                fallbackText.style.display = 'none';
+
+                var barConfig = {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jobs by pay scale',
+                            data: data,
+                            backgroundColor: ['#64b5f6', '#ffb74d'],
+                            hoverBackgroundColor: ['#42a5f5', '#ffa726']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var value = context.parsed.y || 0;
+                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Number of jobs' }
+                            }
+                        }
+                    }
+                };
+
+                var pieConfig = {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jobs by pay scale',
+                            data: data,
+                            backgroundColor: ['#64b5f6', '#ffb74d'],
+                            hoverBackgroundColor: ['#42a5f5', '#ffa726']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var value = context.parsed || 0;
+                                        var percent = total ? ((value / total) * 100).toFixed(1) : 0;
+                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's') + ' (' + percent + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                if (payBarChart) {
+                    payBarChart.data.datasets[0].data = data;
+                    payBarChart.update();
+                } else {
+                    payBarChart = new Chart(barCanvas.getContext('2d'), barConfig);
+                }
+
+                if (payPieChart) {
+                    payPieChart.data.datasets[0].data = data;
+                    payPieChart.update();
+                } else {
+                    payPieChart = new Chart(pieCanvas.getContext('2d'), pieConfig);
+                }
+            }
+
+            function fetchPayScaleData() {
+                var filters = {
+                    department: document.getElementById('departmentFilter').value,
+                    mode: document.getElementById('modeFilter').value,
+                    status: document.getElementById('statusFilter').value
+                };
+
+                var params = new URLSearchParams();
+                Object.keys(filters).forEach(function (key) {
+                    if (filters[key]) {
+                        params.append(key, filters[key]);
+                    }
+                });
+
+                var url = '/rajob/payRanges';
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+
+                fetch(url)
+                        .then(function (response) { return response.json(); })
+                        .then(function (data) {
+                            var counts = (data && data.counts) || {};
+                            var filtersPayload = (data && data.filters) || {};
+                            updateFilterOptions(filtersPayload);
+                            renderPayScaleCharts(counts);
+                        })
+                        .catch(function () {
+                            var fallbackText = document.getElementById('payChartFallback');
+                            var barCanvas = document.getElementById('payBarChart');
+                            var pieCanvas = document.getElementById('payPieChart');
+                            fallbackText.style.display = 'block';
+                            fallbackText.textContent = 'Unable to load pay scale data.';
+                            barCanvas.style.display = 'none';
+                            pieCanvas.style.display = 'none';
+                            destroyChartIfExists(payBarChart);
+                            destroyChartIfExists(payPieChart);
+                            payBarChart = null;
+                            payPieChart = null;
+                        });
+            }
+
+            function resetPayScaleFilters() {
+                document.getElementById('departmentFilter').value = '';
+                document.getElementById('modeFilter').value = '';
+                document.getElementById('statusFilter').value = '';
+                fetchPayScaleData();
+            }
+
+            function exportChart(chartInstance, filename) {
+                if (!chartInstance) {
+                    return;
+                }
+                var link = document.createElement('a');
+                link.href = chartInstance.toBase64Image();
+                link.download = filename;
+                link.click();
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var resetButton = document.getElementById('payScaleReset');
+                var exportBarButton = document.getElementById('exportPayBarChart');
+                var exportPieButton = document.getElementById('exportPayPieChart');
+                var departmentFilter = document.getElementById('departmentFilter');
+                var modeFilter = document.getElementById('modeFilter');
+                var statusFilter = document.getElementById('statusFilter');
+
+                if (resetButton) {
+                    resetButton.addEventListener('click', resetPayScaleFilters);
+                }
+                if (exportBarButton) {
+                    exportBarButton.addEventListener('click', function () {
+                        exportChart(payBarChart, 'ra-pay-scale-bar.png');
+                    });
+                }
+                if (exportPieButton) {
+                    exportPieButton.addEventListener('click', function () {
+                        exportChart(payPieChart, 'ra-pay-scale-pie.png');
+                    });
+                }
+                [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
+                    if (select) {
+                        select.addEventListener('change', fetchPayScaleData);
+                    }
+                });
+
+                fetchPayScaleData();
+            });
+
+
     </script>
     <style>
             .follow-fab {
@@ -103,6 +329,30 @@
                 line-height: 1.5em;
                 cursor: pointer;
                 white-space: normal;
+            }
+
+            .pay-range-card {
+                margin-top: 20px;
+            }
+
+            .pay-range-card h5 {
+                margin-top: 0;
+                margin-bottom: 10px;
+            }
+
+            .pay-range-description {
+                margin-bottom: 16px;
+            }
+
+            .pay-filter-select {
+                margin-bottom: 12px;
+            }
+
+            .filter-actions {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-top: 8px;
             }
     </style>
 }
@@ -140,6 +390,54 @@
                     <div id="nasaText" hidden></div>
                     <div id="requestField"></div>
                     <div id="replyField"></div>
+                </div>
+                <div class="row pay-range-card">
+                    <div class="col s12">
+                        <div class="card-panel">
+                            <div class="row">
+                                <div class="col s12 m8">
+                                    <h5>Pay scale overview</h5>
+                                    <p class="grey-text text-darken-1 pay-range-description">
+                                        See how RA postings distribute between hourly (grad/undergrad) and full-time positions.
+                                    </p>
+                                    <div class="row">
+                                        <div class="col s12 m6">
+                                            <canvas id="payBarChart" role="img" aria-label="Research assistant pay scale bar chart"></canvas>
+                                        </div>
+                                        <div class="col s12 m6">
+                                            <canvas id="payPieChart" role="img" aria-label="Research assistant pay scale pie chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <p id="payChartFallback" class="grey-text text-darken-1" style="display: none;">Loading pay scale data...</p>
+                                </div>
+                                <div class="col s12 m4">
+                                    <div class="input-field">
+                                        <label for="departmentFilter" class="active">Department / Lab</label>
+                                        <select id="departmentFilter" class="browser-default pay-filter-select">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-field">
+                                        <label for="modeFilter" class="active">Mode / Location</label>
+                                        <select id="modeFilter" class="browser-default pay-filter-select">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-field">
+                                        <label for="statusFilter" class="active">Status</label>
+                                        <select id="statusFilter" class="browser-default pay-filter-select">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-actions">
+                                        <button type="button" class="btn grey lighten-2 black-text" id="payScaleReset">Reset filters</button>
+                                        <button type="button" class="btn blue darken-1" id="exportPayBarChart" aria-label="Export pay scale bar chart image">Export bar chart</button>
+                                        <button type="button" class="btn blue darken-1" id="exportPayPieChart" aria-label="Export pay scale pie chart image">Export pie chart</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col s6">
