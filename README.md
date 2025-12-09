@@ -84,7 +84,7 @@ These files are **NOT tracked in git** and are ignored by `.gitignore`:
 
 If missing, containers will crash with:
 
->> `resource not found on classpath: application.conf`
+> `resource not found on classpath: application.conf`
 
 ### Fix:
 
@@ -156,7 +156,7 @@ This will:
 
 When running, go to:
 
-[http://localhost:9036]{http://localhost:9036}
+{http://localhost:9036}[http://localhost:9036]
 
 Stop with **Ctrl + C**.
 
