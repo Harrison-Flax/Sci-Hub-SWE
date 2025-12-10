@@ -6,7 +6,8 @@ tools/**/*
 **/logs/
 **application.log
 *.log
-
+backend/conf/application.conf
+frontend/conf/application.conf
 **/sbt-dist
 .DS_Store
 

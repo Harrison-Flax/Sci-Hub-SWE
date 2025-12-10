@@ -41,6 +41,11 @@ import static utils.Common.endIndexForPagination;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.Map;
+import java.util.HashMap;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 public class RAJobController extends Controller {
 
     @Inject
@@ -387,6 +392,68 @@ public class RAJobController extends Controller {
             Logger.debug("RAJobController.rajobPayRanges() exception: " + e.toString());
             return ok(emptyPayRangeResponse());
         }
+    }
+
+
+    /**
+     * Returns RA job data grouped by department/organization for visualization.
+     */
+    public Result rajobByDepartment() {
+        checkLoginStatus();
+
+        String userId = session("id");
+        int pageLimit = Integer.parseInt(Constants.PAGINATION_NUMBER_ITEM_TWENTY) * 5;
+
+        try {
+            String url = RESTfulCalls.getBackendAPIUrl(config,
+                    Constants.RAJOB_LIST + userId + "?pageNum=1&pageLimit=" + pageLimit + "&sortCriteria=");
+            JsonNode rajobListJsonNode = RESTfulCalls.getAPI(url);
+
+            if (rajobListJsonNode == null || rajobListJsonNode.has("error")) {
+                return ok(emptyDepartmentResponse());
+            }
+
+            JsonNode items = rajobListJsonNode.path("items");
+            if (items == null || !items.isArray()) {
+                return ok(emptyDepartmentResponse());
+            }
+
+            Map<String, Integer> departmentCounts = new HashMap<>();
+
+            for (JsonNode job : items) {
+                String organization = job.path("organization").asText("");
+                if (!organization.isEmpty()) {
+                    departmentCounts.put(organization, departmentCounts.getOrDefault(organization, 0) + 1);
+                }
+            }
+
+            ObjectNode response = Json.newObject();
+            ArrayNode departments = response.putArray("departments");
+            ArrayNode counts = response.putArray("counts");
+
+            // Sort by department name for consistent display
+            departmentCounts.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        departments.add(entry.getKey());
+                        counts.add(entry.getValue());
+                    });
+
+            response.put("total", departmentCounts.values().stream().mapToInt(Integer::intValue).sum());
+
+            return ok(response);
+        } catch (Exception e) {
+            Logger.debug("RAJobController.rajobByDepartment() exception: " + e.toString());
+            return ok(emptyDepartmentResponse());
+        }
+    }
+
+    private ObjectNode emptyDepartmentResponse() {
+        ObjectNode response = Json.newObject();
+        response.set("departments", Json.newArray());
+        response.set("counts", Json.newArray());
+        response.put("total", 0);
+        return response;
     }
 
 

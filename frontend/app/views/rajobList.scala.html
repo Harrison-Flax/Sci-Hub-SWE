@@ -110,6 +110,110 @@
 
             var payBarChart;
             var payPieChart;
+            var deptBarChart;
+
+            function renderDepartmentChart(departments, counts) {
+                var canvas = document.getElementById('deptBarChart');
+                var fallbackText = document.getElementById('deptChartFallback');
+
+                var total = counts.reduce(function (sum, value) { return sum + value; }, 0);
+
+                if (total === 0 || departments.length === 0) {
+                    canvas.style.display = 'none';
+                    fallbackText.style.display = 'block';
+                    fallbackText.textContent = 'No department data available.';
+                    destroyChartIfExists(deptBarChart);
+                    deptBarChart = null;
+                    return;
+                }
+
+                canvas.style.display = 'block';
+                fallbackText.style.display = 'none';
+
+                // Generate different colors for each department
+                var colors = departments.map(function(dept, index) {
+                var hue = (index * 137.5) % 360; // Golden angle for good distribution
+                return 'hsl(' + hue + ', 65%, 55%)';
+                });
+
+                var hoverColors = departments.map(function(dept, index) {
+                var hue = (index * 137.5) % 360;
+                return 'hsl(' + hue + ', 65%, 45%)'; // Slightly darker on hover
+                });
+
+            var config = {
+                type: 'bar',
+                data: {
+                    labels: departments,
+                    datasets: [{
+                        label: 'Jobs by department',
+                        data: counts,
+                        backgroundColor: colors,
+                        hoverBackgroundColor: hoverColors
+                    }]
+                },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var value = context.parsed.y || 0;
+                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    precision: 0
+                                },
+                                title: { display: true, text: 'Number of jobs' }
+                            },
+                            x: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                };
+
+                if (deptBarChart) {
+                    deptBarChart.data.labels = departments;
+                    deptBarChart.data.datasets[0].data = counts;
+                    deptBarChart.update();
+                } else {
+                    deptBarChart = new Chart(canvas.getContext('2d'), config);
+                }
+            }
+
+            function fetchDepartmentData() {
+                fetch('/rajob/byDepartment')
+                    .then(function (response) { return response.json(); })
+                    .then(function (data) {
+                        var departments = data.departments || [];
+                        var counts = data.counts || [];
+                        renderDepartmentChart(departments, counts);
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching department data:', error);
+                        var fallbackText = document.getElementById('deptChartFallback');
+                        var canvas = document.getElementById('deptBarChart');
+                        fallbackText.style.display = 'block';
+                        fallbackText.textContent = 'Unable to load department data.';
+                        canvas.style.display = 'none';
+                        destroyChartIfExists(deptBarChart);
+                        deptBarChart = null;
+                    });
+            }
 
             function destroyChartIfExists(chartInstance) {
                 if (chartInstance) {
@@ -284,6 +388,7 @@
                 var resetButton = document.getElementById('payScaleReset');
                 var exportBarButton = document.getElementById('exportPayBarChart');
                 var exportPieButton = document.getElementById('exportPayPieChart');
+                var exportDeptButton = document.getElementById('exportDeptBarChart');
                 var departmentFilter = document.getElementById('departmentFilter');
                 var modeFilter = document.getElementById('modeFilter');
                 var statusFilter = document.getElementById('statusFilter');
@@ -301,6 +406,11 @@
                         exportChart(payPieChart, 'ra-pay-scale-pie.png');
                     });
                 }
+                if (exportDeptButton) {
+                    exportDeptButton.addEventListener('click', function () {
+                        exportChart(deptBarChart, 'ra-jobs-by-department.png');
+                    });
+                }
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
                     if (select) {
                         select.addEventListener('change', fetchPayScaleData);
@@ -308,6 +418,7 @@
                 });
 
                 fetchPayScaleData();
+                fetchDepartmentData();
             });
 
 
@@ -354,6 +465,13 @@
                 flex-wrap: wrap;
                 margin-top: 8px;
             }
+
+            .dept-chart-section {
+                margin-top: 24px;
+                padding-top: 24px;
+                border-top: 1px solid #e0e0e0;
+            }
+
     </style>
 }
 
@@ -433,6 +551,25 @@
                                         <button type="button" class="btn grey lighten-2 black-text" id="payScaleReset">Reset filters</button>
                                         <button type="button" class="btn blue darken-1" id="exportPayBarChart" aria-label="Export pay scale bar chart image">Export bar chart</button>
                                         <button type="button" class="btn blue darken-1" id="exportPayPieChart" aria-label="Export pay scale pie chart image">Export pie chart</button>
+                                    </div>
+
+                                </div>
+                                <!-- NEW DEPARTMENT CHART SECTION -->
+                                <div class="row dept-chart-section">
+                                    <div class="col s12">
+                                        <h5>Jobs by Department</h5>
+                                        <p class="grey-text text-darken-1 pay-range-description">
+                                            Distribution of RA job postings across different departments and labs.
+                                        </p>
+                                        <div class="row">
+                                            <div class="col s12">
+                                                <canvas id="deptBarChart" role="img" aria-label="Jobs by department bar chart" style="max-height: 400px;"></canvas>
+                                                <p id="deptChartFallback" class="grey-text text-darken-1" style="display: none;">Loading department data...</p>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top: 16px;">
+                                            <button type="button" class="btn green darken-1" id="exportDeptBarChart" aria-label="Export department chart image">Export chart</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
