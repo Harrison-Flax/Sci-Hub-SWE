@@ -290,6 +290,7 @@ GET         /rajob/rajobList/:pageNum                                           
 GET         /rajob/rajobListPostedByUser/:pageNum                                               controllers.RAJobController.rajobListPostedByUser(pageNum: Integer)
 GET         /rajob/rajobListAppliedByUser/:pageNum                                              controllers.RAJobController.rajobListAppliedByUser(pageNum: Integer)
 GET         /rajob/payRanges                                                                    controllers.RAJobController.rajobPayRanges()
+GET         /rajob/byDepartment                                                                 controllers.RAJobController.rajobByDepartment()
 
 GET         /rajob/rajobDetail/:rajobId                                                         controllers.RAJobController.rajobDetail(rajobId: Long)
 GET         /rajob/searchPage                                                                   controllers.RAJobController.searchPage()
