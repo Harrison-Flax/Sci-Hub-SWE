@@ -271,7 +271,7 @@
                 link.click();
             }
             
-            // ---------- Keyword panel ----------
+            // Keyword panel
 
             var KEYWORD_STOP_WORDS = new Set([
                 'the','a','an','and','or','for','to','of','in','on','with',
@@ -325,7 +325,6 @@
                     return;
                 }
 
-                // --- NEW: Get current filter values ---
                 var deptFilter = document.getElementById('departmentFilter').value.toLowerCase();
                 var modeFilter = document.getElementById('modeFilter').value.toLowerCase();
                 var statusFilter = document.getElementById('statusFilter').value.toLowerCase();
@@ -333,17 +332,14 @@
                 var freq = {};
 
                 jobs.forEach(function (job) {
-                    // --- NEW: Apply Filters before counting ---
                     var jobDept = (job.fields || "").toLowerCase(); 
                     var jobMode = (job.location || "").toLowerCase(); 
                     var jobStatus = (job.status || "").toLowerCase();
 
-                    // If a filter is selected AND the job doesn't match, skip this job
                     if (deptFilter && !jobDept.includes(deptFilter)) return;
                     if (modeFilter && !jobMode.includes(modeFilter)) return;
                     if (statusFilter && !jobStatus.includes(statusFilter)) return;
 
-                    // --- Existing Keyword Extraction Logic ---
                     var parts = [];
                     if (job.title) parts.push(job.title);
                     if (job.goals) parts.push(job.goals);
@@ -375,8 +371,6 @@
                 renderKeywordPanel(entries);
             }
 
-            // ---------- MAIN INITIALIZATION BLOCK (Consolidated) ----------
-            // ---------- MAIN INITIALIZATION BLOCK (Updated with Delay) ----------
             document.addEventListener('DOMContentLoaded', function () {
                 var resetButton = document.getElementById('payScaleReset');
                 var exportBarButton = document.getElementById('exportPayBarChart');
@@ -389,8 +383,8 @@
                 // 1. Reset Button Logic
                 if (resetButton) {
                     resetButton.addEventListener('click', function() {
-                        resetPayScaleFilters();      // Resets dropdowns
-                        buildKeywordStatsFromJobs(); // Refreshes keywords
+                        resetPayScaleFilters();      /
+                        buildKeywordStatsFromJobs(); 
                     });
                 }
 
@@ -410,8 +404,8 @@
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
                     if (select) {
                         select.addEventListener('change', function() {
-                            fetchPayScaleData();         // Update Charts
-                            buildKeywordStatsFromJobs(); // Update Keyword Panel
+                            fetchPayScaleData();         
+                            buildKeywordStatsFromJobs(); 
                         });
                     }
                 });
