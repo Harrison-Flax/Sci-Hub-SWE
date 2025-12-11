@@ -62,6 +62,10 @@
                   ">
                 </div>
 
+                <!-- No Jobs Match/Found -->
+                 <div id="noDataMessage" style="display: none; font-size: 1.2rem; color: #888; text-align: center;">
+                    No jobs match the selected criteria.
+
                 <!-- Year Selector using Select2 -->
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <label for="yearSelector" style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.1rem;">
@@ -99,17 +103,29 @@
             </div>
         </div>
 
-    </div> <!-- End Container -->
+        <!-- CARD 4: Simplified Dashboard -->
+         <div class="dashboard-controls">
+            <div id="summary-statistics">
+                <span>Total Jobs: <b id="total-jobs-display">--</b></span>
+                <span>Average Pay: <b id="average-pay-display">--</b></span>
+            </div>
+        
+        <div class="view-toggles" style="margin-bottom: 1rem;">
+            <label>Show:</label>
+            <button class="btn btn-sm btn-outline-primary" onclick="toggleView('all')">All</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleView('pieChart')">Distribution</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleView('stackedBarChart')">History</button>
+        </div>
+
+            <button id="resetFiltersBtn" class="btn">Reset Features</button>
+         </div>
+    </div> 
+
+    <!-- End Container -->
 
     <!-- *********************
          PAGE-SPECIFIC SCRIPTS
          ********************* -->
-
-    <!-- Select2 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/select2@@4.1.0-rc.0/dist/css/select2.min.css"
-      rel="stylesheet"
-    />
 
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -117,179 +133,15 @@
     <!-- ApexCharts JS -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <script type="text/javascript">
-        let yearTopicData = {};
-        let allYears = [];
-        let allTopicsSet = new Set();
-
-        let donutChart, stackedBarChart;  // Chart instances
-
-        // 1) A color palette large enough for all topics
-        const colorPalette = [
-            '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0',
-            '#546E7A', '#26A69A', '#D10CE8', '#2E93fA', '#66DA26',
-            '#E91E63', '#FF9800', '#8E44AD', '#2ECC71', '#3498DB',
-            '#1ABC9C', '#F39C12', '#7F8C8D', '#C0392B', '#8E44AD'
-            // Add more if you have more than 20 unique topics
-        ];
-
-        // 2) Map each topic to one color from the palette
-        //    We'll build this map once we know all unique topics
-        let topicColorMap = {};
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fetch the JSON data
-            fetch('@routes.Assets.at("resource/yearly_lda_acm_distribution.json")')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok: " + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(jsonData => {
-                    yearTopicData = jsonData;
-
-                    // Extract year keys, convert to int, sort them
-                    allYears = Object.keys(jsonData)
-                                     .map(yStr => parseInt(yStr, 10))
-                                     .filter(y => !isNaN(y))
-                                     .sort((a,b) => a - b);
-
-                    // Collect all unique topic names
-                    for (let yearStr of Object.keys(jsonData)) {
-                        const topicObj = jsonData[yearStr];
-                        for (let topicName in topicObj) {
-                            allTopicsSet.add(topicName);
-                        }
-                    }
-
-                    // Create a color mapping for each unique topic
-                    const allTopics = Array.from(allTopicsSet).sort();
-                    let colorIndex = 0;
-                    allTopics.forEach((topic) => {
-                        topicColorMap[topic] = colorPalette[colorIndex % colorPalette.length];
-                        colorIndex++;
-                    });
-
-                    // Build the dropdown using Select2 & attach to donut
-                    buildYearSelector(allYears);
-                    if (allYears.length > 0) {
-                        updateDonutChart(allYears[0]);
-                    }
-
-                    // Build stacked bar chart
-                    buildStackedBarChart(allTopics);
-                })
-                .catch(err => {
-                    console.error("Error loading JSON:", err);
-                });
-        });
-
-        // Build year selector using Select2
-        function buildYearSelector(years) {
-            const selector = document.getElementById("yearSelector");
-            selector.innerHTML = "";  // Clear any existing options
-
-            years.forEach(y => {
-                const opt = document.createElement("option");
-                opt.value = y;   // integer
-                opt.text = y;
-                selector.appendChild(opt);
-            });
-
-            // Remove any leftover Materialize triggers if they exist
-            const matDropdownTrigger = document.querySelector('.select-dropdown.dropdown-trigger');
-            if (matDropdownTrigger) {
-                matDropdownTrigger.remove();
-            }
-            const matWrapper = document.querySelector('.select-wrapper');
-            if (matWrapper) {
-                matWrapper.parentNode.replaceChild(selector, matWrapper);
-            }
-
-            // Initialize Select2
-            $('#yearSelector').select2({ width: '100%' }).on('change', function() {
-                const chosenYear = parseInt($(this).val(), 10);
-                updateDonutChart(chosenYear);
-            });
-        }
-
-        // Donut Chart
-        function updateDonutChart(year) {
-            const yearStr = String(year);
-            const dataObj = yearTopicData[yearStr] || {};
-            const labels = Object.keys(dataObj);
-            const series = Object.values(dataObj);
-
-            const donutOptions = {
-                chart: {
-                    type: 'donut',
-                    width: '100%',
-                    height: '100%'
-                },
-                series: series,
-                labels: labels,
-                legend: {
-                    position: 'bottom',
-                    offsetY: -10
-                },
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '65%'
-                        }
-                    }
-                },
-                // Map each topic label to its assigned color
-                colors: labels.map(label => topicColorMap[label] || '#999999')
-            };
-
-            if (donutChart) {
-                donutChart.destroy();
-            }
-            donutChart = new ApexCharts(document.getElementById("pieChart"), donutOptions);
-            donutChart.render();
-        }
-
-        // Stacked Bar Chart
-        function buildStackedBarChart(allTopics) {
-            // Prepare series data: each topic => array of frequencies across years
-            const series = allTopics.map(topic => {
-                const dataArr = allYears.map(year => {
-                    const yearStr = String(year);
-                    const yearObj = yearTopicData[yearStr] || {};
-                    return yearObj[topic] || 0;
-                });
-                return { name: topic, data: dataArr };
-            });
-
-            const stackedOptions = {
-                chart: {
-                    type: 'bar',
-                    stacked: true,
-                    height: '450px'
-                },
-                series: series,
-                xaxis: {
-                    categories: allYears
-                },
-                legend: {
-                    position: 'right'
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: false
-                    }
-                },
-                // Use each series name (topic) to pick the corresponding color
-                colors: series.map(s => topicColorMap[s.name] || '#999999')
-            };
-
-            if (stackedBarChart) {
-                stackedBarChart.destroy();
-            }
-            stackedBarChart = new ApexCharts(document.getElementById("stackedBarChart"), stackedOptions);
-            stackedBarChart.render();
-        }
+    <!-- Dashboard Configuration With Javascript File Route For Core Logic -->
+    <script>
+        window.DASHBOARD_CONFIGURATION = {
+            dataURL: '@routes.Assets.at("resource/yearly_lda_acm_distribution.json")',
+            initialYear: 2024,
+            // Backend is hosting on port 9039 as mentioned in README
+            // userID is hardcoded to 1 for simplicity
+            jobListAPIURL: "http://localhost:9039/job/jobList/1?pageLimit=100&pageNum=1&sortCriteria=id"
+        };
     </script>
-}
+
+    <script src="@routes.Assets.at("javascripts/dashboard.js")" type="text/javascript"></script>
