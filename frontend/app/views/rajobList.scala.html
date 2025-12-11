@@ -11,6 +11,7 @@
 @import helper._;
 @import models._
 @import models.RAJob
+@import play.libs.Json
 
 @scripts = {
     <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
@@ -32,23 +33,15 @@
                 $("#nasaText").text(JSON.stringify(technologiesArray));
 
                 $('.tooltipped').tooltip();
-
-                // $("#speak-from-filter").click();
-                // $("#speak-nasa").click();
-                // $("#speak-from-filter").click();
-
             });
 
             function jumpToPage(pageNum, sort, searchString) {
-
                 pageNum =  parseInt(pageNum);
-
                 var url = "/rajob/searchPOST?pageNum=" + (pageNum) + "&sortCriteria=" + sort;
                 var form = $(document.createElement('form'));
                 $(form).attr("action", url);
                 $(form).attr("method", "POST");
                 $(form).css("display", "none");
-
 
                 var form_searchString = $("<input>")
                         .attr("type", "text")
@@ -61,7 +54,6 @@
             }
 
             function string2Map(str) {
-
                 var map = new Map();
                 var splitedString = str.replace(new RegExp("],", 'g'), ";");
                 var array = splitedString.split(";");
@@ -82,7 +74,6 @@
                     if(formatedEvents.length > 1)
                         map.set(id.trim(), formatedEvents);
                 }
-
                 return map;
             }
 
@@ -279,18 +270,131 @@
                 link.download = filename;
                 link.click();
             }
+            
+            // ---------- Keyword panel ----------
 
+            var KEYWORD_STOP_WORDS = new Set([
+                'the','a','an','and','or','for','to','of','in','on','with',
+                'at','by','from','is','are','this','that','as','be','it',
+                'job','jobs','ra','research','assistant','position'
+            ]);
+
+            function renderKeywordPanel(entries) {
+                var listEl  = document.getElementById('keywordList');
+                var emptyEl = document.getElementById('keywordEmpty');
+
+                if (!listEl || !emptyEl) return;
+
+                listEl.innerHTML = '';
+
+                if (!entries || entries.length === 0) {
+                    emptyEl.style.display = 'block';
+                    return;
+                }
+
+                emptyEl.style.display = 'none';
+
+                entries.forEach(function (pair) {
+                    var keyword = pair[0];
+                    var count   = pair[1];
+
+                    var li = document.createElement('li');
+                    li.className = 'collection-item';
+                    li.innerHTML =
+                        '<span class="left">' + keyword + '</span>' +
+                        '<span class="secondary-content grey-text text-darken-1">' +
+                        count + '</span>';
+                    listEl.appendChild(li);
+                });
+            }
+
+            function buildKeywordStatsFromJobs() {
+                var dataElem = document.getElementById('raJobsData');
+                if (!dataElem) {
+                    renderKeywordPanel([]);
+                    return;
+                }
+
+                var raw = dataElem.getAttribute('data-rajobs') || '[]';
+                var jobs = [];
+                try {
+                    jobs = JSON.parse(raw);
+                } catch (e) {
+                    console.error('Failed to parse RA jobs JSON', e);
+                    renderKeywordPanel([]);
+                    return;
+                }
+
+                // --- NEW: Get current filter values ---
+                var deptFilter = document.getElementById('departmentFilter').value.toLowerCase();
+                var modeFilter = document.getElementById('modeFilter').value.toLowerCase();
+                var statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+
+                var freq = {};
+
+                jobs.forEach(function (job) {
+                    // --- NEW: Apply Filters before counting ---
+                    var jobDept = (job.fields || "").toLowerCase(); 
+                    var jobMode = (job.location || "").toLowerCase(); 
+                    var jobStatus = (job.status || "").toLowerCase();
+
+                    // If a filter is selected AND the job doesn't match, skip this job
+                    if (deptFilter && !jobDept.includes(deptFilter)) return;
+                    if (modeFilter && !jobMode.includes(modeFilter)) return;
+                    if (statusFilter && !jobStatus.includes(statusFilter)) return;
+
+                    // --- Existing Keyword Extraction Logic ---
+                    var parts = [];
+                    if (job.title) parts.push(job.title);
+                    if (job.goals) parts.push(job.goals);
+                    if (job.shortDescription) parts.push(job.shortDescription);
+                    if (job.longDescription) parts.push(job.longDescription);
+                    if (job.fields) parts.push(job.fields);
+                    if (job.location) parts.push(job.location);
+                    if (job.requiredExpertise) parts.push(job.requiredExpertise);
+                    if (job.preferredExpertise) parts.push(job.preferredExpertise);
+
+                    var text = parts.join(' ').toLowerCase();
+                    text = text.replace(/[^a-z0-9\s]/g, ' ');
+                    var tokens = text.split(/\s+/);
+
+                    tokens.forEach(function (token) {
+                        if (!token) return;
+                        if (KEYWORD_STOP_WORDS.has(token)) return;
+                        // Filter out numbers/short tokens if desired
+                        if (token.length < 3) return; 
+                        freq[token] = (freq[token] || 0) + 1;
+                    });
+                });
+
+                // Sort by frequency and slice top 10 
+                var entries = Object.entries(freq)
+                    .sort(function (a, b) { return b[1] - a[1]; })
+                    .slice(0, 10);
+
+                renderKeywordPanel(entries);
+            }
+
+            // ---------- MAIN INITIALIZATION BLOCK (Consolidated) ----------
+            // ---------- MAIN INITIALIZATION BLOCK (Updated with Delay) ----------
             document.addEventListener('DOMContentLoaded', function () {
                 var resetButton = document.getElementById('payScaleReset');
                 var exportBarButton = document.getElementById('exportPayBarChart');
                 var exportPieButton = document.getElementById('exportPayPieChart');
+                
                 var departmentFilter = document.getElementById('departmentFilter');
                 var modeFilter = document.getElementById('modeFilter');
                 var statusFilter = document.getElementById('statusFilter');
 
+                // 1. Reset Button Logic
                 if (resetButton) {
-                    resetButton.addEventListener('click', resetPayScaleFilters);
+                    resetButton.addEventListener('click', function() {
+                        resetPayScaleFilters();      // Resets dropdowns
+                        buildKeywordStatsFromJobs(); // Refreshes keywords
+                    });
                 }
+
+                // 2. Export Logic
                 if (exportBarButton) {
                     exportBarButton.addEventListener('click', function () {
                         exportChart(payBarChart, 'ra-pay-scale-bar.png');
@@ -301,15 +405,23 @@
                         exportChart(payPieChart, 'ra-pay-scale-pie.png');
                     });
                 }
+
+                // 3. Filter Logic
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
                     if (select) {
-                        select.addEventListener('change', fetchPayScaleData);
+                        select.addEventListener('change', function() {
+                            fetchPayScaleData();         // Update Charts
+                            buildKeywordStatsFromJobs(); // Update Keyword Panel
+                        });
                     }
                 });
 
+                // 4. Initial Load (With a tiny safety delay)
                 fetchPayScaleData();
+                setTimeout(function() {
+                    buildKeywordStatsFromJobs();
+                }, 500); 
             });
-
 
     </script>
     <style>
@@ -358,6 +470,10 @@
 }
 
 @main("All RA Jobs", scripts) {
+    <div id="raJobsData"
+     data-rajobs='@Html(Json.toJson(rajobs).toString())'
+     style="display:none;"></div>
+
     <div class="container">
         <div class="card-panel center">
             @if(listType.equals("search")) {
@@ -439,6 +555,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col s12">
+                      <div class="card-panel">
+                        <h5>Top keywords</h5>
+                        <p class="grey-text text-darken-1">
+                          Most common words in titles, fields, and descriptions for the RA jobs in this list.
+                        </p>
+                        <ul class="collection" id="keywordList"></ul>
+                        <p id="keywordEmpty"
+                           class="grey-text text-darken-1"
+                           style="display:none;">
+                          No keywords to display.
+                        </p>
+                      </div>
+                    </div>
+                  </div>      
                 <div class="row">
                     <div class="col s6">
                         <h6 class="left">Showing results: @{
@@ -858,7 +990,8 @@
                     <a href="#!" class="modal-close waves-effect waves-green btn-flat">
                         Cancel</a>
                 </div>
-            </div>
+            </div>        
+              
 
         </div>
     </div>

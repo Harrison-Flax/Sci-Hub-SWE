@@ -296,17 +296,28 @@ public class RAJobController extends Controller {
     public Result rajobList(Integer pageNum, String sortCriteria) {
         checkLoginStatus();
 
-        // If session contains the current projectId, set it.
+        // Fix: Handle guest users (null session ID)
+        String userIdStr = session("id");
+        long userId = 0; // Default ID for guests
+        if (userIdStr != null && !userIdStr.isEmpty()) {
+            try {
+                userId = Long.parseLong(userIdStr);
+            } catch (NumberFormatException e) {
+                userId = 0;
+            }
+        }
 
         // Set the offset and pageLimit.
         int pageLimit = Integer.parseInt(Constants.PAGINATION_NUMBER_ITEM_TWENTY);
         try {
+            // Use safe 'userId' variable instead of session("id")
             JsonNode rajobListJsonNode = RESTfulCalls.getAPI(RESTfulCalls.getBackendAPIUrl(config,
-                    Constants.RAJOB_LIST + session("id") + "?pageNum=" +
-                            pageNum + "&pageLimit=" + pageLimit + "&sortCriteria=" + sortCriteria)); // default value 
+                    Constants.RAJOB_LIST + userId + "?pageNum=" +
+                            pageNum + "&pageLimit=" + pageLimit + "&sortCriteria=" + sortCriteria)); 
+            
             return rajobService.renderRAJobListPage(rajobListJsonNode,
                     pageLimit, null, "all", session("username"),
-                    Long.parseLong(session("id")));
+                    userId); // Use safe 'userId' here
         } catch (Exception e) {
             Logger.debug("RAJobController.rajobList() exception: " + e.toString());
             Application.flashMsg(RESTfulCalls.createUserResponse(RESTfulCalls.UserResponseType.GENERALERROR));
@@ -320,13 +331,20 @@ public class RAJobController extends Controller {
     public Result rajobPayRanges() {
         checkLoginStatus();
 
-        String userId = session("id");
+        // Fix: Handle guest users (null session ID)
+        String userIdStr = session("id");
+        String userId = "0"; // Default ID for guests
+        if (userIdStr != null && !userIdStr.isEmpty()) {
+            userId = userIdStr;
+        }
+
         String department = request().getQueryString("department");
         String mode = request().getQueryString("mode");
         String status = request().getQueryString("status");
         int pageLimit = Integer.parseInt(Constants.PAGINATION_NUMBER_ITEM_TWENTY) * 5;
 
         try {
+            // Use safe 'userId' variable
             String url = RESTfulCalls.getBackendAPIUrl(config,
                     Constants.RAJOB_LIST + userId + "?pageNum=1&pageLimit=" + pageLimit + "&sortCriteria=");
             JsonNode rajobListJsonNode = RESTfulCalls.getAPI(url);
