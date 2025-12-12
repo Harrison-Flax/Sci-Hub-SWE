@@ -109,6 +109,7 @@
             var payBarChart = null;
             var payPieChart = null;
             var deptBarChart = null;
+            var locationPieChart = null;
 
             function renderDepartmentChart(departments, counts) {
                 var canvas = document.getElementById('deptBarChart');
@@ -183,6 +184,83 @@
                     deptBarChart.update();
                 } else {
                     deptBarChart = new Chart(canvas.getContext('2d'), config);
+                }
+            }
+
+            function renderLocationChartFromJobs(jobs) {
+                var canvas = document.getElementById('locationPieChart');
+                var fallbackText = document.getElementById('locationChartFallback');
+
+                if (!canvas || !fallbackText) return;
+
+                var counts = {};
+                (jobs || []).forEach(function (job) {
+                    var label = (job.location || 'Unknown').toString().trim() || 'Unknown';
+                    counts[label] = (counts[label] || 0) + 1;
+                });
+
+                var labels = Object.keys(counts);
+                var data = Object.values(counts);
+                var total = data.reduce(function (sum, value) { return sum + value; }, 0);
+
+                if (!total || labels.length === 0) {
+                    canvas.style.display = 'none';
+                    fallbackText.style.display = 'block';
+                    fallbackText.textContent = 'No jobs found for the selected filters.';
+                    destroyChartIfExists(locationPieChart);
+                    locationPieChart = null;
+                    return;
+                }
+
+                canvas.style.display = 'block';
+                fallbackText.style.display = 'none';
+
+                var palette = [
+                    '#64b5f6', '#ffb74d', '#81c784', '#ba68c8', '#4dd0e1', '#ffd54f', '#e57373', '#90a4ae'
+                ];
+
+                var backgroundColors = labels.map(function (_label, idx) {
+                    return palette[idx % palette.length];
+                });
+
+                var hoverColors = labels.map(function (_label, idx) {
+                    return palette[idx % palette.length];
+                });
+
+                var config = {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jobs by location',
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            hoverBackgroundColor: hoverColors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var value = context.parsed || 0;
+                                        var percent = total ? ((value / total) * 100).toFixed(1) : 0;
+                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's') + ' (' + percent + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                if (locationPieChart) {
+                    locationPieChart.data.labels = labels;
+                    locationPieChart.data.datasets[0].data = data;
+                    locationPieChart.update();
+                } else {
+                    locationPieChart = new Chart(canvas.getContext('2d'), config);
                 }
             }
 
@@ -516,21 +594,26 @@
                 var pay = document.getElementById('paySection');
                 var dept = document.getElementById('deptSection');
                 var kw = document.getElementById('keywordSection');
+                var locationSection = document.getElementById('locationSection');
 
-                if (!pay || !dept || !kw) return;
+                if (!pay || !dept || !kw || !locationSection) return;
 
                 pay.style.display = 'none';
                 dept.style.display = 'none';
                 kw.style.display = 'none';
+                locationSection.style.display = 'none';
 
                 if (mode === 'all') {
                     pay.style.display = 'block';
                     dept.style.display = 'block';
                     kw.style.display = 'block';
+                    locationSection.style.display = 'block';
                 } else if (mode === 'pay') {
                     pay.style.display = 'block';
                 } else if (mode === 'dept') {
                     dept.style.display = 'block';
+                } else if (mode === 'location') {
+                    locationSection.style.display = 'block';
                 } else if (mode === 'keywords') {
                     kw.style.display = 'block';
                 }
@@ -541,6 +624,9 @@
                 }
                 if (mode === 'all' || mode === 'dept') {
                     if (deptBarChart) deptBarChart.update();
+                }
+                if (mode === 'all' || mode === 'location') {
+                    if (locationPieChart) locationPieChart.update();
                 }
             }
 
@@ -575,6 +661,7 @@
                 var exportBarButton = document.getElementById('exportPayBarChart');
                 var exportPieButton = document.getElementById('exportPayPieChart');
                 var exportDeptButton = document.getElementById('exportDeptBarChart');
+                var exportLocationButton = document.getElementById('exportLocationChart');
 
                 var departmentFilter = document.getElementById('departmentFilter');
                 var modeFilter = document.getElementById('modeFilter');
@@ -585,6 +672,7 @@
                         resetPayScaleFilters();
                         buildKeywordStatsFromJobs();
                         updateSummaryAndEmptyState();
+                        renderLocationChartFromJobs(getFilteredJobsClientSide());
                         applyViewMode();
                     });
                 }
@@ -592,6 +680,7 @@
                 if (exportBarButton) exportBarButton.addEventListener('click', function () { exportChart(payBarChart, 'ra-pay-scale-bar.png'); });
                 if (exportPieButton) exportPieButton.addEventListener('click', function () { exportChart(payPieChart, 'ra-pay-scale-pie.png'); });
                 if (exportDeptButton) exportDeptButton.addEventListener('click', function () { exportChart(deptBarChart, 'ra-jobs-by-department.png'); });
+                if (exportLocationButton) exportLocationButton.addEventListener('click', function () { exportChart(locationPieChart, 'ra-jobs-by-location.png'); });
 
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
                     if (!select) return;
@@ -600,6 +689,7 @@
                         fetchDepartmentData();
                         buildKeywordStatsFromJobs();
                         updateSummaryAndEmptyState();
+                        renderLocationChartFromJobs(getFilteredJobsClientSide());
                     });
                 });
 
@@ -608,6 +698,7 @@
                     jobSearch.addEventListener('input', function () {
                         buildKeywordStatsFromJobs();
                         updateSummaryAndEmptyState();
+                        renderLocationChartFromJobs(getFilteredJobsClientSide());
                     });
                 }
 
@@ -619,6 +710,7 @@
                 setTimeout(function () {
                     buildKeywordStatsFromJobs();
                     updateSummaryAndEmptyState();
+                    renderLocationChartFromJobs(getFilteredJobsClientSide());
                     applyViewMode();
                 }, 200);
             });
@@ -766,6 +858,7 @@
                                             <option value="all">Show all</option>
                                             <option value="pay">Pay overview</option>
                                             <option value="dept">Departments</option>
+                                            <option value="location">Locations</option>
                                             <option value="keywords">Keywords</option>
                                         </select>
                                     </div>
@@ -862,6 +955,26 @@
                             </div>
                             <div class="filter-actions">
                                 <button type="button" class="btn green darken-1" id="exportDeptBarChart" aria-label="Export department chart image">Export chart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="locationSection">
+                    <div class="col s12">
+                        <div class="card-panel">
+                            <h5>Jobs by Location</h5>
+                            <p class="grey-text text-darken-1 pay-range-description">
+                                How current RA postings are distributed across modes and locations.
+                            </p>
+                            <div class="row">
+                                <div class="col s12">
+                                    <canvas id="locationPieChart" role="img" aria-label="Jobs by location chart" style="max-height: 380px;"></canvas>
+                                    <p id="locationChartFallback" class="grey-text text-darken-1" style="display:none;">Loading location data...</p>
+                                </div>
+                            </div>
+                            <div class="filter-actions">
+                                <button type="button" class="btn purple darken-1" id="exportLocationChart" aria-label="Export location chart image">Export chart</button>
                             </div>
                         </div>
                     </div>
