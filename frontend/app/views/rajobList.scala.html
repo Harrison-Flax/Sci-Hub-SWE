@@ -8,7 +8,7 @@
         pageLimit: Integer,
         searchBody: String,
         id: Long, beginIndexForPagination: Integer, endIndexForPagination: Integer)
-@import helper._;
+@import helper._
 @import models._
 @import models.RAJob
 @import play.libs.Json
@@ -16,6 +16,7 @@
 @scripts = {
     <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@@4"></script>
     <link rel="stylesheet" href="/assets/stylesheets/responsive-table.css">
             <script type="text/javascript">
         (function () {
@@ -110,6 +111,8 @@
             var payPieChart = null;
             var deptBarChart = null;
             var locationPieChart = null;
+            var keywordCloudChart = null;
+            var keywordBarChart = null;
 
             function renderDepartmentChart(departments, counts) {
                 var canvas = document.getElementById('deptBarChart');
@@ -496,28 +499,151 @@
                 });
             }
 
-            function renderKeywordPanel(entries) {
-                var listEl = document.getElementById('keywordList');
+            function renderKeywordVisuals(entries) {
+                var cloudCanvas = document.getElementById('keywordWordCloud');
+                var tableBody = document.getElementById('keywordTableBody');
                 var emptyEl = document.getElementById('keywordEmpty');
-                if (!listEl || !emptyEl) return;
+                var cloudWrapper = document.getElementById('keywordCloudWrapper');
+                var barCanvas = document.getElementById('keywordBarChart');
+                var tableWrapper = document.getElementById('keywordTableWrapper');
+                var exportCloudButton = document.getElementById('exportKeywordCloud');
+                var exportBarButton = document.getElementById('exportKeywordBar');
 
-                listEl.innerHTML = '';
+                if (!cloudCanvas || !tableBody || !emptyEl || !barCanvas) return;
+
+                tableBody.innerHTML = '';
 
                 if (!entries || entries.length === 0) {
                     emptyEl.style.display = 'block';
+                    if (cloudWrapper) cloudWrapper.style.display = 'none';
+                    if (tableWrapper) tableWrapper.style.display = 'none';
+                    destroyChartIfExists(keywordCloudChart);
+                    destroyChartIfExists(keywordBarChart);
+                    keywordCloudChart = null;
+                    keywordBarChart = null;
+                    if (exportCloudButton) exportCloudButton.disabled = true;
+                    if (exportBarButton) exportBarButton.disabled = true;
                     return;
                 }
-                emptyEl.style.display = 'none';
 
-                entries.forEach(function (pair) {
-                    var keyword = pair[0];
-                    var count = pair[1];
-                    var li = document.createElement('li');
-                    li.className = 'collection-item';
-                    li.innerHTML =
-                        '<span class="left">' + keyword + '</span>' +
-                        '<span class="secondary-content grey-text text-darken-1">' + count + '</span>';
-                    listEl.appendChild(li);
+                emptyEl.style.display = 'none';
+                if (cloudWrapper) cloudWrapper.style.display = 'block';
+                if (tableWrapper) tableWrapper.style.display = 'block';
+                if (exportCloudButton) exportCloudButton.disabled = false;
+                if (exportBarButton) exportBarButton.disabled = false;
+
+                var cloudEntries = entries.slice(0, 10);
+                var cloudLabels = cloudEntries.map(function (item) { return item[0]; });
+                var cloudData = cloudEntries.map(function (item) { return item[1]; });
+                var cloudScaled = (function () {
+                    var minSize = 14;
+                    var maxSize = 64;
+                    var logValues = cloudData.map(function (value) { return Math.log1p(value); });
+                    var minLog = Math.min.apply(null, logValues);
+                    var maxLog = Math.max.apply(null, logValues);
+
+                    if (minLog === maxLog) {
+                        return cloudData.map(function () { return (minSize + maxSize) / 2; });
+                    }
+
+                    return logValues.map(function (logValue) {
+                        var ratio = (logValue - minLog) / (maxLog - minLog);
+                        return minSize + ratio * (maxSize - minSize);
+                    });
+                })();
+
+                destroyChartIfExists(keywordCloudChart);
+                keywordCloudChart = new Chart(cloudCanvas.getContext('2d'), {
+                    type: 'wordCloud',
+                    data: {
+                        labels: cloudLabels,
+                        datasets: [{
+                            label: 'Keyword frequency',
+                            data: cloudScaled,
+                            color: function (context) {
+                                var index = context.dataIndex;
+                                var hue = (index * 47) % 360;
+                                return 'hsl(' + hue + ', 65%, 45%)';
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: function (tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
+                                    label: function (tooltipItem) {
+                                        return 'Frequency: ' + cloudData[tooltipItem.dataIndex];
+                                    }
+                                }
+                            }
+                        },
+                        elements: {
+                            word: {
+                                padding: 2,
+                                rotate: function () { return 0; }
+                            }
+                        }
+                    }
+                });
+
+                var tableEntries = entries.slice(0, 5);
+                tableEntries.forEach(function (pair, index) {
+                    var row = document.createElement('tr');
+                    var keywordCell = document.createElement('td');
+                    keywordCell.textContent = pair[0];
+                    var countCell = document.createElement('td');
+                    countCell.className = 'right-align';
+                    countCell.textContent = pair[1];
+                    row.appendChild(keywordCell);
+                    row.appendChild(countCell);
+                    tableBody.appendChild(row);
+                });
+
+                var barLabels = tableEntries.map(function (item) { return item[0]; });
+                var barData = tableEntries.map(function (item) { return item[1]; });
+                var barColors = barLabels.map(function (label, idx) {
+                    var hue = (idx * 57) % 360;
+                    return 'hsl(' + hue + ', 70%, 60%)';
+                });
+
+                destroyChartIfExists(keywordBarChart);
+                keywordBarChart = new Chart(barCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: barLabels,
+                        datasets: [{
+                            label: 'Top keywords',
+                            data: barData,
+                            backgroundColor: barColors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.parsed.x + ' occurrences';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
                 });
             }
 
@@ -552,7 +678,7 @@
                     .sort(function (a, b) { return b[1] - a[1]; })
                     .slice(0, 10);
 
-                renderKeywordPanel(entries);
+                renderKeywordVisuals(entries);
             }
 
             function updateSummaryAndEmptyState() {
@@ -662,6 +788,8 @@
                 var exportPieButton = document.getElementById('exportPayPieChart');
                 var exportDeptButton = document.getElementById('exportDeptBarChart');
                 var exportLocationButton = document.getElementById('exportLocationChart');
+                var exportKeywordCloudButton = document.getElementById('exportKeywordCloud');
+                var exportKeywordBarButton = document.getElementById('exportKeywordBar');
 
                 var departmentFilter = document.getElementById('departmentFilter');
                 var modeFilter = document.getElementById('modeFilter');
@@ -681,6 +809,8 @@
                 if (exportPieButton) exportPieButton.addEventListener('click', function () { exportChart(payPieChart, 'ra-pay-scale-pie.png'); });
                 if (exportDeptButton) exportDeptButton.addEventListener('click', function () { exportChart(deptBarChart, 'ra-jobs-by-department.png'); });
                 if (exportLocationButton) exportLocationButton.addEventListener('click', function () { exportChart(locationPieChart, 'ra-jobs-by-location.png'); });
+                if (exportKeywordCloudButton) exportKeywordCloudButton.addEventListener('click', function () { exportChart(keywordCloudChart, 'ra-keyword-word-cloud.png'); });
+                if (exportKeywordBarButton) exportKeywordBarButton.addEventListener('click', function () { exportChart(keywordBarChart, 'ra-top-keywords.png'); });
 
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
                     if (!select) return;
@@ -987,12 +1117,36 @@
                         <p class="grey-text text-darken-1">
                           Most common words in titles, fields, and descriptions for the RA jobs in this list.
                         </p>
-                        <ul class="collection" id="keywordList"></ul>
+                        <div class="row" style="margin-bottom: 10px;">
+                            <div class="col s12 m7" id="keywordCloudWrapper">
+                                <canvas id="keywordWordCloud" role="img" aria-label="Keyword frequency word cloud" style="min-height: 320px;"></canvas>
+                            </div>
+                            <div class="col s12 m5" id="keywordTableWrapper">
+                                <div style="display: flex; flex-direction: column; gap: 12px; height: 100%;">
+                                    <div style="flex: 1 1 auto; min-height: 240px; position: relative;">
+                                        <canvas id="keywordBarChart" role="img" aria-label="Top keyword frequency chart" style="max-height: 260px;"></canvas>
+                                    </div>
+                                    <table class="striped highlight" aria-label="Top keyword counts">
+                                        <thead>
+                                            <tr>
+                                                <th>Keyword</th>
+                                                <th class="right-align">Count</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="keywordTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                         <p id="keywordEmpty"
                            class="grey-text text-darken-1"
                            style="display:none;">
                           No keywords to display.
                         </p>
+                        <div class="filter-actions" style="margin-top: 8px;">
+                            <button type="button" class="btn blue darken-1" id="exportKeywordCloud" aria-label="Export keyword word cloud">Export word cloud</button>
+                            <button type="button" class="btn blue darken-1" id="exportKeywordBar" aria-label="Export top keyword chart">Export top keywords</button>
+                        </div>
                       </div>
                     </div>
                   </div>
