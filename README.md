@@ -31,6 +31,124 @@ For contributors, please follow these guidelines when making changes to the code
 
 By following this process, we ensure that all code changes are tracked and reviewed properly before being merged into the main project.
 
+## RA Job Visualization Module (Sprint 2)
+
+This project includes a **simplified RA Job Visualization module** integrated into the SMU-Lyle Scientific Hub. The goal of this module is to provide **clear, high-level insight** into Research Assistant job postings while preserving the existing RA Job List, search, sorting, and pagination behavior.
+
+The implementation follows the **approved Sprint 1 requirements** and is evaluated against those requirements for Sprint 2.
+
+All visualizations use **Chart.js** and run as part of the existing Docker-based frontend and backend setup.
+
+---
+
+## Overview of Implemented Features
+
+The RA Job Visualization module is embedded at the top of the RA Job List page and consists of:
+- A small **summary section** with key metrics
+- A simple **filter and search area**
+- A set of **basic visualizations** that update dynamically based on filters
+
+The design intentionally avoids complex interactions in favor of **clarity, readability, and fast updates**, as specified in the Sprint 1 scope.
+
+---
+
+## Summary Section
+At the top of the dashboard, the system displays:
+- **Total active RA jobs**
+- **Number of departments currently hiring**
+- **Average posted pay**, when salary data is available
+
+These values update automatically as filters or search terms change. When no jobs match the active filters, a clear **“No jobs found”** message is shown.
+
+---
+
+## Filters and Search
+Users can refine the dashboard and visualizations using:
+- **Department filter**
+- **Job mode/location filter** (Remote / In-person / Hybrid)
+- **Status filter** (Open / Pending / Updated)
+- A **search bar** for job titles, descriptions, skills, or keywords
+
+A single **Reset Filters** button clears all filters and restores the dashboard to its default state.
+
+---
+
+## Visualizations
+
+### Jobs by Department
+A bar chart shows how RA job postings are distributed across departments and labs.
+- One bar per department
+- Bar height represents the number of RA jobs
+- Updates whenever filters change
+- Hover tooltips display the department name, job count, and percentage of total jobs
+- Displays a clear message when no department data is available
+
+---
+
+### Pay Visualization
+The dashboard includes a pay overview to help users understand compensation patterns.
+- Bar chart and pie chart showing the distribution of RA positions by pay structure
+- Updates dynamically with filters
+- Hover tooltips show exact job counts
+- Displays a message when no pay information is available
+- Charts can be exported as image files (PNG)
+
+This visualization is designed to provide a **quick, high-level view** of RA job pay rather than detailed financial analysis.
+
+---
+
+### Jobs by Location
+A location chart provides a simple breakdown of how RA postings are distributed across modes and locations.
+- Pie chart showing job counts by location label (including “Unknown” when missing)
+- Updates automatically when filters or search input change
+- Hover tooltips show job counts and percentage of total
+- Displays a clear message when no location data matches the current filters
+- Chart can be exported as an image file (PNG)
+
+---
+
+### Keyword Panel
+A keyword panel highlights common terms appearing in RA job postings.
+- Displays the **top 5–10 keywords** based on frequency
+- Keywords are extracted from job titles, fields, and descriptions
+- Frequency counts are shown next to each keyword
+- Updates automatically when filters or search input change
+- Displays an empty-state message when no keywords are available
+
+---
+
+## Simplified Dashboard and View Modes
+All visual components are presented on a **single dashboard page**, as required by the Sprint 1 scope.
+
+To support usability on different screen sizes and use cases, users can switch between view modes:
+- **Summary only** (default)
+- All visualizations
+- Individual visualization views (Pay, Department, Location, Keywords)
+
+This allows users to focus on specific information without overwhelming the page.
+
+---
+
+## Export and Usability
+- Charts can be exported as **PNG images** for use in reports or presentations
+- Clear labels, legends, and hover tooltips are provided
+- Accessible color schemes are used for readability
+- Empty states and error messages are shown when data is unavailable
+
+---
+
+## Integration and Deployment
+The RA Job Visualization module:
+- Is fully integrated into the existing RA Job List page
+- Does not break or replace existing job list functionality
+- Runs using the same **Docker workflow** as prior labs with updated **Docker Compose** functionality
+- Uses existing RA job data (no database schema changes were required)
+
+---
+
+## Summary
+This Sprint 2 implementation delivers the **simplified RA Job Visualization module** described in the approved Sprint 1 requirements. The focus is on clarity, correctness, and alignment with the defined scope, providing students, faculty, and administrators with an easy-to-understand overview of RA job postings.
+
 
 ## Local Development (Docker Setup)
 
