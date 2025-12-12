@@ -152,7 +152,8 @@
                                 callbacks: {
                                     label: function (context) {
                                         var value = context.parsed.y || 0;
-                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's');
+                                        var percent = total ? ((value / total) * 100).toFixed(1) : '0.0';
+                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's') + ' (' + percent + '%)';
                                     }
                                 }
                             }
@@ -187,7 +188,25 @@
             }
 
             function fetchDepartmentData() {
-                fetch('/rajob/byDepartment')
+                var filters = {
+                    department: document.getElementById('departmentFilter').value,
+                    mode: document.getElementById('modeFilter').value,
+                    status: document.getElementById('statusFilter').value
+                };
+
+                var params = new URLSearchParams();
+                Object.keys(filters).forEach(function (key) {
+                    if (filters[key]) {
+                        params.append(key, filters[key]);
+                    }
+                });
+
+                var url = '/rajob/byDepartment';
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+
+                fetch(url)
                     .then(function (response) { return response.json(); })
                     .then(function (data) {
                         var departments = data.departments || [];
@@ -489,6 +508,7 @@
                 if (resetButton) {
                     resetButton.addEventListener('click', function() {
                         resetPayScaleFilters();
+                        fetchDepartmentData();
                         buildKeywordStatsFromJobs(); 
                     });
                 }
@@ -514,8 +534,9 @@
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
                     if (select) {
                         select.addEventListener('change', function() {
-                            fetchPayScaleData();         
-                            buildKeywordStatsFromJobs(); 
+                            fetchPayScaleData();
+                            fetchDepartmentData();
+                            buildKeywordStatsFromJobs();
                         });
                     }
                 });

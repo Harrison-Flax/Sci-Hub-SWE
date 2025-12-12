@@ -419,12 +419,26 @@ public class RAJobController extends Controller {
     public Result rajobByDepartment() {
         checkLoginStatus();
 
-        String userId = session("id");
+        // Fix: Handle guest users (null session ID) — same pattern as rajobPayRanges()
+        String userIdStr = session("id");
+        String userId = "0";
+        if (userIdStr != null && !userIdStr.isEmpty()) {
+            userId = userIdStr;
+        }
+
+        // Filters
+        String department = request().getQueryString("department");
+        String mode = request().getQueryString("mode");
+        String status = request().getQueryString("status");
+
         int pageLimit = Integer.parseInt(Constants.PAGINATION_NUMBER_ITEM_TWENTY) * 5;
 
         try {
-            String url = RESTfulCalls.getBackendAPIUrl(config,
-                    Constants.RAJOB_LIST + userId + "?pageNum=1&pageLimit=" + pageLimit + "&sortCriteria=");
+            String url = RESTfulCalls.getBackendAPIUrl(
+                    config,
+                    Constants.RAJOB_LIST + userId + "?pageNum=1&pageLimit=" + pageLimit + "&sortCriteria="
+            );
+
             JsonNode rajobListJsonNode = RESTfulCalls.getAPI(url);
 
             if (rajobListJsonNode == null || rajobListJsonNode.has("error")) {
@@ -439,6 +453,11 @@ public class RAJobController extends Controller {
             Map<String, Integer> departmentCounts = new HashMap<>();
 
             for (JsonNode job : items) {
+                // Apply the same filters as payRanges
+                if (!matchesPayRangeFilters(job, department, mode, status)) {
+                    continue;
+                }
+
                 String organization = job.path("organization").asText("");
                 if (!organization.isEmpty()) {
                     departmentCounts.put(organization, departmentCounts.getOrDefault(organization, 0) + 1);
