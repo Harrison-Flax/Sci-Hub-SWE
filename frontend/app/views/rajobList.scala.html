@@ -114,6 +114,9 @@
             var keywordCloudChart = null;
             var keywordBarChart = null;
 
+            var payRequestToken = 0;
+            var deptRequestToken = 0;
+
             function renderDepartmentChart(departments, counts) {
                 var canvas = document.getElementById('deptBarChart');
                 var fallbackText = document.getElementById('deptChartFallback');
@@ -184,6 +187,8 @@
                 if (deptBarChart) {
                     deptBarChart.data.labels = departments;
                     deptBarChart.data.datasets[0].data = counts;
+                    deptBarChart.data.datasets[0].backgroundColor = colors;
+                    deptBarChart.data.datasets[0].hoverBackgroundColor = hoverColors;
                     deptBarChart.update();
                 } else {
                     deptBarChart = new Chart(canvas.getContext('2d'), config);
@@ -261,6 +266,8 @@
                 if (locationPieChart) {
                     locationPieChart.data.labels = labels;
                     locationPieChart.data.datasets[0].data = data;
+                    locationPieChart.data.datasets[0].backgroundColor = backgroundColors;
+                    locationPieChart.data.datasets[0].hoverBackgroundColor = hoverColors;
                     locationPieChart.update();
                 } else {
                     locationPieChart = new Chart(canvas.getContext('2d'), config);
@@ -271,7 +278,8 @@
                 var filters = {
                     department: document.getElementById('departmentFilter')?.value || '',
                     mode: document.getElementById('modeFilter')?.value || '',
-                    status: document.getElementById('statusFilter')?.value || ''
+                    status: document.getElementById('statusFilter')?.value || '',
+                    search: document.getElementById('jobSearch')?.value.trim() || ''
                 };
 
                 var params = new URLSearchParams();
@@ -282,14 +290,18 @@
                 var url = '/rajob/byDepartment';
                 if (params.toString()) url += '?' + params.toString();
 
+                var currentToken = ++deptRequestToken;
+
                 fetch(url)
                     .then(function (response) { return response.json(); })
                     .then(function (data) {
+                        if (currentToken !== deptRequestToken) return;
                         var departments = data.departments || [];
                         var counts = data.counts || [];
                         renderDepartmentChart(departments, counts);
                     })
                     .catch(function (error) {
+                        if (currentToken !== deptRequestToken) return;
                         console.error('Error fetching department data:', error);
                         var fallbackText = document.getElementById('deptChartFallback');
                         var canvas = document.getElementById('deptBarChart');
@@ -410,7 +422,8 @@
                 var filters = {
                     department: document.getElementById('departmentFilter')?.value || '',
                     mode: document.getElementById('modeFilter')?.value || '',
-                    status: document.getElementById('statusFilter')?.value || ''
+                    status: document.getElementById('statusFilter')?.value || '',
+                    search: document.getElementById('jobSearch')?.value.trim() || ''
                 };
 
                 var params = new URLSearchParams();
@@ -421,15 +434,19 @@
                 var url = '/rajob/payRanges';
                 if (params.toString()) url += '?' + params.toString();
 
+                var currentToken = ++payRequestToken;
+
                 fetch(url)
                     .then(function (response) { return response.json(); })
                     .then(function (data) {
+                        if (currentToken !== payRequestToken) return;
                         var counts = (data && data.counts) || {};
                         var filtersPayload = (data && data.filters) || {};
                         updateFilterOptions(filtersPayload);
                         renderPayScaleCharts(counts);
                     })
                     .catch(function () {
+                        if (currentToken !== payRequestToken) return;
                         var fallbackText = document.getElementById('payChartFallback');
                         var barCanvas = document.getElementById('payBarChart');
                         var pieCanvas = document.getElementById('payPieChart');
@@ -453,8 +470,24 @@
                 if (d) d.value = '';
                 if (m) m.value = '';
                 if (s) s.value = '';
+
+                resetJobSearch();
+
                 fetchPayScaleData();
                 fetchDepartmentData();
+            }
+
+            function resetJobSearch() {
+                var jobSearch = document.getElementById('jobSearch');
+                if (!jobSearch) return;
+
+                jobSearch.value = '';
+                buildKeywordStatsFromJobs();
+                updateSummaryAndEmptyState();
+                renderLocationChartFromJobs(getFilteredJobsClientSide());
+                fetchPayScaleData();
+                fetchDepartmentData();
+                applyViewMode();
             }
 
             function exportChart(chartInstance, filename) {
@@ -499,6 +532,12 @@
                 });
             }
 
+            function shouldRenderKeywordSection() {
+                var viewMode = document.getElementById('viewMode');
+                var mode = (viewMode && viewMode.value) || 'all';
+                return mode === 'all' || mode === 'keywords';
+            }
+
             function renderKeywordVisuals(entries) {
                 var cloudCanvas = document.getElementById('keywordWordCloud');
                 var tableBody = document.getElementById('keywordTableBody');
@@ -510,6 +549,10 @@
                 var exportBarButton = document.getElementById('exportKeywordBar');
 
                 if (!cloudCanvas || !tableBody || !emptyEl || !barCanvas) return;
+
+                if (!shouldRenderKeywordSection()) {
+                    return;
+                }
 
                 tableBody.innerHTML = '';
 
@@ -648,6 +691,8 @@
             }
 
             function buildKeywordStatsFromJobs() {
+                if (!shouldRenderKeywordSection()) return;
+
                 var jobs = getFilteredJobsClientSide();
 
                 var freq = {};
@@ -754,6 +799,8 @@
                 if (mode === 'all' || mode === 'location') {
                     if (locationPieChart) locationPieChart.update();
                 }
+
+                buildKeywordStatsFromJobs();
             }
 
             function initVoiceJumpData() {
@@ -798,10 +845,6 @@
                 if (resetButton) {
                     resetButton.addEventListener('click', function () {
                         resetPayScaleFilters();
-                        buildKeywordStatsFromJobs();
-                        updateSummaryAndEmptyState();
-                        renderLocationChartFromJobs(getFilteredJobsClientSide());
-                        applyViewMode();
                     });
                 }
 
@@ -829,6 +872,22 @@
                         buildKeywordStatsFromJobs();
                         updateSummaryAndEmptyState();
                         renderLocationChartFromJobs(getFilteredJobsClientSide());
+                        fetchPayScaleData();
+                        fetchDepartmentData();
+                    });
+                    jobSearch.addEventListener('keydown', function (event) {
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            resetJobSearch();
+                        }
+                    });
+                }
+
+                var jobSearchReset = document.getElementById('jobSearchReset');
+                if (jobSearchReset) {
+                    jobSearchReset.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        resetJobSearch();
                     });
                 }
 
@@ -980,6 +1039,9 @@
                                     <div class="input-field">
                                         <label for="jobSearch" class="active">Search jobs</label>
                                         <input type="text" id="jobSearch" placeholder="Filter by keywords, skills, or departments" />
+                                        <a href="#" id="jobSearchReset" class="blue-text text-darken-2 right" style="font-size: 0.9rem;">
+                                            Reset search
+                                        </a>
                                     </div>
                                     <div class="input-field">
                                         <label for="viewMode" class="active">View mode</label>
