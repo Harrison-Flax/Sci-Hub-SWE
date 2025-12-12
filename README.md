@@ -108,12 +108,19 @@ A location chart provides a simple breakdown of how RA postings are distributed 
 ---
 
 ### Keyword Panel
-A keyword panel highlights common terms appearing in RA job postings.
+The keyword panel provides a concise overview of commonly occurring terms in RA job postings.
+
 - Displays the **top 5–10 keywords** based on frequency
-- Keywords are extracted from job titles, fields, and descriptions
-- Frequency counts are shown next to each keyword
-- Updates automatically when filters or search input change
-- Displays an empty-state message when no keywords are available
+- Keywords are extracted from job titles, descriptions, and related fields
+- A **word cloud visualization** displays keywords, where:
+  - Word size reflects relative frequency using a scaled representation
+  - Exact frequency counts are shown on hover
+- A compact **Top Keywords table** displays the most frequent terms alongside their exact counts
+- The panel updates dynamically as filters or search terms change
+- A clear empty-state message is shown when no keyword data is available
+
+To improve readability and avoid visual dominance by very high-frequency terms, the word cloud uses a **log-scaled size mapping**. This ensures that less frequent but still relevant keywords remain visible while preserving accurate frequency reporting via tooltips and tabular display.
+
 
 ---
 
