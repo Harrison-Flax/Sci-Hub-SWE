@@ -60,257 +60,6 @@
                 $(form).submit();
             }
 
-            function string2Map(str) {
-
-                var map = new Map();
-                var splitedString = str.replace(new RegExp("],", 'g'), ";");
-                var array = splitedString.split(";");
-                for(var i=0; i<array.length; i++){
-                    var idAndEventsString = array[i];
-                    idAndEventsString = idAndEventsString.replace(/[{}[\]\\]/g, " ");
-                    var idAndEvents = idAndEventsString.split("=");
-                    var id = idAndEvents[0];
-                    var eventsString = idAndEvents[1];
-                    var events = eventsString.split(",");
-                    console.log("events:" + events + "," + i);
-
-                    var formatedEvents = "";
-                    for(var j=0; j<events.length; j++){
-                        events[j] = events[j].trim();
-                        formatedEvents = formatedEvents + events[j] + ";";
-                    }
-                    if(formatedEvents.length > 1)
-                        map.set(id.trim(), formatedEvents);
-                }
-
-                return map;
-            }
-
-            function populateFilter(selectElement, values, previousValue) {
-                var currentSelection = previousValue || selectElement.value || "";
-                var options = '<option value="">All</option>';
-                Array.from(values).sort().forEach(function (value) {
-                    options += '<option value="' + value + '">' + value + '</option>';
-                });
-                selectElement.innerHTML = options;
-                if (values.has(currentSelection)) {
-                    selectElement.value = currentSelection;
-                }
-            }
-
-            function updateFilterOptions(filters) {
-                var departments = new Set((filters && filters.departments) || []);
-                var modes = new Set((filters && filters.modes) || []);
-                var statuses = new Set((filters && filters.statuses) || []);
-
-                populateFilter(document.getElementById('departmentFilter'), departments);
-                populateFilter(document.getElementById('modeFilter'), modes);
-                populateFilter(document.getElementById('statusFilter'), statuses);
-            }
-
-            var payBarChart;
-            var payPieChart;
-
-            function destroyChartIfExists(chartInstance) {
-                if (chartInstance) {
-                    chartInstance.destroy();
-                }
-            }
-
-            function renderPayScaleCharts(counts) {
-                var hourly = (counts && counts.hourly) || 0;
-                var fullTime = (counts && counts.fullTime) || 0;
-
-                var labels = ['Hourly RA ($20/hr grad, $15/hr undergrad)', 'Full-time RA ($2500/month + tuition waiver)'];
-                var data = [hourly, fullTime];
-                var total = data.reduce(function (sum, value) { return sum + value; }, 0);
-
-                var barCanvas = document.getElementById('payBarChart');
-                var pieCanvas = document.getElementById('payPieChart');
-                var fallbackText = document.getElementById('payChartFallback');
-
-                if (total === 0) {
-                    barCanvas.style.display = 'none';
-                    pieCanvas.style.display = 'none';
-                    fallbackText.style.display = 'block';
-                    fallbackText.textContent = 'No pay scale data available for the selected filters.';
-                    destroyChartIfExists(payBarChart);
-                    destroyChartIfExists(payPieChart);
-                    payBarChart = null;
-                    payPieChart = null;
-                    return;
-                }
-
-                barCanvas.style.display = 'block';
-                pieCanvas.style.display = 'block';
-                fallbackText.style.display = 'none';
-
-                var barConfig = {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Jobs by pay scale',
-                            data: data,
-                            backgroundColor: ['#64b5f6', '#ffb74d'],
-                            hoverBackgroundColor: ['#42a5f5', '#ffa726']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        var value = context.parsed.y || 0;
-                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's');
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'Number of jobs' }
-                            }
-                        }
-                    }
-                };
-
-                var pieConfig = {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Jobs by pay scale',
-                            data: data,
-                            backgroundColor: ['#64b5f6', '#ffb74d'],
-                            hoverBackgroundColor: ['#42a5f5', '#ffa726']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'bottom' },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        var value = context.parsed || 0;
-                                        var percent = total ? ((value / total) * 100).toFixed(1) : 0;
-                                        return context.label + ': ' + value + ' job' + (value === 1 ? '' : 's') + ' (' + percent + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
-
-                if (payBarChart) {
-                    payBarChart.data.datasets[0].data = data;
-                    payBarChart.update();
-                } else {
-                    payBarChart = new Chart(barCanvas.getContext('2d'), barConfig);
-                }
-
-                if (payPieChart) {
-                    payPieChart.data.datasets[0].data = data;
-                    payPieChart.update();
-                } else {
-                    payPieChart = new Chart(pieCanvas.getContext('2d'), pieConfig);
-                }
-            }
-
-            function fetchPayScaleData() {
-                var filters = {
-                    department: document.getElementById('departmentFilter').value,
-                    mode: document.getElementById('modeFilter').value,
-                    status: document.getElementById('statusFilter').value
-                };
-
-                var params = new URLSearchParams();
-                Object.keys(filters).forEach(function (key) {
-                    if (filters[key]) {
-                        params.append(key, filters[key]);
-                    }
-                });
-
-                var url = '/rajob/payRanges';
-                if (params.toString()) {
-                    url += '?' + params.toString();
-                }
-
-                fetch(url)
-                        .then(function (response) { return response.json(); })
-                        .then(function (data) {
-                            var counts = (data && data.counts) || {};
-                            var filtersPayload = (data && data.filters) || {};
-                            updateFilterOptions(filtersPayload);
-                            renderPayScaleCharts(counts);
-                        })
-                        .catch(function () {
-                            var fallbackText = document.getElementById('payChartFallback');
-                            var barCanvas = document.getElementById('payBarChart');
-                            var pieCanvas = document.getElementById('payPieChart');
-                            fallbackText.style.display = 'block';
-                            fallbackText.textContent = 'Unable to load pay scale data.';
-                            barCanvas.style.display = 'none';
-                            pieCanvas.style.display = 'none';
-                            destroyChartIfExists(payBarChart);
-                            destroyChartIfExists(payPieChart);
-                            payBarChart = null;
-                            payPieChart = null;
-                        });
-            }
-
-            function resetPayScaleFilters() {
-                document.getElementById('departmentFilter').value = '';
-                document.getElementById('modeFilter').value = '';
-                document.getElementById('statusFilter').value = '';
-                fetchPayScaleData();
-            }
-
-            function exportChart(chartInstance, filename) {
-                if (!chartInstance) {
-                    return;
-                }
-                var link = document.createElement('a');
-                link.href = chartInstance.toBase64Image();
-                link.download = filename;
-                link.click();
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                var resetButton = document.getElementById('payScaleReset');
-                var exportBarButton = document.getElementById('exportPayBarChart');
-                var exportPieButton = document.getElementById('exportPayPieChart');
-                var departmentFilter = document.getElementById('departmentFilter');
-                var modeFilter = document.getElementById('modeFilter');
-                var statusFilter = document.getElementById('statusFilter');
-
-                if (resetButton) {
-                    resetButton.addEventListener('click', resetPayScaleFilters);
-                }
-                if (exportBarButton) {
-                    exportBarButton.addEventListener('click', function () {
-                        exportChart(payBarChart, 'ra-pay-scale-bar.png');
-                    });
-                }
-                if (exportPieButton) {
-                    exportPieButton.addEventListener('click', function () {
-                        exportChart(payPieChart, 'ra-pay-scale-pie.png');
-                    });
-                }
-                [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
-                    if (select) {
-                        select.addEventListener('change', fetchPayScaleData);
-                    }
-                });
-
-                fetchPayScaleData();
-            });
-
-
     </script>
     <style>
             .follow-fab {
@@ -331,23 +80,6 @@
                 white-space: normal;
             }
 
-            .pay-range-card {
-                margin-top: 20px;
-            }
-
-            .pay-range-card h5 {
-                margin-top: 0;
-                margin-bottom: 10px;
-            }
-
-            .pay-range-description {
-                margin-bottom: 16px;
-            }
-
-            .pay-filter-select {
-                margin-bottom: 12px;
-            }
-
             .filter-actions {
                 display: flex;
                 gap: 10px;
@@ -358,6 +90,86 @@
 }
 
 @main("All RA Jobs", scripts) {
+<!-- SIMPLIFIED DASHBOARD FOR VISUALIZING RA JOBS -->
+<div class="dashboard-container" style="padding: 20px; background: #f4f6f8; margin-bottom: 20px; border-radius: 8px;">
+    <h3>RA Job Dashboard</h3>
+
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <div class="card-panel white" style="flex: 1; padding: 15px;">
+            <h4>Total Active RA Jobs</h4>
+            <h4 id="total-jobs-display" style="margin: 0;">0</h4>
+    </div>
+    <div class="card-panel white" style="flex: 1; padding: 15px;">
+        <h4>Departments That Are Hiring</h4>
+        <h4 id="total-depts-display" style="margin: 0;">0</h4>
+    </div>
+    <div class="card-panel white" style="flex: 1; padding: 15px;">
+        <h4>Average Hourly Pay</h4>
+        <h4 id="average-pay-display" style="margin: 0;">--</h4>
+    </div>
+</div>
+
+<div class="row filter-section">
+    <div class="col s4"><label>Department</label><select id="deptFilter" class="browser-default"></select></div>
+    <div class="col s4"><label>Mode</label><select id="modeFilter" class="browser-default"></select></div>
+    <div class="col s4"><label>Status</label><select id="statusFilter" class="browser-default"></select></div>
+</div>
+
+<div class="row">
+    <div class="col s12 m4">
+            <h3>Jobs Listed By Department</h3>
+            <canvas id="deptChartCanvas"></canvas>
+            <button id="exportDashButton" class="btn btn-small" style="margin-top:10px;">Export Chart</button>
+        </div>
+    </div>
+    <div class="col s12 m4">
+            <h3>Pay Ranges</h3>
+            <canvas id="payRangeCanvas"></canvas>
+        </div>
+    </div>
+<div class="row">
+    <div class="col s12 m4">
+        <div class="card-panel">
+            <h3>Top Keywords</h3>
+            <ul id="keyWordListPanel"></ul>
+        </div>
+    </div>
+    <div class="col s12 m4">
+        <div class="card-panel">
+            <h3>Jobs by Location</h3>
+            <canvas id="locationChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="center-align">
+    <button id="resetDashButton" class="btn blue darken-1">Reset Dashboard Filters</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Main logic will be in dashboard.js since it's easier to write it their than here
+    // Need to store the data in a variable to be used in dashboard.js
+    window.RA_JOBS_DATA = [];
+
+    // Populate the array with the listed data and until the size of RA Jobs
+    @for(i <- 0 until rajobs.size) {
+        window.RA_JOBS_DATA.push({
+            id: "@rajobs.get(i).getId()",
+            // .replaceAll is used to escape quotes and \ in the string to avoid breaking the JS syntax
+            title: "@rajobs.get(i).getTitle().replaceAll("\"", "\\\"")",
+            organization: "@rajobs.get(i).getOrganization().replaceAll("\"", "\\\"")",
+            minSalary: @rajobs.get(i).getMinSalary(),
+            maxSalary: @rajobs.get(i).getMaxSalary(),
+            location: "@rajobs.get(i).getLocation().replaceAll("\"", "\\\"")",
+            status: "@rajobs.get(i).getStatus()",
+            fields: "@rajobs.get(i).getFields().replaceAll("\"", "\\\"")"
+        });
+    }
+</script>
+
+<script src='@routes.Assets.at("javascripts/dashboard.js")'></script>
+
     <div class="container">
         <div class="card-panel center">
             @if(listType.equals("search")) {
@@ -390,54 +202,6 @@
                     <div id="nasaText" hidden></div>
                     <div id="requestField"></div>
                     <div id="replyField"></div>
-                </div>
-                <div class="row pay-range-card">
-                    <div class="col s12">
-                        <div class="card-panel">
-                            <div class="row">
-                                <div class="col s12 m8">
-                                    <h5>Pay scale overview</h5>
-                                    <p class="grey-text text-darken-1 pay-range-description">
-                                        See how RA postings distribute between hourly (grad/undergrad) and full-time positions.
-                                    </p>
-                                    <div class="row">
-                                        <div class="col s12 m6">
-                                            <canvas id="payBarChart" role="img" aria-label="Research assistant pay scale bar chart"></canvas>
-                                        </div>
-                                        <div class="col s12 m6">
-                                            <canvas id="payPieChart" role="img" aria-label="Research assistant pay scale pie chart"></canvas>
-                                        </div>
-                                    </div>
-                                    <p id="payChartFallback" class="grey-text text-darken-1" style="display: none;">Loading pay scale data...</p>
-                                </div>
-                                <div class="col s12 m4">
-                                    <div class="input-field">
-                                        <label for="departmentFilter" class="active">Department / Lab</label>
-                                        <select id="departmentFilter" class="browser-default pay-filter-select">
-                                            <option value="">All</option>
-                                        </select>
-                                    </div>
-                                    <div class="input-field">
-                                        <label for="modeFilter" class="active">Mode / Location</label>
-                                        <select id="modeFilter" class="browser-default pay-filter-select">
-                                            <option value="">All</option>
-                                        </select>
-                                    </div>
-                                    <div class="input-field">
-                                        <label for="statusFilter" class="active">Status</label>
-                                        <select id="statusFilter" class="browser-default pay-filter-select">
-                                            <option value="">All</option>
-                                        </select>
-                                    </div>
-                                    <div class="filter-actions">
-                                        <button type="button" class="btn grey lighten-2 black-text" id="payScaleReset">Reset filters</button>
-                                        <button type="button" class="btn blue darken-1" id="exportPayBarChart" aria-label="Export pay scale bar chart image">Export bar chart</button>
-                                        <button type="button" class="btn blue darken-1" id="exportPayPieChart" aria-label="Export pay scale pie chart image">Export pie chart</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="row">
                     <div class="col s6">

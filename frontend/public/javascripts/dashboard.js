@@ -1,324 +1,277 @@
 // Dashboard Configuration is handled here
-// Decided to do it here instead of in the researchInterest.scala.html
+// Decided to do it here instead of in the rajobList.scala.html
 // Since it's easier in JavaScript to understand and write along with easier debugging
+// Charts are done with Chart.js as specified in Sprint 1
 
-const AppState = {
-    rawData: null,
-    filteredData: null,
-    selectedYear: null,
+// This code is also refactored from the rajobList.scala.html for better learning
 
-    // From API
-    jobSummary: {
-        totalJobs: 0,
-        avgPay: "Loading...",
-        departments: []
-    }
+const DashboardState = {
+    allJobs: [],
+    deptChart: null,
+    payChart: null
 };
-
-// Chart Instances
-let charts = {
-    donut: null,
-    stackedBar: null
-}
-
-// Color Palette
-const colorPalette = [
-    '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0',
-    '#546E7A', '#26A69A', '#D10CE8', '#2E93fA', '#66DA26'
-];
-let topicColorMap = {};
 
 // Initialization of Dashboard
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Initializing Dashboard...");
-    initDashboard();
+    
+    // Load data from RA_JOBS_DATA array in HTML
+    if (window.RA_JOBS_DATA && window.RA_JOBS_DATA.length > 0) {
+        DashboardState.allJobs = window.RA_JOBS_DATA;
+
+        // For the filter dropdown menu
+        populateFilters(DashboardState.allJobs);
+
+        // Initial charts to show
+        renderDashboard(DashboardState.allJobs);
+    } else {
+        console.warn("No job data found for dashboard.");
+        document.getElementById("total-jobs-display").innerText = "0";
+    }
+
+    // Filters event listeners
+    ['deptFilter', 'modeFilter', 'statusFilter'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', filterDashboard);
+    });
+
+    // Reset Button
+    document.getElementById("resetDashButton")?.addEventListener('click', function() {
+        // Reset filters
+        document.getElementById('deptFilter').value = "";
+        document.getElementById('modeFilter').value = "";
+        document.getElementById('statusFilter').value = "";
+        // Reset charts
+        renderDashboard(DashboardState.allJobs);
+    });
+
+    // Export to file button
+    document.getElementById("exportDashButton")?.addEventListener('click', function() {
+         // Export current department chart as PNG (easier than csv, etc.)
+         const link = document.createElement('a');
+         link.href = DashboardState.deptChart.toBase64Image();
+         link.download = 'department_chart.png';
+         link.click();
+    });
 });
 
-function initDashboard() {
-    // URL from HTML configuration
-    const url = window.DASHBOARD_CONFIGURATION.dataURL;
+// Populate filter dropdowns
+function populateFilters(jobs) {
+    const addOptions = (id, field) => {
+        const select = document.getElementById(id);
+        if(!select) return;
 
-    // Fetch Data
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error('Network Error!');
-            return response.json();
-        })
-        .then(jsonData => {
-            // Store the data in State
-            AppState.rawData = jsonData;
-            
-            // Call setup helpers for charts to show
-            setupHelpers(jsonData);
+        const uniqueValues = new Set(jobs.map(job => job[field] || "Unknown"));
 
-            // Initial Filter
-            // First available year (index[0])
-            const years = Object.keys(jsonData).sort();
-            AppState.selectedYear = years[0];
+        // Default option
+        select.innerHTML = '<option value="">All</option>'; 
 
-            render();
-        })
-        .catch(error => console.error("Error loading dashboard data:", error));
-
-    // Reset Button Event Listener
-    document.getElementById("resetFiltersBtn")?.addEventListener('click', handleReset);
-
-    // Switch between charts
-    window.toggleView = toggleView;
-}
-
-function render() {
-    console.log("Rendering Dashboard for Year:", AppState.selectedYear);
-    
-    // Filter Data based on selected year
-    const yearData = AppState.rawData[AppState.selectedYear] || {};
-
-    // Empty data check if there are no jobs found
-    const hasData = Object.keys(yearData).length > 0;
-
-    if(!hasData) {
-        showEmptyState();
-        return;
-    } else {
-        hideEmptyState();
-    }
-
-    // Update Charts
-    updateDonutChart(yearData);
-    updateStackedBarChart();
-    updateSummaryStats();
-}
-
-// Additional functions for logic (helpers)
-
-// Job data and summary stats
-function updateSummaryStats() {
-    // Handle summary stats update
-    const jobURL = window.DASHBOARD_CONFIGURATION.jobListAPIURL;
-
-    // Fetch the job data
-    fetch(jobURL)
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to fetch job data!');
-            return response.json();
-        })
-        .then(apiResponse => {
-            // Should be data array for API from job data
-            const jobs = apiResponse.data || [];
-
-            // Processing the job data
-            AppState.jobSummary = {
-                totalJobs: jobs.length,
-                avgPay: calculateAveragePay(jobs),
-                departments: extractDepartments(jobs)
-            };
-            // Update the DOM Elements
-            const totalElements = document.getElementById("totalJobsDisplay");
-            const payElements = document.getElementById("average-pay-display");
-            
-            if (totalElements) totalElements.innerText = AppState.jobSummary.totalJobs;
-            if (payElements) payElements.innerText = AppState.jobSummary.avgPay;
-        })
-        .catch(error => 
-            console.error("Error fetching job data:", error));
-            // Fall back to 0 if API fails to load (a precaution)
-            const totalElements = document.getElementById("totalJobsDisplay");
-            if (totalElements) totalElements.innerText = "0";
-}
-
-function calculateAveragePay(jobs) {
-    if (!jobs || jobs.length === 0) return "$0.00/hr";
-
-    // Sum the average for each job
-    const totalPay = jobs.reduce((sum, job) => {
-        const min = job.minSalary || 0;
-        const max = job.maxSalary || 0;
-        // Account for 0 and midpoint
-        const jobAverage = (min + max) > 0 ? (min + max) / 2 : 0;
-        return sum + jobAverage;
-    }, 0);
-
-    const finalAverage = totalPay / jobs.length;
-    // Average pay rounded to 2 decimal places
-    return `$${finalAverage.toFixed(2)}/hr`;
-}
-
-// Counting organizations and departments
-function extractDepartments(jobs) {
-    if (!jobs || jobs.length === 0) return [];
-
-    const departments = new Set(jobs.map(job => job.organization || "Unknown"));
-    return Array.from(departments);
-}
-
-function handleReset() {
-    const years = Object.keys(AppState.rawData).sort();
-    AppState.selectedYear = years[0];
-
-    // Reset the dropdown and calls render with trigger
-    $('#yearSelector').val(AppState.selectedYear).trigger('change');
-}
-
-function showEmptyState() {
-    document.getElementById("pieChart").style.display = 'none';
-    document.getElementById("noDataMessage").style.display = 'block';
-
-    // Message for no jobs found
-    const msg = document.getElementById("noDataMessage");
-    if (msg) msg.style.display = 'block';
-}
-
-function hideEmptyState() {
-    document.getElementById("pieChart").style.display = 'block';
-    document.getElementById("noDataMessage").style.display = 'none';
-
-    // Message for no jobs found
-    const msg = document.getElementById("noDataMessage");
-    if (msg) msg.style.display = 'block';
-}
-
-function setupHelpers(jsonData) {
-    // Populate Year Selector
-    // Logic from buildYearSelector
-    const allYears = Object.keys(jsonData).sort();
-    AppState.allYears = allYears;
-
-    const selector = document.getElementById("yearSelector");
-    if (selector) {
-        selector.innerHTML = ""; 
-        allYears.forEach(y => {
-            const opt = document.createElement("option");
-            opt.value = y;
-            opt.text = y;
-            selector.appendChild(opt);
+        uniqueValues.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.text = value;
+            select.appendChild(option);
         });
-
-        // Initialize Select2
-        $('#yearSelector').select2({ width: '100%' }).on('change', function() {
-            AppState.selectedYear = $(this).val();
-            render();
-        });
-    }
-
-    // Populate Color Map
-    // Logic from topicColorMap
-    // Years and Topics
-    const allTopicsSet = new Set();
-    
-    // For each year, find a topic
-    allYears.forEach(year => {
-        const topics = Object.keys(jsonData[year]);
-        topics.forEach(topic => allTopicsSet.add(topic));
-    });
-
-    // AppState storage
-    AppState.allTopics = Array.from(allTopicsSet).sort();
-
-    // Each topic has a color with the map created
-    let colorIndex = 0;
-    AppState.allTopics.forEach(topic => {
-        // Load through palette if topics exceed colors
-        topicColorMap[topic] = colorPalette[colorIndex % colorPalette.length];
-        colorIndex++;
-    });
-}
-
-// Charts Functions
-function updateDonutChart(yearData) {
-    const labels = Object.keys(yearData);
-    const series = Object.values(yearData);
-
-    const donutOptions = {
-        chart: {
-            type: 'donut',
-            height: 350,
-            // For exporting and downloading
-            toolbar: { show: true }
-        },
-        series: series,
-        labels: labels,
-        // Map each topic label to its assigned color
-        colors: labels.map(label => topicColorMap[label] || '#999999'),
-        legend: {
-            position: 'bottom',
-            offsetY: -10
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%'
-                        }
-                    }
-                },
-                noData: { 
-                    text: "No data available"
-                }
     };
 
-    if (charts.donut) {
-        charts.donut.destroy();
-    }
-    charts.donut = new ApexCharts(document.getElementById("pieChart"), donutOptions);
-    charts.donut.render();
+    // Add to dropdown
+    addOptions('deptFilter', 'organization');
+    addOptions('modeFilter', 'location');
+    addOptions('statusFilter', 'status');
 }
 
-// Stacked Bar Chart
-function updateStackedBarChart() {
-    const allTopics = AppState.allTopics;
-    const allYears = AppState.allYears;
+// Filtering logic
+function filterDashboard() {
+    const dept = document.getElementById('deptFilter').value;
+    const mode = document.getElementById('modeFilter').value;
+    const status = document.getElementById('statusFilter').value;
 
-    // Prepare series data: each topic => array of frequencies across years
-    const series = allTopics.map(topic => {
-        const dataArr = allYears.map(year => {
-            const yearData = AppState.rawData[year] || {};
-            return yearData[topic] || 0;
+    const filteredJobs = DashboardState.allJobs.filter(job => {
+        return (dept === "" || job.organization === dept) &&
+               (mode === "" || job.location === mode) &&
+               (status === "" || job.status === status);
     });
-    return { name: topic, data: dataArr };
-});
 
-const stackedOptions = {
-    chart: {
-        type: 'bar',
-        stacked: true,
-        height: '450px',
-        toolbar: { show: true }
-    },
-    series: series,
-    xaxis: {
-        categories: allYears
-    },
-    // Use each series name (topic) to pick the corresponding color
-    colors: series.map(s => topicColorMap[s.name] || '#999999'),
-    legend: {
-        position: 'right'
-    },
-    plotOptions: {
-        bar: {
-            horizontal: false
+    renderDashboard(filteredJobs);
+}
+
+// Render dashboard charts and stats
+function renderDashboard(jobs) {
+    updateSummaryStats(jobs);
+    renderDeptChart(jobs);
+    renderPayChart(jobs);
+    renderLocationChart(jobs);
+}
+
+function updateSummaryStats(jobs) {
+    // Total jobs
+    document.getElementById("total-jobs-display").innerText = jobs.length;
+
+    // Departments
+    const depts = new Set(jobs.map(job => job.organization || "Unknown")); 
+    document.getElementById("total-depts-display").innerText = depts.size;
+
+    // Average Pay
+    let totalPay = 0;
+    let count = 0;
+    jobs.forEach(job => {
+        const min = job.minSalary || 0;
+        const max = job.maxSalary || 0;
+        if (max > 0) {
+            totalPay += (min + max) / 2;
+            count++;
         }
-    },
-};
-
-if (charts.stackedBar) {
-    charts.stackedBar.destroy();
-}
-    charts.stackedBar = new ApexCharts(document.getElementById("stackedBarChart"), stackedOptions);
-    charts.stackedBar.render();
+    });
+    // Calculate average pay in one line instead of if-else statements
+    const avg = count > 0 ? (totalPay / count).toFixed(2) : "0.00";
+    document.getElementById("average-pay-display").innerText = "$" + avg + "/hr";
 }
 
-// Apply the view toggling
-function toggleView(viewType) {
-    const pieElement = document.getElementById("pieChart");
-    const barElement = document.getElementById("stackedBarChart");
+function renderDeptChart(jobs) {
+    const ctx = document.getElementById('deptChartCanvas').getContext('2d');
 
-    if (viewType === 'all') {
-        pieElement.style.display = 'block';
-        barElement.style.display = 'block';
-    } else if (viewType === 'pieChart') {
-        pieElement.style.display = 'block';
-        barElement.style.display = 'none';
-    } else if (viewType === 'stackedBarChart') {
-        pieElement.style.display = 'none';
-        barElement.style.display = 'block';
+    // Jobs per department
+    const deptCounts = {};
+    jobs.forEach(job => {
+        const dept = job.organization || "Unknown";
+        deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+    });
+
+    const labels = Object.keys(deptCounts);
+    const data = Object.values(deptCounts);
+
+    // Destroy old chart
+    if (DashboardState.deptChart) {
+        DashboardState.deptChart.destroy();
     }
+    
+    // Building bar chart with Chart.js as specified in Sprint 1
+    // Reference: https://www.chartjs.org/docs/latest/samples/bar/vertical.html
+    DashboardState.deptChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jobs per Department',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+}
+
+function renderPayChart(jobs) {
+    const ctx = document.getElementById('payRangeCanvas').getContext('2d');
+
+    // Pay Ranges
+    let buckets = {
+        '<$15/hr': 0,
+        '$15-$20/hr': 0,
+        '$20+': 0,
+        'Unpaid': 0
+    };
+
+    jobs.forEach(job => {
+        const min = job.minSalary || 0;
+        const max = job.maxSalary || 0;
+        const avg = (min + max) / 2;
+
+        if (avg < 15) {
+            buckets['<$15/hr']++;
+        } else if (avg < 20) {
+            buckets['$15-$20/hr']++;
+        } else if (avg > 20) {
+            buckets['$20+']++;
+        } else {
+            buckets['Unpaid']++;
+        }
+    });
+
+    const labels = Object.keys(buckets);
+    const data = Object.values(buckets);
+
+    // Destroy old chart
+    if (DashboardState.payChart) {
+        DashboardState.payChart.destroy();
+    }
+
+    // Building bar chart with Chart.js as specified in Sprint 1
+    // Reference: https://www.chartjs.org/docs/latest/samples/bar/vertical.html
+    DashboardState.payChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jobs per Pay Range',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
+// Multi Series Pie Chart for Job Locations
+function renderLocationChart(jobs) {
+    const ctx = document.getElementById('locationChart').getContext('2d');
+    const locationCounts = {};
+
+    jobs.forEach(job => {
+        const location = job.location || "Unknown";
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
+    });
+
+    const labels = Object.keys(locationCounts);
+    const data = Object.values(locationCounts);
+
+    // Destroy old chart
+    if (DashboardState.locationChart) {
+        DashboardState.locationChart.destroy();
+    }
+
+    // Building multi series pie chart with Chart.js as an additional visualization
+    // Showing up as a main pie chart since it's only reading in the location which is fine
+    // Reference: https://www.chartjs.org/docs/latest/samples/other-charts/multi-series-pie.html
+    DashboardState.locationChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jobs per Location',
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
 }
