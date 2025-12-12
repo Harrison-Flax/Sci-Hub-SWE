@@ -48,7 +48,11 @@ The RA Job Visualization module is embedded at the top of the RA Job List page a
 - A simple **filter and search area**
 - A set of **basic visualizations** that update dynamically based on filters
 
-The design intentionally avoids complex interactions in favor of **clarity, readability, and fast updates**, as specified in the Sprint 1 scope.
+The design intentionally avoids complex interactions in favor of **clarity, readability, and fast updates**, as specified in the Sprint 1 scope.  
+
+All functionality implemented in:
+
+`frontend/conf/routes`, `frontend/app/views/rajobList.scala.html`, `frontend/app/controllers/RAJobController.java`
 
 ---
 
