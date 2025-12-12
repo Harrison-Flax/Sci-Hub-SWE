@@ -17,68 +17,71 @@
     <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/assets/stylesheets/responsive-table.css">
-    <script type="text/javascript">
+            <script type="text/javascript">
+        (function () {
+            'use strict';
 
-            $(document).ready(function () {
-                var technologiesArray = []
-                @for(i <- 0 until rajobs.size) {
-                var json = {};
-                json.id = '@rajobs.get(i).getId()';
-                json.url = "/rajob/rajobDetail/" + json.id;
-
-                json.name = '@rajobs.get(i).getTitle'.replace(/[^a-zA-Z0-9]/g, " ").replace(/  +/g, " ").trim();
-                console.log("jsonhere:" + json)
-                technologiesArray.push(json)
+            function getJobsFromDom() {
+                var el = document.getElementById('raJobsData');
+                if (!el) return [];
+                try {
+                    return JSON.parse(el.getAttribute('data-rajobs') || '[]');
+                } catch (e) {
+                    console.error('Failed parsing RA jobs JSON from #raJobsData', e);
+                    return [];
                 }
-                $("#nasaText").text(JSON.stringify(technologiesArray));
+            }
 
-                $('.tooltipped').tooltip();
-            });
+            function safeLower(value) {
+                return (value || '').toString().toLowerCase();
+            }
 
             function jumpToPage(pageNum, sort, searchString) {
-                pageNum =  parseInt(pageNum);
-                var url = "/rajob/searchPOST?pageNum=" + (pageNum) + "&sortCriteria=" + sort;
-                var form = $(document.createElement('form'));
-                $(form).attr("action", url);
-                $(form).attr("method", "POST");
-                $(form).css("display", "none");
+                pageNum = parseInt(pageNum);
+                var url = "/rajob/searchPOST?pageNum=" + pageNum + "&sortCriteria=" + sort;
+                var form = document.createElement('form');
+                form.action = url;
+                form.method = 'POST';
+                form.style.display = 'none';
 
-                var form_searchString = $("<input>")
-                        .attr("type", "text")
-                        .attr("name", "searchString")
-                        .val(searchString);
-                $(form).append($(form_searchString));
+                var searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.name = 'searchString';
+                searchInput.value = searchString;
 
-                form.appendTo(document.body);
-                $(form).submit();
+                form.appendChild(searchInput);
+                document.body.appendChild(form);
+                form.submit();
             }
 
             function string2Map(str) {
                 var map = new Map();
-                var splitedString = str.replace(new RegExp("],", 'g'), ";");
-                var array = splitedString.split(";");
-                for(var i=0; i<array.length; i++){
+                var splitedString = str.replace(new RegExp('],', 'g'), ';');
+                var array = splitedString.split(';');
+                for (var i = 0; i < array.length; i++) {
                     var idAndEventsString = array[i];
-                    idAndEventsString = idAndEventsString.replace(/[{}[\]\\]/g, " ");
-                    var idAndEvents = idAndEventsString.split("=");
+                    idAndEventsString = idAndEventsString.replace(/[{}\[\]\\]/g, ' ');
+                    var idAndEvents = idAndEventsString.split('=');
                     var id = idAndEvents[0];
                     var eventsString = idAndEvents[1];
-                    var events = eventsString.split(",");
-                    console.log("events:" + events + "," + i);
+                    if (!eventsString) continue;
+                    var events = eventsString.split(',');
 
-                    var formatedEvents = "";
-                    for(var j=0; j<events.length; j++){
+                    var formatedEvents = '';
+                    for (var j = 0; j < events.length; j++) {
                         events[j] = events[j].trim();
-                        formatedEvents = formatedEvents + events[j] + ";";
+                        formatedEvents = formatedEvents + events[j] + ';';
                     }
-                    if(formatedEvents.length > 1)
+                    if (formatedEvents.length > 1) {
                         map.set(id.trim(), formatedEvents);
+                    }
                 }
                 return map;
             }
 
             function populateFilter(selectElement, values, previousValue) {
-                var currentSelection = previousValue || selectElement.value || "";
+                if (!selectElement) return;
+                var currentSelection = previousValue || selectElement.value || '';
                 var options = '<option value="">All</option>';
                 Array.from(values).sort().forEach(function (value) {
                     options += '<option value="' + value + '">' + value + '</option>';
@@ -99,20 +102,26 @@
                 populateFilter(document.getElementById('statusFilter'), statuses);
             }
 
-            var payBarChart;
-            var payPieChart;
-            var deptBarChart;
+            function destroyChartIfExists(chartInstance) {
+                if (chartInstance) chartInstance.destroy();
+            }
+
+            var payBarChart = null;
+            var payPieChart = null;
+            var deptBarChart = null;
 
             function renderDepartmentChart(departments, counts) {
                 var canvas = document.getElementById('deptBarChart');
                 var fallbackText = document.getElementById('deptChartFallback');
+
+                if (!canvas || !fallbackText) return;
 
                 var total = counts.reduce(function (sum, value) { return sum + value; }, 0);
 
                 if (total === 0 || departments.length === 0) {
                     canvas.style.display = 'none';
                     fallbackText.style.display = 'block';
-                    fallbackText.textContent = 'No department data available.';
+                    fallbackText.textContent = 'No jobs found for the selected filters.';
                     destroyChartIfExists(deptBarChart);
                     deptBarChart = null;
                     return;
@@ -121,28 +130,27 @@
                 canvas.style.display = 'block';
                 fallbackText.style.display = 'none';
 
-                // Generate different colors for each department
-                var colors = departments.map(function(dept, index) {
-                var hue = (index * 137.5) % 360; // Golden angle for good distribution
-                return 'hsl(' + hue + ', 65%, 55%)';
+                var colors = departments.map(function (dept, index) {
+                    var hue = (index * 137.5) % 360;
+                    return 'hsl(' + hue + ', 65%, 55%)';
                 });
 
-                var hoverColors = departments.map(function(dept, index) {
-                var hue = (index * 137.5) % 360;
-                return 'hsl(' + hue + ', 65%, 45%)'; // Slightly darker on hover
+                var hoverColors = departments.map(function (dept, index) {
+                    var hue = (index * 137.5) % 360;
+                    return 'hsl(' + hue + ', 65%, 45%)';
                 });
 
-            var config = {
-                type: 'bar',
-                data: {
-                    labels: departments,
-                    datasets: [{
-                        label: 'Jobs by department',
-                        data: counts,
-                        backgroundColor: colors,
-                        hoverBackgroundColor: hoverColors
-                    }]
-                },
+                var config = {
+                    type: 'bar',
+                    data: {
+                        labels: departments,
+                        datasets: [{
+                            label: 'Jobs by department',
+                            data: counts,
+                            backgroundColor: colors,
+                            hoverBackgroundColor: hoverColors
+                        }]
+                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
@@ -161,19 +169,10 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1,
-                                    precision: 0
-                                },
+                                ticks: { stepSize: 1, precision: 0 },
                                 title: { display: true, text: 'Number of jobs' }
                             },
-                            x: {
-                                ticks: {
-                                    autoSkip: false,
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            }
+                            x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }
                         }
                     }
                 };
@@ -189,22 +188,18 @@
 
             function fetchDepartmentData() {
                 var filters = {
-                    department: document.getElementById('departmentFilter').value,
-                    mode: document.getElementById('modeFilter').value,
-                    status: document.getElementById('statusFilter').value
+                    department: document.getElementById('departmentFilter')?.value || '',
+                    mode: document.getElementById('modeFilter')?.value || '',
+                    status: document.getElementById('statusFilter')?.value || ''
                 };
 
                 var params = new URLSearchParams();
                 Object.keys(filters).forEach(function (key) {
-                    if (filters[key]) {
-                        params.append(key, filters[key]);
-                    }
+                    if (filters[key]) params.append(key, filters[key]);
                 });
 
                 var url = '/rajob/byDepartment';
-                if (params.toString()) {
-                    url += '?' + params.toString();
-                }
+                if (params.toString()) url += '?' + params.toString();
 
                 fetch(url)
                     .then(function (response) { return response.json(); })
@@ -217,18 +212,14 @@
                         console.error('Error fetching department data:', error);
                         var fallbackText = document.getElementById('deptChartFallback');
                         var canvas = document.getElementById('deptBarChart');
-                        fallbackText.style.display = 'block';
-                        fallbackText.textContent = 'Unable to load department data.';
-                        canvas.style.display = 'none';
+                        if (fallbackText) {
+                            fallbackText.style.display = 'block';
+                            fallbackText.textContent = 'Unable to load department data.';
+                        }
+                        if (canvas) canvas.style.display = 'none';
                         destroyChartIfExists(deptBarChart);
                         deptBarChart = null;
                     });
-            }
-
-            function destroyChartIfExists(chartInstance) {
-                if (chartInstance) {
-                    chartInstance.destroy();
-                }
             }
 
             function renderPayScaleCharts(counts) {
@@ -242,6 +233,8 @@
                 var barCanvas = document.getElementById('payBarChart');
                 var pieCanvas = document.getElementById('payPieChart');
                 var fallbackText = document.getElementById('payChartFallback');
+
+                if (!barCanvas || !pieCanvas || !fallbackText) return;
 
                 if (total === 0) {
                     barCanvas.style.display = 'none';
@@ -284,10 +277,7 @@
                             }
                         },
                         scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'Number of jobs' }
-                            }
+                            y: { beginAtZero: true, title: { display: true, text: 'Number of jobs' } }
                         }
                     }
                 };
@@ -337,75 +327,100 @@
 
             function fetchPayScaleData() {
                 var filters = {
-                    department: document.getElementById('departmentFilter').value,
-                    mode: document.getElementById('modeFilter').value,
-                    status: document.getElementById('statusFilter').value
+                    department: document.getElementById('departmentFilter')?.value || '',
+                    mode: document.getElementById('modeFilter')?.value || '',
+                    status: document.getElementById('statusFilter')?.value || ''
                 };
 
                 var params = new URLSearchParams();
                 Object.keys(filters).forEach(function (key) {
-                    if (filters[key]) {
-                        params.append(key, filters[key]);
-                    }
+                    if (filters[key]) params.append(key, filters[key]);
                 });
 
                 var url = '/rajob/payRanges';
-                if (params.toString()) {
-                    url += '?' + params.toString();
-                }
+                if (params.toString()) url += '?' + params.toString();
 
                 fetch(url)
-                        .then(function (response) { return response.json(); })
-                        .then(function (data) {
-                            var counts = (data && data.counts) || {};
-                            var filtersPayload = (data && data.filters) || {};
-                            updateFilterOptions(filtersPayload);
-                            renderPayScaleCharts(counts);
-                        })
-                        .catch(function () {
-                            var fallbackText = document.getElementById('payChartFallback');
-                            var barCanvas = document.getElementById('payBarChart');
-                            var pieCanvas = document.getElementById('payPieChart');
+                    .then(function (response) { return response.json(); })
+                    .then(function (data) {
+                        var counts = (data && data.counts) || {};
+                        var filtersPayload = (data && data.filters) || {};
+                        updateFilterOptions(filtersPayload);
+                        renderPayScaleCharts(counts);
+                    })
+                    .catch(function () {
+                        var fallbackText = document.getElementById('payChartFallback');
+                        var barCanvas = document.getElementById('payBarChart');
+                        var pieCanvas = document.getElementById('payPieChart');
+                        if (fallbackText) {
                             fallbackText.style.display = 'block';
                             fallbackText.textContent = 'Unable to load pay scale data.';
-                            barCanvas.style.display = 'none';
-                            pieCanvas.style.display = 'none';
-                            destroyChartIfExists(payBarChart);
-                            destroyChartIfExists(payPieChart);
-                            payBarChart = null;
-                            payPieChart = null;
-                        });
+                        }
+                        if (barCanvas) barCanvas.style.display = 'none';
+                        if (pieCanvas) pieCanvas.style.display = 'none';
+                        destroyChartIfExists(payBarChart);
+                        destroyChartIfExists(payPieChart);
+                        payBarChart = null;
+                        payPieChart = null;
+                    });
             }
 
             function resetPayScaleFilters() {
-                document.getElementById('departmentFilter').value = '';
-                document.getElementById('modeFilter').value = '';
-                document.getElementById('statusFilter').value = '';
+                var d = document.getElementById('departmentFilter');
+                var m = document.getElementById('modeFilter');
+                var s = document.getElementById('statusFilter');
+                if (d) d.value = '';
+                if (m) m.value = '';
+                if (s) s.value = '';
                 fetchPayScaleData();
+                fetchDepartmentData();
             }
 
             function exportChart(chartInstance, filename) {
-                if (!chartInstance) {
-                    return;
-                }
+                if (!chartInstance) return;
                 var link = document.createElement('a');
                 link.href = chartInstance.toBase64Image();
                 link.download = filename;
                 link.click();
             }
-            
-            // Keyword panel
 
             var KEYWORD_STOP_WORDS = new Set([
-                'the','a','an','and','or','for','to','of','in','on','with',
-                'at','by','from','is','are','this','that','as','be','it',
-                'job','jobs','ra','research','assistant','position'
+                'the', 'a', 'an', 'and', 'or', 'for', 'to', 'of', 'in', 'on', 'with',
+                'at', 'by', 'from', 'is', 'are', 'this', 'that', 'as', 'be', 'it',
+                'job', 'jobs', 'ra', 'research', 'assistant', 'position'
             ]);
 
-            function renderKeywordPanel(entries) {
-                var listEl  = document.getElementById('keywordList');
-                var emptyEl = document.getElementById('keywordEmpty');
+            function getFilteredJobsClientSide() {
+                var jobs = getJobsFromDom();
 
+                var deptFilter = safeLower(document.getElementById('departmentFilter')?.value || '');
+                var modeFilter = safeLower(document.getElementById('modeFilter')?.value || '');
+                var statusFilter = safeLower(document.getElementById('statusFilter')?.value || '');
+                var q = safeLower(document.getElementById('jobSearch')?.value || '').trim();
+
+                return jobs.filter(function (job) {
+                    var jobDept = safeLower(job.fields || '');
+                    var jobMode = safeLower(job.location || '');
+                    var jobStatus = safeLower(job.status || '');
+
+                    if (deptFilter && !jobDept.includes(deptFilter)) return false;
+                    if (modeFilter && !jobMode.includes(modeFilter)) return false;
+                    if (statusFilter && !jobStatus.includes(statusFilter)) return false;
+
+                    if (q) {
+                        var blob = [
+                            job.title, job.goals, job.shortDescription, job.longDescription,
+                            job.fields, job.location, job.requiredExpertise, job.preferredExpertise
+                        ].filter(Boolean).join(' ').toLowerCase();
+                        if (!blob.includes(q)) return false;
+                    }
+                    return true;
+                });
+            }
+
+            function renderKeywordPanel(entries) {
+                var listEl = document.getElementById('keywordList');
+                var emptyEl = document.getElementById('keywordEmpty');
                 if (!listEl || !emptyEl) return;
 
                 listEl.innerHTML = '';
@@ -414,55 +429,25 @@
                     emptyEl.style.display = 'block';
                     return;
                 }
-
                 emptyEl.style.display = 'none';
 
                 entries.forEach(function (pair) {
                     var keyword = pair[0];
-                    var count   = pair[1];
-
+                    var count = pair[1];
                     var li = document.createElement('li');
                     li.className = 'collection-item';
                     li.innerHTML =
                         '<span class="left">' + keyword + '</span>' +
-                        '<span class="secondary-content grey-text text-darken-1">' +
-                        count + '</span>';
+                        '<span class="secondary-content grey-text text-darken-1">' + count + '</span>';
                     listEl.appendChild(li);
                 });
             }
 
             function buildKeywordStatsFromJobs() {
-                var dataElem = document.getElementById('raJobsData');
-                if (!dataElem) {
-                    renderKeywordPanel([]);
-                    return;
-                }
-
-                var raw = dataElem.getAttribute('data-rajobs') || '[]';
-                var jobs = [];
-                try {
-                    jobs = JSON.parse(raw);
-                } catch (e) {
-                    console.error('Failed to parse RA jobs JSON', e);
-                    renderKeywordPanel([]);
-                    return;
-                }
-
-                var deptFilter = document.getElementById('departmentFilter').value.toLowerCase();
-                var modeFilter = document.getElementById('modeFilter').value.toLowerCase();
-                var statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+                var jobs = getFilteredJobsClientSide();
 
                 var freq = {};
-
                 jobs.forEach(function (job) {
-                    var jobDept = (job.fields || "").toLowerCase(); 
-                    var jobMode = (job.location || "").toLowerCase(); 
-                    var jobStatus = (job.status || "").toLowerCase();
-
-                    if (deptFilter && !jobDept.includes(deptFilter)) return;
-                    if (modeFilter && !jobMode.includes(modeFilter)) return;
-                    if (statusFilter && !jobStatus.includes(statusFilter)) return;
-
                     var parts = [];
                     if (job.title) parts.push(job.title);
                     if (job.goals) parts.push(job.goals);
@@ -480,13 +465,11 @@
                     tokens.forEach(function (token) {
                         if (!token) return;
                         if (KEYWORD_STOP_WORDS.has(token)) return;
-                        // Filter out numbers/short tokens if desired
-                        if (token.length < 3) return; 
+                        if (token.length < 2) return;
                         freq[token] = (freq[token] || 0) + 1;
                     });
                 });
 
-                // Sort by frequency and slice top 10 
                 var entries = Object.entries(freq)
                     .sort(function (a, b) { return b[1] - a[1]; })
                     .slice(0, 10);
@@ -494,62 +477,158 @@
                 renderKeywordPanel(entries);
             }
 
+            function updateSummaryAndEmptyState() {
+                var totalEl = document.getElementById('summaryTotalJobs');
+                var deptEl = document.getElementById('summaryDeptCount');
+                var avgEl = document.getElementById('summaryAvgPay');
+                var noEl = document.getElementById('noJobsFoundMsg');
+
+                if (!totalEl || !deptEl || !avgEl || !noEl) return;
+
+                var filtered = getFilteredJobsClientSide();
+
+                totalEl.textContent = filtered.length.toString();
+
+                var deptSet = new Set();
+                filtered.forEach(function (j) {
+                    var d = (j.organization || j.fields || 'Unknown').toString().trim();
+                    if (d) deptSet.add(d);
+                });
+                deptEl.textContent = deptSet.size.toString();
+
+                var sum = 0, count = 0;
+                filtered.forEach(function (j) {
+                    var min = Number(j.minSalary || 0);
+                    var max = Number(j.maxSalary || 0);
+                    if (max > 0) {
+                        sum += (min + max) / 2;
+                        count += 1;
+                    }
+                });
+                avgEl.textContent = count ? ('$' + (sum / count).toFixed(2)) : '--';
+
+                var noJobs = filtered.length === 0;
+                noEl.style.display = noJobs ? 'block' : 'none';
+            }
+
+            function applyViewMode() {
+                var mode = document.getElementById('viewMode')?.value || 'all';
+                var pay = document.getElementById('paySection');
+                var dept = document.getElementById('deptSection');
+                var kw = document.getElementById('keywordSection');
+
+                if (!pay || !dept || !kw) return;
+
+                pay.style.display = 'none';
+                dept.style.display = 'none';
+                kw.style.display = 'none';
+
+                if (mode === 'all') {
+                    pay.style.display = 'block';
+                    dept.style.display = 'block';
+                    kw.style.display = 'block';
+                } else if (mode === 'pay') {
+                    pay.style.display = 'block';
+                } else if (mode === 'dept') {
+                    dept.style.display = 'block';
+                } else if (mode === 'keywords') {
+                    kw.style.display = 'block';
+                }
+
+                if (mode === 'all' || mode === 'pay') {
+                    if (payBarChart) payBarChart.update();
+                    if (payPieChart) payPieChart.update();
+                }
+                if (mode === 'all' || mode === 'dept') {
+                    if (deptBarChart) deptBarChart.update();
+                }
+            }
+
+            function initVoiceJumpData() {
+                var jobs = getJobsFromDom();
+                var technologiesArray = jobs.map(function (j) {
+                    var id = j.id || j._id || j.rajobId || '';
+                    var title = (j.title || '').toString();
+                    return {
+                        id: id,
+                        url: "/rajob/rajobDetail/" + id,
+                        name: title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/  +/g, ' ').trim()
+                    };
+                });
+
+                var nasaText = document.getElementById('nasaText');
+                if (nasaText) nasaText.textContent = JSON.stringify(technologiesArray);
+
+                try {
+                    if (window.$ && typeof window.$ === 'function') {
+                        window.$('.tooltipped').tooltip();
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
+                initVoiceJumpData();
+
                 var resetButton = document.getElementById('payScaleReset');
                 var exportBarButton = document.getElementById('exportPayBarChart');
                 var exportPieButton = document.getElementById('exportPayPieChart');
                 var exportDeptButton = document.getElementById('exportDeptBarChart');
-                
+
                 var departmentFilter = document.getElementById('departmentFilter');
                 var modeFilter = document.getElementById('modeFilter');
                 var statusFilter = document.getElementById('statusFilter');
 
-                // 1. Reset Button Logic
                 if (resetButton) {
-                    resetButton.addEventListener('click', function() {
+                    resetButton.addEventListener('click', function () {
                         resetPayScaleFilters();
-                        fetchDepartmentData();
-                        buildKeywordStatsFromJobs(); 
+                        buildKeywordStatsFromJobs();
+                        updateSummaryAndEmptyState();
+                        applyViewMode();
                     });
                 }
 
-                // 2. Export Logic
-                if (exportBarButton) {
-                    exportBarButton.addEventListener('click', function () {
-                        exportChart(payBarChart, 'ra-pay-scale-bar.png');
-                    });
-                }
-                if (exportPieButton) {
-                    exportPieButton.addEventListener('click', function () {
-                        exportChart(payPieChart, 'ra-pay-scale-pie.png');
-                    });
-                }
-                if (exportDeptButton) {
-                    exportDeptButton.addEventListener('click', function () {
-                        exportChart(deptBarChart, 'ra-jobs-by-department.png');
-                    });
-                }
+                if (exportBarButton) exportBarButton.addEventListener('click', function () { exportChart(payBarChart, 'ra-pay-scale-bar.png'); });
+                if (exportPieButton) exportPieButton.addEventListener('click', function () { exportChart(payPieChart, 'ra-pay-scale-pie.png'); });
+                if (exportDeptButton) exportDeptButton.addEventListener('click', function () { exportChart(deptBarChart, 'ra-jobs-by-department.png'); });
 
-                // 3. Filter Logic
                 [departmentFilter, modeFilter, statusFilter].forEach(function (select) {
-                    if (select) {
-                        select.addEventListener('change', function() {
-                            fetchPayScaleData();
-                            fetchDepartmentData();
-                            buildKeywordStatsFromJobs();
-                        });
-                    }
+                    if (!select) return;
+                    select.addEventListener('change', function () {
+                        fetchPayScaleData();
+                        fetchDepartmentData();
+                        buildKeywordStatsFromJobs();
+                        updateSummaryAndEmptyState();
+                    });
                 });
 
-                // 4. Initial Load (With a tiny safety delay)
+                var jobSearch = document.getElementById('jobSearch');
+                if (jobSearch) {
+                    jobSearch.addEventListener('input', function () {
+                        buildKeywordStatsFromJobs();
+                        updateSummaryAndEmptyState();
+                    });
+                }
+
+                var viewMode = document.getElementById('viewMode');
+                if (viewMode) viewMode.addEventListener('change', applyViewMode);
+
                 fetchPayScaleData();
                 fetchDepartmentData();
-                setTimeout(function() {
+                setTimeout(function () {
                     buildKeywordStatsFromJobs();
-                }, 500); 
+                    updateSummaryAndEmptyState();
+                    applyViewMode();
+                }, 200);
             });
 
+            window.jumpToPage = jumpToPage;
+            window.string2Map = string2Map;
+        })();
+
     </script>
+
     <style>
             .follow-fab {
                 top: -20px !important;
@@ -593,10 +672,35 @@
                 margin-top: 8px;
             }
 
-            .dept-chart-section {
-                margin-top: 24px;
-                padding-top: 24px;
-                border-top: 1px solid #e0e0e0;
+            .summary-metrics-row {
+                margin-top: 8px;
+            }
+
+            .summary-metric {
+                padding: 12px 8px;
+            }
+
+            .summary-label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                color: #616161;
+                text-transform: uppercase;
+            }
+
+            .summary-value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #1a237e;
+                margin-top: 4px;
+            }
+
+            .overview-card .input-field {
+                margin-top: 0;
+            }
+
+            .dept-chart-wrapper {
+                margin-top: 16px;
             }
 
     </style>
@@ -640,7 +744,61 @@
                     <div id="requestField"></div>
                     <div id="replyField"></div>
                 </div>
-                <div class="row pay-range-card">
+                <div class="row overview-card">
+                    <div class="col s12">
+                        <div class="card-panel">
+                            <div class="row">
+                                <div class="col s12 m8">
+                                    <h5>RA jobs overview</h5>
+                                    <p class="grey-text text-darken-1">
+                                        Quick stats, search, and visualization controls for all research assistant postings.
+                                    </p>
+                                </div>
+                                <div class="col s12 m4">
+                                    <div class="input-field">
+                                        <label for="jobSearch" class="active">Search jobs</label>
+                                        <input type="text" id="jobSearch" placeholder="Filter by keywords, skills, or departments" />
+                                    </div>
+                                    <div class="input-field">
+                                        <label for="viewMode" class="active">View mode</label>
+                                        <select id="viewMode" class="browser-default">
+                                            <option value="all">Show all</option>
+                                            <option value="pay">Pay overview</option>
+                                            <option value="dept">Departments</option>
+                                            <option value="keywords">Keywords</option>
+                                            <option value="summary">Summary only</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row summary-metrics-row">
+                                <div class="col s12 m4">
+                                    <div class="summary-metric card-panel grey lighten-4 center">
+                                        <div class="summary-label">Total jobs</div>
+                                        <div class="summary-value" id="summaryTotalJobs">@rajobs.size()</div>
+                                    </div>
+                                </div>
+                                <div class="col s12 m4">
+                                    <div class="summary-metric card-panel grey lighten-4 center">
+                                        <div class="summary-label">Departments hiring</div>
+                                        <div class="summary-value" id="summaryDeptCount">--</div>
+                                    </div>
+                                </div>
+                                <div class="col s12 m4">
+                                    <div class="summary-metric card-panel grey lighten-4 center">
+                                        <div class="summary-label">Average posted pay</div>
+                                        <div class="summary-value" id="summaryAvgPay">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="noJobsFoundMsg" class="red-text text-darken-2" style="display: none;">
+                                No jobs found for the current filters or search.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row pay-range-card" id="paySection">
                     <div class="col s12">
                         <div class="card-panel">
                             <div class="row">
@@ -683,31 +841,33 @@
                                         <button type="button" class="btn blue darken-1" id="exportPayBarChart" aria-label="Export pay scale bar chart image">Export bar chart</button>
                                         <button type="button" class="btn blue darken-1" id="exportPayPieChart" aria-label="Export pay scale pie chart image">Export pie chart</button>
                                     </div>
-
-                                </div>
-                                <!-- NEW DEPARTMENT CHART SECTION -->
-                                <div class="row dept-chart-section">
-                                    <div class="col s12">
-                                        <h5>Jobs by Department</h5>
-                                        <p class="grey-text text-darken-1 pay-range-description">
-                                            Distribution of RA job postings across different departments and labs.
-                                        </p>
-                                        <div class="row">
-                                            <div class="col s12">
-                                                <canvas id="deptBarChart" role="img" aria-label="Jobs by department bar chart" style="max-height: 400px;"></canvas>
-                                                <p id="deptChartFallback" class="grey-text text-darken-1" style="display: none;">Loading department data...</p>
-                                            </div>
-                                        </div>
-                                        <div style="margin-top: 16px;">
-                                            <button type="button" class="btn green darken-1" id="exportDeptBarChart" aria-label="Export department chart image">Export chart</button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
+
+                <div class="row dept-chart-wrapper" id="deptSection">
+                    <div class="col s12">
+                        <div class="card-panel">
+                            <h5>Jobs by Department</h5>
+                            <p class="grey-text text-darken-1 pay-range-description">
+                                Distribution of RA job postings across different departments and labs.
+                            </p>
+                            <div class="row">
+                                <div class="col s12">
+                                    <canvas id="deptBarChart" role="img" aria-label="Jobs by department bar chart" style="max-height: 400px;"></canvas>
+                                    <p id="deptChartFallback" class="grey-text text-darken-1" style="display: none;">Loading department data...</p>
+                                </div>
+                            </div>
+                            <div class="filter-actions">
+                                <button type="button" class="btn green darken-1" id="exportDeptBarChart" aria-label="Export department chart image">Export chart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="keywordSection">
                     <div class="col s12">
                       <div class="card-panel">
                         <h5>Top keywords</h5>
@@ -722,7 +882,7 @@
                         </p>
                       </div>
                     </div>
-                  </div>      
+                  </div>
                 <div class="row">
                     <div class="col s6">
                         <h6 class="left">Showing results: @{
