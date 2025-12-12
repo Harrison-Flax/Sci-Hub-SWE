@@ -11,6 +11,7 @@
 @import helper._;
 @import models._
 @import models.RAJob
+@import play.libs.Json
 
 @scripts = {
     <script type = "module" src='@routes.Assets.at("javascripts/voiceJump.js")'></script>
@@ -32,23 +33,15 @@
                 $("#nasaText").text(JSON.stringify(technologiesArray));
 
                 $('.tooltipped').tooltip();
-
-                // $("#speak-from-filter").click();
-                // $("#speak-nasa").click();
-                // $("#speak-from-filter").click();
-
             });
 
             function jumpToPage(pageNum, sort, searchString) {
-
                 pageNum =  parseInt(pageNum);
-
                 var url = "/rajob/searchPOST?pageNum=" + (pageNum) + "&sortCriteria=" + sort;
                 var form = $(document.createElement('form'));
                 $(form).attr("action", url);
                 $(form).attr("method", "POST");
                 $(form).css("display", "none");
-
 
                 var form_searchString = $("<input>")
                         .attr("type", "text")
@@ -86,6 +79,13 @@
                 flex-wrap: wrap;
                 margin-top: 8px;
             }
+
+            .dept-chart-section {
+                margin-top: 24px;
+                padding-top: 24px;
+                border-top: 1px solid #e0e0e0;
+            }
+
     </style>
 }
 
@@ -203,6 +203,22 @@
                     <div id="requestField"></div>
                     <div id="replyField"></div>
                 </div>
+                <div class="row">
+                    <div class="col s12">
+                      <div class="card-panel">
+                        <h5>Top keywords</h5>
+                        <p class="grey-text text-darken-1">
+                          Most common words in titles, fields, and descriptions for the RA jobs in this list.
+                        </p>
+                        <ul class="collection" id="keywordList"></ul>
+                        <p id="keywordEmpty"
+                           class="grey-text text-darken-1"
+                           style="display:none;">
+                          No keywords to display.
+                        </p>
+                      </div>
+                    </div>
+                  </div>      
                 <div class="row">
                     <div class="col s6">
                         <h6 class="left">Showing results: @{
@@ -622,7 +638,8 @@
                     <a href="#!" class="modal-close waves-effect waves-green btn-flat">
                         Cancel</a>
                 </div>
-            </div>
+            </div>        
+              
 
         </div>
     </div>
